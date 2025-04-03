@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/orderCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/colorBackground"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:strokeColor="@color/cardview_shadow_start_color"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header: Order ID & Status -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/textOrderId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Order: "
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorTextPrimary"/>
+
+            <TextView
+                android:id="@+id/textOrderStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:textSize="12sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/bg_status_pending"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="8dp"
+            android:background="@color/colorViolet"/>
+
+        <!-- User Information -->
+        <TextView
+            android:id="@+id/textUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="John Doe"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorTextPrimary"/>
+
+        <TextView
+            android:id="@+id/textContact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="+1 234 567 890"
+            android:textSize="14sp"
+            android:textColor="@color/colorTextSecondary"
+            android:layout_marginTop="2dp"/>
+
+        <TextView
+            android:id="@+id/textUserAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="123 Main St, City, Country"
+            android:textSize="14sp"
+            android:textColor="@color/colorTextSecondary"
+            android:layout_marginTop="4dp"/>
+
+        <!-- Shop Information -->
+        <TextView
+            android:id="@+id/textShopName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Shop: XYZ Store"
+            android:textSize="14sp"
+            android:textColor="@color/colorTextSecondary"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Order Date -->
+        <TextView
+            android:id="@+id/textOrderDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ordered on: 20 Mar 2024, 10:30 AM"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Items List -->
+        <TextView
+            android:id="@+id/textItemsList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="• Item 1 (2x)\n• Item 2 (1x)"
+            android:textSize="14sp"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginTop="12dp"/>
+
+        <!-- Rejection Reason (Hidden by default, shown only if status is Rejected) -->
+        <TextView
+            android:id="@+id/textRejectionReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rejection reason: Not available"
+            android:textSize="12sp"
+            android:textColor="@color/colorError"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"/>
+
+        <!-- Total Amount -->
+        <TextView
+            android:id="@+id/textTotalAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total: ₹1200"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            android:layout_marginTop="12dp"
+            android:gravity="end"/>
+
+        <!-- Action Buttons (Only Visible When Needed) -->
+        <LinearLayout
+            android:id="@+id/btnContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:gravity="end"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAcceptOrder"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Accept"
+                android:textColor="@color/colorGreen"
+                app:strokeColor="@color/colorGreen"
+                app:strokeWidth="1dp"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRejectOrder"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reject"
+                android:textColor="@color/colorRed"
+                app:strokeColor="@color/colorRed"
+                app:strokeWidth="1dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDeliverOrder"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deliver"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/colorGreen"
+                android:layout_marginStart="8dp"
+                android:visibility="gone"/>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

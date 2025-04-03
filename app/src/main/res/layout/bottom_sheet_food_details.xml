@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Food Name Header -->
+        <TextView
+            android:id="@+id/tvFoodName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:paddingBottom="16dp" />
+
+        <!-- Price Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Price (in currency)"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etFoodPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter food price"
+            android:inputType="numberDecimal"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Stock Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Available Stock"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etFoodStock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter available quantity in stock"
+            android:inputType="number"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Quantity Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Quantity per order"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etFoodQuantity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter default quantity per order"
+            android:inputType="number"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Weight Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Weight/Volume"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etFoodWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter weight (e.g., 500g) or volume"
+            android:inputType="text"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Category Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Food Category"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etFoodCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter food category (e.g., Main Course, Dessert)"
+            android:inputType="text"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/btnUpdateFood"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Update"
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btnClose"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:backgroundTint="@color/colorError"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

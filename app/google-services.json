@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "161520009409",
+    "project_id": "krishnafoods-aaac1",
+    "storage_bucket": "krishnafoods-aaac1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:161520009409:android:a585079d4d74669efe9440",
+        "android_client_info": {
+          "package_name": "com.example.foodorderingapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "161520009409-ijmd4iejtosnc86t4m8n67g6oibnijkk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.foodorderingapp",
+            "certificate_hash": "78a4e52dd6c6afa659fdbe7fcacd862b9145ae96"
+          }
+        },
+        {
+          "client_id": "161520009409-iaaodnfdede1qkrvhn62db8aeep6e42a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcFsxRyA0rFpDhdROVSPaJXyerknccpFk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "161520009409-iaaodnfdede1qkrvhn62db8aeep6e42a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

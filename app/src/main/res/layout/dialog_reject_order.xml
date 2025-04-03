@@ -1,0 +1,5 @@
+<EditText android:id="@+id/editRejectReason"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Enter rejection reason"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

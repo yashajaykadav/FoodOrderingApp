@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:elevation="2dp">
+
+    <!-- Order Date -->
+    <TextView
+        android:id="@+id/orderDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Order Date: 2025-03-19"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:paddingBottom="4dp"/>
+
+    <!-- Total Amount -->
+    <TextView
+        android:id="@+id/totalAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total: ₹0"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:paddingBottom="4dp"/>
+
+    <!-- Order Status -->
+    <TextView
+        android:id="@+id/orderStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status: Pending"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_blue_dark"
+        android:paddingBottom="6dp"/>
+
+    <!-- Order Items Details -->
+    <TextView
+        android:id="@+id/orderItems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Items: Pizza - Qty: 2 - ₹150"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        android:padding="8dp"
+        android:background="@android:color/background_light"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Rejection Reason (Only visible for rejected orders) -->
+    <TextView
+        android:id="@+id/rejectionReason"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reason: Order not available"
+        android:textSize="14sp"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="gone"
+        android:layout_marginTop="4dp"
+        android:padding="6dp"
+        android:background="@android:color/white"
+        android:elevation="2dp"/>
+
+    <!-- Button Container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:paddingTop="8dp">
+
+        <!-- Cancel Order Button -->
+        <Button
+            android:id="@+id/btnCancelOrder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel Order"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:textColor="@android:color/white"
+            android:visibility="visible"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:elevation="4dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/button_rounded_red"/>
+
+        <!-- Track Delivery Button -->
+        <Button
+            android:id="@+id/btnTrackDelivery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Track Delivery"
+            android:visibility="gone"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:elevation="4dp"
+            android:background="@drawable/button_rounded_blue"/>
+    </LinearLayout>
+
+</LinearLayout>

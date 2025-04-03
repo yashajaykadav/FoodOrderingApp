@@ -1,0 +1,127 @@
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/card_stroke"
+    app:strokeWidth="0.5dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Food Image with better styling -->
+        <ImageView
+            android:id="@+id/foodImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="@string/iteam_image"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/default_img"
+            android:background="@drawable/default_img"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="16dp"/>
+
+        <!-- Food Details with better spacing -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toEndOf="@id/foodImage"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnAddToCart">
+
+            <TextView
+                android:id="@+id/foodName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Food Name"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/foodCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Category"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/foodDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="Delicious food description with premium ingredients"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:id="@+id/foodWeight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="@color/text_secondary"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="500g"
+                    android:layout_marginEnd="8dp"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/foodPrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                android:text="@string/demo_price" />
+        </LinearLayout>
+
+        <!-- Add to Cart Button with icon -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddToCart"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:icon="@drawable/add"
+            app:iconTint="@color/colorPrimary"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:cornerRadius="20dp"
+            app:strokeColor="@color/colorPrimary"
+            app:strokeWidth="1dp"
+            android:backgroundTint="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

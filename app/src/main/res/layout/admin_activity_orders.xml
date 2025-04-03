@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/gray"
+    android:padding="16dp"
+    tools:context=".admin.activity.OrdersActivity">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Order Management"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorTextPrimary"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Filter Chips -->
+    <com.google.android.material.chip.ChipGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:singleSelection="true"
+        app:chipSpacing="8dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAll"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All"
+            app:chipBackgroundColor="@color/chip_selector"
+            app:checkedIconEnabled="false"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipPending"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pending"
+            app:chipBackgroundColor="@color/chip_selector"
+            app:checkedIconEnabled="false"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAccepted"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accepted"
+            app:chipBackgroundColor="@color/chip_selector"
+            app:checkedIconEnabled="false"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipRejected"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rejected"
+            app:chipBackgroundColor="@color/chip_selector"
+            app:checkedIconEnabled="false"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipDelivered"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delivered"
+            app:chipBackgroundColor="@color/chip_selector"
+            app:checkedIconEnabled="false"/>
+    </com.google.android.material.chip.ChipGroup>
+
+    <!-- Empty State (Shown when there are no orders) -->
+    <LinearLayout
+        android:id="@+id/emptyStateView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:padding="32dp">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_empty_orders"
+            app:tint="@color/empty_state_icon"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No orders found"
+            android:textSize="18sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- RecyclerView to Show Orders -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewOrders"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        tools:listitem="@layout/admin_item_order"/>
+</LinearLayout>

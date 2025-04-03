@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_admin_orders"
+        android:icon="@drawable/order"
+        android:title="@string/orders"/>
+    <item
+        android:id="@+id/nav_admin_feedback"
+        android:icon="@drawable/feedback"
+        android:title="@string/view_feedback"/>
+    <item
+        android:id="@+id/nav_admin_management"
+        android:icon="@drawable/manage"
+        android:title="@string/order_management"/>
+</menu>
