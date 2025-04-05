@@ -18,6 +18,7 @@ class FeedbackActivity : AppCompatActivity() {
     private var feedbackList = mutableListOf<Feedback>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_feedback)
 

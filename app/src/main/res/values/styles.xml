@@ -83,4 +83,8 @@
             <item name="backgroundTint">@android:color/holo_blue_light</item>
         </style>
 
+    <style name="ShapeAppearanceOverlay.CornerSmall" parent="">
+        <item name="cornerSize">8dp</item>
+    </style>
+
 </resources>

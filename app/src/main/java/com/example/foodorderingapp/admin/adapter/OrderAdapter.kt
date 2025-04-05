@@ -9,8 +9,11 @@ import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.example.foodorderingapp.R
 import com.example.foodorderingapp.admin.model.Order
+import com.example.foodorderingapp.user.viewmodel.FoodItem
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.*
 
 class OrderAdapter(
     private var orderList: MutableList<Order>,
@@ -19,9 +22,11 @@ class OrderAdapter(
 ) : RecyclerView.Adapter<OrderAdapter.OrderViewHolder>() {
 
     private val db = FirebaseFirestore.getInstance()
+    private val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.admin_item_order, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.admin_item_order, parent, false)
         return OrderViewHolder(view)
     }
 
@@ -47,35 +52,73 @@ class OrderAdapter(
         private val contact: TextView = view.findViewById(R.id.textContact)
         private val orderDate: TextView = view.findViewById(R.id.textOrderDate)
         private val itemsList: TextView = view.findViewById(R.id.textItemsList)
+        private val rejectionReason: TextView = view.findViewById(R.id.textRejectionReason)
         private val acceptButton: Button = view.findViewById(R.id.btnAcceptOrder)
         private val rejectButton: Button = view.findViewById(R.id.btnRejectOrder)
         private val deliverButton: Button = view.findViewById(R.id.btnDeliverOrder)
+        private val buttonContainer: View = view.findViewById(R.id.btnContainer)
         private val cardView: View = view.findViewById(R.id.orderCard)
 
         fun bind(order: Order) {
+            // Basic order info
             orderId.text = "Order ID: ${order.orderId}"
-            userName.text = "User: ${order.userName}"
-            shopName.text = "Shop: ${order.shopName}"
-            userAddress.text = "Address: ${order.userAddress}"
-            totalAmount.text = "Total: ₹${order.totalAmount}"
+            shopName.text = "Shop: ${order.shopName ?: "N/A"}"
+            totalAmount.text = "Total: ₹${String.format("%.2f", order.totalAmount.toDouble())}"
             orderStatus.text = "Status: ${order.status}"
-            contact.text = "Contact: ${order.contact}"
-            orderDate.text = "Date: ${order.orderDate}"
+            contact.text = "Contact: ${order.contact ?: "N/A"}"
+            orderDate.text = "Date: ${formatDate(order.orderDate)}"
 
-            // Display ordered items
-            itemsList.text = order.items.joinToString("\n") { "• ${it.name} (${it.quantity} × ₹${it.price})" }
+            // Initialize user info with loading state
+            userName.text = "User: Loading..."
+            userAddress.text = "Address: Loading..."
 
-            // Update UI based on status
+            // Fetch user details from Firestore
+            fetchUserDetails(order.userId) { name, address ->
+                userName.text = "User: ${name ?: "Unknown"}"
+                userAddress.text = "Address: ${address ?: "Not specified"}"
+            }
+
+            // Format items list
+            itemsList.text = formatItemsList(order.items)
+
+            // Handle rejection reason visibility
+            if (order.status == "Rejected" && !order.rejectionReason.isNullOrEmpty()) {
+                rejectionReason.visibility = View.VISIBLE
+                rejectionReason.text = "Reason: ${order.rejectionReason}"
+            } else {
+                rejectionReason.visibility = View.GONE
+            }
+
+            // Update button visibility based on status
             updateButtonVisibility(order.status)
+
+            // Set card color based on status
             setCardColor(order.status)
 
-            // Button click listeners
+            // Set click listeners
             acceptButton.setOnClickListener { updateOrderStatus(order, "Accepted") }
             rejectButton.setOnClickListener { showRejectDialog(order) }
             deliverButton.setOnClickListener { updateOrderStatus(order, "Delivered") }
         }
 
+        private fun formatDate(dateString: String): String {
+            return try {
+                val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(dateString)
+                date?.let { dateFormat.format(it) } ?: dateString
+            } catch (e: Exception) {
+                dateString
+            }
+        }
+
+        private fun formatItemsList(items: List<FoodItem>): String {
+            return items.joinToString("\n") { item ->
+                val totalPrice = item.price * item.quantity
+                "• ${item.name} (${item.quantity} × ₹${String.format("%.2f", item.price)}) = ₹${String.format("%.2f", totalPrice)}"
+            }
+        }
+
         private fun updateButtonVisibility(status: String) {
+            buttonContainer.visibility = View.VISIBLE
             acceptButton.visibility = if (status == "Pending") View.VISIBLE else View.GONE
             rejectButton.visibility = if (status == "Pending") View.VISIBLE else View.GONE
             deliverButton.visibility = if (status == "Accepted") View.VISIBLE else View.GONE
@@ -83,13 +126,34 @@ class OrderAdapter(
 
         private fun setCardColor(status: String) {
             val colorRes = when (status) {
-                "Pending" -> R.color.colorYellow
-                "Accepted" -> R.color.colorGreen
-                "Rejected" -> R.color.colorRed
-                "Delivered" -> R.color.card_blue
+                "Pending" -> R.color.lightYellow
+                "Accepted" -> R.color.lightBlue
+                "Rejected" -> R.color.lightRed
+                "Delivered" -> R.color.lightGreen
                 else -> R.color.card_default
             }
             cardView.setBackgroundColor(context.getColor(colorRes))
+        }
+
+        private fun fetchUserDetails(userId: String, callback: (String?, String?) -> Unit) {
+            if (userId.isBlank()) {
+                callback(null, null)
+                return
+            }
+
+            db.collection("users").document(userId).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val name = document.getString("name")
+                        val address = document.getString("address")
+                        callback(name, address)
+                    } else {
+                        callback(null, null)
+                    }
+                }
+                .addOnFailureListener {
+                    callback(null, null)
+                }
         }
     }
 
@@ -124,6 +188,7 @@ class OrderAdapter(
             .update(updateData)
             .addOnSuccessListener {
                 order.status = status
+                order.rejectionReason = rejectionReason
                 notifyItemChanged(orderList.indexOf(order))
                 onOrderUpdated()
                 showSnackbar("Order $status" + (rejectionReason?.let { ": $it" } ?: ""))

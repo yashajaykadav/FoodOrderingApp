@@ -42,11 +42,13 @@
             android:id="@+id/fabCart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="80dp"
             android:src="@drawable/chat"
             android:contentDescription="@string/enquiries"
-            android:layout_gravity="bottom|end"
-            app:backgroundTint="@color/colorPrimary" />
+            app:backgroundTint="@color/colorPrimary"
+            app:layout_anchor="@id/bottomNavigationView"
+            app:layout_anchorGravity="end" />
 
         <!-- Bottom Navigation View -->
         <com.google.android.material.bottomnavigation.BottomNavigationView

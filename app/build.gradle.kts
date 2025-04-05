@@ -43,6 +43,9 @@ dependencies {
     // Other dependencies
     implementation(libs.firebase.auth.ktx)
 
+    // Cloudinary for image uploads
+    implementation("com.cloudinary:cloudinary-android:2.3.1")
+
     implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.database.ktx)

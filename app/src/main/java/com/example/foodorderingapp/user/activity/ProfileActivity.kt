@@ -77,7 +77,7 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun setupButtonListeners() {
         backButton.setOnClickListener {
-            onBackPressed()
+            finish()
         }
 
         editProfileButton.setOnClickListener {
@@ -183,10 +183,5 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        finish()
     }
 }

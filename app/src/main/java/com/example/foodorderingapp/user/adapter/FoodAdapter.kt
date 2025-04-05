@@ -1,5 +1,6 @@
 package com.example.foodorderingapp.user.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +22,6 @@ class FoodAdapter(
         val foodImage: ImageView = view.findViewById(R.id.foodImage)
         val foodName: TextView = view.findViewById(R.id.foodName)
         val foodCategory: TextView = view.findViewById(R.id.foodCategory)
-//        val foodDescription: TextView = view.findViewById(R.id.foodDescription)
         val foodPrice: TextView = view.findViewById(R.id.foodPrice)
         val foodWeight: TextView = view.findViewById(R.id.foodWeight)
         val btnAddToCart: Button = view.findViewById(R.id.btnAddToCart)
@@ -35,20 +35,35 @@ class FoodAdapter(
     override fun onBindViewHolder(holder: FoodViewHolder, position: Int) {
         val foodItem = foodList[position]
 
-        // Set food details
         holder.foodName.text = foodItem.name
         holder.foodCategory.text = "Category: ${foodItem.category}"
-//        holder.foodDescription.text = foodItem.description
         holder.foodPrice.text = "₹${foodItem.price}"
         holder.foodWeight.text = "Weight: ${foodItem.weight}"
 
-        // ✅ Load images using Glide
-        Glide.with(holder.itemView.context)
-            .load(foodItem.imageUrl) // Ensure this is a valid URL
-            .apply(RequestOptions().placeholder(R.drawable.default_img).error(R.drawable.default_img))
-            .into(holder.foodImage)
+        val context = holder.itemView.context
+        val imageUrl = foodItem.imageUrl
 
-        // ✅ Add to cart button click
+        Log.d("FoodAdapter", "Image URL for '${foodItem.name}': $imageUrl")
+
+        // ✅ Safe image loading with Glide
+        if (!imageUrl.isNullOrBlank()) {
+            Glide.with(context)
+                .load(imageUrl)
+                .apply(
+                    RequestOptions()
+                        .placeholder(R.drawable.default_img)
+                        .error(R.drawable.default_img)
+                        .centerCrop()
+                        .dontAnimate()
+                        .override(80, 80) // Match ImageView dimensions
+                )
+                .into(holder.foodImage)
+        } else {
+            // Show default image if URL is invalid or missing
+            holder.foodImage.setImageResource(R.drawable.default_img)
+        }
+
+        // ✅ Handle Add to Cart button click
         holder.btnAddToCart.setOnClickListener {
             onAddToCartClick(foodItem)
         }
@@ -56,7 +71,7 @@ class FoodAdapter(
 
     override fun getItemCount() = foodList.size
 
-    // ✅ Function to update the list dynamically
+    // ✅ Update adapter data dynamically
     fun updateList(newList: List<FoodItem>) {
         foodList.clear()
         foodList.addAll(newList)

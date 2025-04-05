@@ -29,6 +29,7 @@ class OrderDetailsActivity : AppCompatActivity() {
     private lateinit var orderId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_order_details)
 

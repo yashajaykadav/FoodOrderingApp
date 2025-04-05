@@ -30,6 +30,7 @@ class OrdersActivity : AppCompatActivity() {
     private lateinit var chipDelivered: Chip
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_orders)
 
@@ -101,7 +102,7 @@ class OrdersActivity : AppCompatActivity() {
                     orderId = doc.id,
                     userName = doc.getString("userName") ?: "",
                     shopName = doc.getString("shopName") ?: "",
-                    userAddress = doc.getString("userAddress") ?: "",
+                    address = doc.getString("userAddress") ?: "",
                     totalAmount = doc.get("totalAmount") as? Int ?: 0,
                     status = doc.getString("status") ?: "Pending",
                     contact = doc.getString("contact") ?: "",

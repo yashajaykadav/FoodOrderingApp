@@ -21,6 +21,7 @@ class AdminEnquiryActivity : AppCompatActivity() {
     private val userCache = mutableMapOf<String, String>() // 🔥 Cache for usernames
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_enquiry)
 

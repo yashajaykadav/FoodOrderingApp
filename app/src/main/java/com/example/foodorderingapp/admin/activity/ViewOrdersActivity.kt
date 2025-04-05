@@ -20,6 +20,7 @@ class ViewOrdersActivity : AppCompatActivity() {
     private var ordersList = mutableListOf<Order>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_view_orders)
 
@@ -42,7 +43,7 @@ class ViewOrdersActivity : AppCompatActivity() {
                     totalAmount = doc.getDouble("totalAmount")?.toInt() ?: 0,  // ✅ Convert Double to Int
                     status = doc.getString("status") ?: "Pending",
                     userId = doc.getString("userId") ?: "N/A",
-                    userAddress = doc.getString("address") ?: "No Address",
+                    address = doc.getString("address") ?: "No Address",
                     contact = doc.getString("contact") ?: "No Contact",
                     orderDate = doc.getString("orderDate") ?: "No Date",
                     items = try {

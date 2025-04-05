@@ -79,5 +79,16 @@
         <!-- Empty State -->
         <color name="empty_state_icon">#BDBDBD</color>
 
+    <color name="colorPending">#FFF9C4</color> <!-- Light Yellow -->
+    <color name="colorAccepted">#C8E6C9</color> <!-- Light Green -->
+    <color name="colorRejected">#FFCDD2</color> <!-- Light Red -->
+    <color name="colorDelivered">#BBDEFB</color> <!-- Light Blue -->
+
+    <color name="lightYellow">#FFF9C4</color>
+    <color name="lightBlue">#BBDEFB</color>
+    <color name="lightRed">#FFCDD2</color>
+    <color name="lightGreen">#C8E6C9</color>
+
+
 
 </resources>

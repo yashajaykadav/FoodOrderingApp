@@ -20,6 +20,7 @@ class DeliveredOrdersActivity : AppCompatActivity() {
     private var ordersList = mutableListOf<Order>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_delivered_orders)
 
@@ -44,14 +45,10 @@ class DeliveredOrdersActivity : AppCompatActivity() {
                     val order = Order(
                         orderId = doc.id,
                         shopName = doc.getString("shopName") ?: "Unknown",
-                        totalAmount = when (val amount = doc.get("totalAmount")) {
-                            is Long -> amount.toInt()
-                            is Double -> amount.toInt()
-                            else -> 0
-                        }, // ✅ Convert totalAmount properly
+                        totalAmount = doc.get("totalAmount").toString().toInt(), // ✅ Convert totalAmount properly
                         status = doc.getString("status") ?: "Delivered",
                         userId = doc.getString("userId") ?: "N/A",
-                        userAddress = doc.getString("address") ?: "No Address",
+                        address = doc.getString("address") ?: "No Address",
                         contact = doc.getString("contact") ?: "No Contact",
                         orderDate = doc.getString("orderDate") ?: "No Date",
                         items = try {

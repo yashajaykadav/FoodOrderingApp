@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 class AdminSettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_settings)
 
