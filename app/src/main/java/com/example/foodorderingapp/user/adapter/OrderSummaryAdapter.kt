@@ -17,6 +17,7 @@ class OrderSummaryAdapter(private val cartItems: List<FoodItem>) :
         val foodName: TextView = view.findViewById(R.id.foodName)
         val foodPrice: TextView = view.findViewById(R.id.foodPrice)
         val quantityText: TextView = view.findViewById(R.id.quantityText)
+        val weightText: TextView = view.findViewById(R.id.weightText) // ✅ NEW
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderSummaryViewHolder {
@@ -30,6 +31,7 @@ class OrderSummaryAdapter(private val cartItems: List<FoodItem>) :
         holder.foodName.text = foodItem.name
         holder.foodPrice.text = "₹${foodItem.price * foodItem.quantity}"
         holder.quantityText.text = "Qty: ${foodItem.quantity}"
+        holder.weightText.text = "Weight: ${foodItem.weight}" // ✅ Set weight
 //        holder.foodImage.setImageResource(foodItem.imageRes)
     }
 

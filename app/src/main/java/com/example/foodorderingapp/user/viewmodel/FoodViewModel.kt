@@ -11,9 +11,18 @@ class FoodViewModel : ViewModel() {
     private val _foodItems = MutableLiveData<List<FoodItem>>()
     val foodItems: LiveData<List<FoodItem>> get() = _foodItems
 
+    private val _categories = MutableLiveData<List<String>>()  // ✅ Store categories
+    val categories: LiveData<List<String>> get() = _categories
+
     fun fetchFoodItems() {
         repository.getFoodItems { foodList ->
             _foodItems.value = foodList
+        }
+    }
+
+    fun fetchCategories() {
+        repository.getCategories { categoryList ->
+            _categories.value = categoryList
         }
     }
 }

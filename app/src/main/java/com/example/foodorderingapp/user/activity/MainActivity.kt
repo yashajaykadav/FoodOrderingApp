@@ -3,11 +3,14 @@ package com.example.foodorderingapp.user.activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.example.foodorderingapp.R
 import com.example.foodorderingapp.admin.activity.AdminMainActivity
 import com.example.foodorderingapp.user.util.ViewPagerAdapter
@@ -17,6 +20,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
@@ -30,13 +34,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var fabCart: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // ✅ Force Light Mode only
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.user_activity_main)
 
-        // Initialize Firebase Auth
+        // ✅ Firebase Auth
         firebaseAuth = FirebaseAuth.getInstance()
 
-        // Initialize UI elements
+        // ✅ Find views
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
         topAppBar = findViewById(R.id.topAppBar)
         viewPager = findViewById(R.id.viewPager)
@@ -44,21 +50,14 @@ class MainActivity : AppCompatActivity() {
         navigationView = findViewById(R.id.navigationView)
         fabCart = findViewById(R.id.fabCart)
 
-        checkUserRole() // 🔐 Hide Admin Dashboard for non-admins
+        // ✅ Set up drawer header UI (Image + Name)
+        setupDrawerHeader()
 
-        // ✅ Setup Badge for Cart
-        setupCartBadge()
-
-        // ✅ Open Drawer when clicking Navigation Icon
-        topAppBar.setNavigationOnClickListener {
-            drawerLayout.openDrawer(GravityCompat.START)
-        }
-
-        // ✅ Set up ViewPager for Swipe Navigation
+        // ✅ Setup ViewPager
         val adapter = ViewPagerAdapter(this)
         viewPager.adapter = adapter
 
-        // ✅ Sync ViewPager with Bottom Navigation
+        // ✅ Bottom nav -> ViewPager
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_menu -> viewPager.setCurrentItem(0, true)
@@ -68,36 +67,64 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        // ✅ Sync Bottom Navigation with ViewPager Swiping
+        // ✅ Swipe -> Bottom nav
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 bottomNavigationView.menu.getItem(position).isChecked = true
             }
         })
 
-        // ✅ Handle Navigation Drawer Item Clicks (with delay to prevent multiple taps)
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            drawerLayout.closeDrawers()
-            navigationView.postDelayed({
-                handleNavigationClick(menuItem.itemId)
-            }, 250) // Small delay to avoid quick multiple clicks
-            true
-        }
-
-// ✅ Floating Action Button Click Listener (Navigate to User Enquiry Activity)
+        // ✅ Cart FAB
         fabCart.setOnClickListener {
-            val intent = Intent(this, UserEnquiryActivity::class.java) // 🔥 Redirect user to their Enquiry page
+            val intent = Intent(this, UserEnquiryActivity::class.java)
             startActivity(intent)
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
 
+        // ✅ Navigation drawer toggle
+        topAppBar.setNavigationOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        // ✅ Handle nav drawer item clicks
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            drawerLayout.closeDrawers()
+            navigationView.postDelayed({
+                handleNavigationClick(menuItem.itemId)
+            }, 250)
+            true
+        }
+
+        // ✅ Show cart badge
+        setupCartBadge()
+
+        // ✅ Check role (admin or not)
+        checkUserRole()
     }
 
-    // ✅ Update Cart Badge
+    // ✅ Drawer header logic
+    private fun setupDrawerHeader() {
+        val headerView = navigationView.getHeaderView(0)
+        val profileImage: ImageView = headerView.findViewById(R.id.profileImage)
+        val userName: TextView = headerView.findViewById(R.id.userName)
+
+        val user: FirebaseUser? = firebaseAuth.currentUser
+        if (user != null) {
+            userName.text = user.displayName ?: "Guest User"
+
+            user.photoUrl?.let { photoUri ->
+                Glide.with(this)
+                    .load(photoUri)
+                    .placeholder(R.drawable.user)
+                    .into(profileImage)
+            }
+        }
+    }
+
     private fun setupCartBadge() {
         val badge: BadgeDrawable = bottomNavigationView.getOrCreateBadge(R.id.nav_cart)
         badge.isVisible = true
-        badge.number = 0 // Example count, update dynamically
+        badge.number = 0 // Later update based on cart size
     }
 
     private fun handleNavigationClick(itemId: Int) {
@@ -105,33 +132,16 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_profile -> startActivity(Intent(this, ProfileActivity::class.java))
             R.id.nav_settings -> Toast.makeText(this, "Settings Clicked", Toast.LENGTH_SHORT).show()
             R.id.nav_logout -> showLogoutConfirmation()
-            R.id.nav_admin_dashboard -> checkAdminAccess() // 🔐 Check before opening admin panel
+            R.id.nav_admin_dashboard -> checkAdminAccess()
         }
     }
-    private fun checkUserRole() {
-        val userId = firebaseAuth.currentUser?.uid
-        if (userId.isNullOrEmpty()) {
-            return
-        }
 
-        FirebaseFirestore.getInstance().collection("users").document(userId)
-            .get()
-            .addOnSuccessListener { document ->
-                val role = document.getString("role") ?: "user"
-                val menu = navigationView.menu
-                menu.findItem(R.id.nav_admin_dashboard).isVisible = (role == "admin")
-            }
-    }
-
-    // ✅ Improved Logout Handling
     private fun showLogoutConfirmation() {
         AlertDialog.Builder(this)
             .setTitle("Logout")
             .setMessage("Are you sure you want to log out?")
             .setPositiveButton("Yes") { _, _ ->
                 firebaseAuth.signOut()
-
-                // Redirect to LoginActivity
                 val intent = Intent(this, LoginActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
@@ -140,13 +150,13 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("Cancel", null)
             .show()
     }
+
     private fun checkAdminAccess() {
         val userId = firebaseAuth.currentUser?.uid ?: return
 
         FirebaseFirestore.getInstance().collection("users").document(userId).get()
             .addOnSuccessListener { document ->
                 val role = document.getString("role") ?: "user"
-
                 if (role == "admin") {
                     startActivity(Intent(this, AdminMainActivity::class.java))
                 } else {
@@ -158,5 +168,15 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    private fun checkUserRole() {
+        val userId = firebaseAuth.currentUser?.uid ?: return
 
+        FirebaseFirestore.getInstance().collection("users").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                val role = document.getString("role") ?: "user"
+                val menu = navigationView.menu
+                menu.findItem(R.id.nav_admin_dashboard).isVisible = (role == "admin")
+            }
+    }
 }

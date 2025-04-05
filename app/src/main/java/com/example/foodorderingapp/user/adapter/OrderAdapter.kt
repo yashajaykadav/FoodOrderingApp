@@ -1,26 +1,28 @@
 package com.example.foodorderingapp.user.adapter
 
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.foodorderingapp.R
 import com.example.foodorderingapp.user.util.OrderDiffCallback
 import com.example.foodorderingapp.user.viewmodel.OrderItem
+import com.google.firebase.firestore.FirebaseFirestore
 
 class OrderAdapter(
     private var orders: List<OrderItem>,
-    private val onCancelClick: (OrderItem) -> Unit
+    private val onCancelClick: (OrderItem) -> Unit,
+    private val onTrackClick: (OrderItem) -> Unit
 ) : RecyclerView.Adapter<OrderAdapter.OrderViewHolder>() {
+
 
     inner class OrderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val orderDate: TextView = view.findViewById(R.id.orderDate)
         val totalAmount: TextView = view.findViewById(R.id.totalAmount)
-        val orderItems: TextView = view.findViewById(R.id.orderItems)
+        val orderItemsContainer: LinearLayout = view.findViewById(R.id.orderItemsContainer)
         val orderStatus: TextView = view.findViewById(R.id.orderStatus)
         val rejectionReason: TextView = view.findViewById(R.id.rejectionReason)
         val btnCancelOrder: Button = view.findViewById(R.id.btnCancelOrder)
@@ -35,22 +37,61 @@ class OrderAdapter(
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
         val order = orders[position]
 
-        // ✅ Ensure `orderDate` is properly formatted
         holder.orderDate.text = "Order Date: ${order.orderDate.ifBlank { "N/A" }}"
-
         holder.totalAmount.text = "Total: ₹${order.totalAmount}"
-        holder.orderStatus.text = "Status: ${order.status}"
+        holder.orderStatus.text = "Status: ${order.status.ifBlank { "Pending" }}"
 
-        // ✅ Display item details safely
-        val itemsFormatted = order.items.joinToString("\n") { item ->
-            val itemName = item["name"]?.toString() ?: "Unknown Item"
+        // Clear old views (keep header row at index 0)
+        holder.orderItemsContainer.removeViews(1, holder.orderItemsContainer.childCount - 1)
+
+        order.items.forEach { item ->
+            val itemName = item["name"]?.toString() ?: "Unknown"
             val quantity = item["quantity"]?.toString() ?: "1"
             val weight = item["weight"]?.toString() ?: "N/A"
-            "$itemName - Qty: $quantity - $weight"
-        }
-        holder.orderItems.text = itemsFormatted.ifBlank { "No items found" }
+            val price = item["price"]?.toString() ?: "0.0"
 
-        // ✅ Show rejection reason only if the order is rejected
+            val row = LinearLayout(holder.itemView.context).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(0, 8, 0, 8)
+            }
+
+            val nameView = TextView(holder.itemView.context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)
+                text = itemName
+            }
+
+            val qtyView = TextView(holder.itemView.context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                text = quantity
+                gravity = Gravity.CENTER
+            }
+
+            val weightView = TextView(holder.itemView.context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                text = weight
+                gravity = Gravity.CENTER
+            }
+
+            val priceView = TextView(holder.itemView.context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                text = price
+                gravity = Gravity.END
+            }
+
+            row.addView(nameView)
+            row.addView(qtyView)
+            row.addView(weightView)
+            row.addView(priceView)
+
+            holder.orderItemsContainer.addView(row)
+        }
+
+
+        // Rejection reason
         if (order.status == "Rejected") {
             holder.rejectionReason.visibility = View.VISIBLE
             holder.rejectionReason.text = "Reason: ${order.rejectionReason ?: "No reason provided"}"
@@ -58,27 +99,23 @@ class OrderAdapter(
             holder.rejectionReason.visibility = View.GONE
         }
 
-        // ✅ Optimize button visibility logic
+        // Cancel button only visible if Pending
         holder.btnCancelOrder.apply {
-            visibility = if (order.status == "Pending") View.VISIBLE else View.GONE
+            visibility = if (order.status.equals("Pending", true)) View.VISIBLE else View.GONE
             setOnClickListener { onCancelClick(order) }
         }
 
-        holder.btnTrackDelivery.apply {
-            visibility = if (order.status == "Accepted") View.VISIBLE else View.GONE
-            setOnClickListener {
-                Toast.makeText(holder.itemView.context, "Tracking coming soon...", Toast.LENGTH_SHORT).show()
-            }
+        // Track Delivery button
+        holder.btnTrackDelivery.setOnClickListener {
+            onTrackClick(order)
         }
     }
 
-    override fun getItemCount() = orders.size
+    override fun getItemCount(): Int = orders.size
 
-    // ✅ Efficiently updates the list using DiffUtil
     fun updateOrders(newOrders: List<OrderItem>) {
         val diffCallback = OrderDiffCallback(orders, newOrders)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
-
         orders = newOrders
         diffResult.dispatchUpdatesTo(this)
     }

@@ -22,7 +22,7 @@ class OrderConfirmationActivity : AppCompatActivity() {
     private lateinit var btnConfirmOrder: Button
     private lateinit var progressBar: ProgressBar
     private lateinit var totalAmountText: TextView
-    private lateinit var btnBack: ImageButton // Added Back Button
+    private lateinit var btnBack: ImageButton
 
     private val db = FirebaseFirestore.getInstance()
 
@@ -42,7 +42,7 @@ class OrderConfirmationActivity : AppCompatActivity() {
         val cartItems = CartManager.getCartItems()
         if (cartItems.isEmpty()) {
             Toast.makeText(this, "Cart is empty!", Toast.LENGTH_SHORT).show()
-            finish() // Exit Activity if Cart is Empty
+            finish()
             return
         }
 
@@ -50,14 +50,14 @@ class OrderConfirmationActivity : AppCompatActivity() {
         recyclerViewOrder.layoutManager = LinearLayoutManager(this)
         recyclerViewOrder.adapter = orderAdapter
 
-        // Calculate Total Amount
         val totalAmount = cartItems.sumOf { it.price * it.quantity }
-        totalAmountText.text = "Total: ₹$totalAmount" // Updated Text Format
+        totalAmountText.text = "Total: ₹$totalAmount"
 
         btnConfirmOrder.setOnClickListener {
             checkUserProfileBeforeOrder(cartItems, totalAmount)
         }
     }
+
     private fun checkUserProfileBeforeOrder(cartItems: List<FoodItem>, totalAmount: Int) {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         val userRef = db.collection("users").document(user.uid)
@@ -88,7 +88,6 @@ class OrderConfirmationActivity : AppCompatActivity() {
             }
     }
 
-
     private fun saveOrderToFirestore(cartItems: List<FoodItem>, totalAmount: Int) {
         btnConfirmOrder.isEnabled = false
         progressBar.visibility = View.VISIBLE
@@ -105,35 +104,39 @@ class OrderConfirmationActivity : AppCompatActivity() {
         userRef.get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    // ✅ Get user info
                     val userInfo = document.data ?: return@addOnSuccessListener
                     val contact = userInfo["contact"] as? String ?: ""
                     val shopName = userInfo["shopName"] as? String ?: ""
                     val address = userInfo["address"] as? String ?: ""
 
                     if (contact.isEmpty() || shopName.isEmpty() || address.isEmpty()) {
-                        // ❌ User profile is incomplete → Navigate to PersonalInfoActivity
                         Toast.makeText(this, "Complete your profile before ordering!", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, ProfileSetupActivity::class.java))
                         finish()
                         return@addOnSuccessListener
                     }
 
-                    // ✅ Store order with user details
                     val orderData = hashMapOf(
                         "userId" to user.uid,
                         "contact" to contact,
                         "shopName" to shopName,
                         "address" to address,
-                        "items" to cartItems.map { mapOf("name" to it.name, "price" to it.price, "quantity" to it.quantity) },
+                        "items" to cartItems.map {
+                            mapOf(
+                                "id" to it.id,
+                                "name" to it.name,
+                                "price" to it.price,
+                                "quantity" to it.quantity,
+                                "weight" to it.weight
+                            )
+                        },
                         "totalAmount" to totalAmount,
                         "orderDate" to SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
                     )
 
                     db.collection("orders").add(orderData)
                         .addOnSuccessListener {
-//                            Toast.makeText(this, "Order placed successfully!", Toast.LENGTH_SHORT).show()
-                            CartManager.clearCart() // ✅ Clear cart after successful order
+                            CartManager.clearCart()
                             startActivity(Intent(this, OrderSuccessActivity::class.java))
                             finish()
                         }
@@ -144,7 +147,6 @@ class OrderConfirmationActivity : AppCompatActivity() {
                         }
 
                 } else {
-                    // ❌ No user info found → Navigate to PersonalInfoActivity
                     Toast.makeText(this, "Please complete your profile before ordering!", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, ProfileSetupActivity::class.java))
                     finish()
@@ -156,5 +158,4 @@ class OrderConfirmationActivity : AppCompatActivity() {
                 progressBar.visibility = View.GONE
             }
     }
-
 }

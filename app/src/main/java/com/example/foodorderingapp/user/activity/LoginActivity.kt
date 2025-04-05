@@ -34,36 +34,35 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        val logo = findViewById<ImageView>(R.id.logo)
 
+        val logo = findViewById<ImageView>(R.id.logo)
         val scaleUp = AnimationUtils.loadAnimation(this, R.anim.scale_up)
         val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
         val slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_up)
 
-        val animationSet = AnimationSet(true)
-        animationSet.addAnimation(scaleUp)
-        animationSet.addAnimation(fadeIn)
-        animationSet.addAnimation(slideUp)
-        animationSet.duration = 1500
+        val animationSet = AnimationSet(true).apply {
+            addAnimation(scaleUp)
+            addAnimation(fadeIn)
+            addAnimation(slideUp)
+            duration = 1500
+        }
 
         Handler(Looper.getMainLooper()).postDelayed({
             logo.startAnimation(animationSet)
         }, 500)
 
-        // Initialize Firebase and Firestore
         firebaseAuth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
         progressBar = findViewById(R.id.progressBar)
 
-        // Check if the user is already logged in
         firebaseAuth.currentUser?.let {
             checkUserInFirestore(it)
             return
         }
 
-        // Initialize Google Identity Services
         signInClient = Identity.getSignInClient(this)
 
         val signInRequest = BeginSignInRequest.builder()
@@ -71,12 +70,11 @@ class LoginActivity : AppCompatActivity() {
                 BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                     .setSupported(true)
                     .setServerClientId(getString(R.string.default_web_client_id))
-                    .setFilterByAuthorizedAccounts(false) // Allow new accounts
+                    .setFilterByAuthorizedAccounts(false)
                     .build()
             )
             .build()
 
-        // Set up Google Sign-In button
         findViewById<Button>(R.id.btnGoogleSignIn).setOnClickListener {
             showLoading(true)
             signInClient.beginSignIn(signInRequest)
@@ -93,7 +91,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // Handle Sign-In Result
     private val googleSignInLauncher =
         registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             showLoading(false)
@@ -134,34 +131,34 @@ class LoginActivity : AppCompatActivity() {
                 val shopName = document.getString("shopName")
                 val contact = document.getString("contact")
                 val address = document.getString("address")
-                val role = document.getString("role") ?: "user" // Default to "user" if role is missing
+                val role = document.getString("role") ?: "user"
 
                 if (email.isNullOrEmpty() || shopName.isNullOrEmpty() || contact.isNullOrEmpty() || address.isNullOrEmpty()) {
                     navigateToProfileSetup(user)
                 } else {
                     navigateBasedOnRole(role)
                 }
-            } else {
-                // ✅ New user - Assign default role "user" unless it's an admin email
-                val isAdmin = user.email == "admin@example.com" // Change to actual admin emails
-                val userRole = if (isAdmin) "admin" else "user"
 
+            } else {
+                // ✅ New user: Save all data including Google photo URL
                 val newUser = hashMapOf(
                     "email" to (user.email ?: ""),
-                    "role" to userRole,
+                    "role" to "user",
                     "shopName" to "",
                     "contact" to "",
                     "address" to "",
+                    "photoUrl" to (user.photoUrl?.toString() ?: ""),
                     "createdAt" to System.currentTimeMillis()
                 )
 
                 userRef.set(newUser).addOnSuccessListener {
-                    navigateBasedOnRole(userRole)
+                    navigateToProfileSetup(user)
                 }.addOnFailureListener { e ->
-                    Log.e("Firestore", "Error saving user", e)
+                    Log.e("Firestore", "Error saving new user", e)
                     Toast.makeText(this, "Failed to save user data!", Toast.LENGTH_SHORT).show()
                 }
             }
+
         }.addOnFailureListener { e ->
             Log.e("Firestore", "Error checking user", e)
             Toast.makeText(this, "Failed to check user data!", Toast.LENGTH_SHORT).show()
@@ -180,13 +177,13 @@ class LoginActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+
     private fun navigateBasedOnRole(role: String) {
         if (role == "admin") {
             startActivity(Intent(this, AdminMainActivity::class.java))
         } else {
             startActivity(Intent(this, MainActivity::class.java))
         }
-        finish() // Close LoginActivity
+        finish()
     }
-
 }

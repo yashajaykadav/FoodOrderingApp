@@ -18,6 +18,7 @@ class AddItemActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_add_item)
 

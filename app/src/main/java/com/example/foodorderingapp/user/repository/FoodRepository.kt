@@ -9,15 +9,17 @@ class FoodRepository {
     fun getFoodItems(onResult: (List<FoodItem>) -> Unit) {
         db.collection("foods").get()
             .addOnSuccessListener { result ->
-                val foodList = mutableListOf<FoodItem>()
-                for (document in result) {
-                    val food = document.toObject(FoodItem::class.java)
-                    foodList.add(food)
-                }
+                val foodList = result.documents.mapNotNull { it.toObject(FoodItem::class.java) }
                 onResult(foodList)
             }
-            .addOnFailureListener {
-                onResult(emptyList())  // Handle failure
+    }
+
+    fun getCategories(onResult: (List<String>) -> Unit) {
+        db.collection("foods").get()
+            .addOnSuccessListener { result ->
+                val categories = result.documents.mapNotNull { it.getString("category") }
+                    .distinct() // ✅ Get unique categories
+                onResult(categories)
             }
     }
 }

@@ -16,13 +16,16 @@ import com.example.foodorderingapp.user.adapter.OrderAdapter
 import com.example.foodorderingapp.user.viewmodel.OrderItem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 
 class OrdersFragment : Fragment() {
+
     private lateinit var orderAdapter: OrderAdapter
     private lateinit var recyclerViewOrders: RecyclerView
     private lateinit var progressBarOrders: ProgressBar
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var txtEmptyState: TextView
+
     private val db = FirebaseFirestore.getInstance()
     private val userId = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -37,73 +40,75 @@ class OrdersFragment : Fragment() {
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
         txtEmptyState = view.findViewById(R.id.txtEmptyState)
 
-        // Initialize RecyclerView
-        recyclerViewOrders.layoutManager = LinearLayoutManager(requireContext())
-        orderAdapter = OrderAdapter(mutableListOf()) { order ->
-            cancelOrder(order)
-        }
-        recyclerViewOrders.adapter = orderAdapter
+        setupRecyclerView()
 
-        // Load orders in real-time
-        listenForOrderUpdates()
-
-        // Handle pull-to-refresh
         swipeRefreshLayout.setOnRefreshListener {
             listenForOrderUpdates()
         }
 
+        listenForOrderUpdates()
+
         return view
     }
 
+    private fun setupRecyclerView() {
+        recyclerViewOrders.layoutManager = LinearLayoutManager(requireContext())
+        orderAdapter = OrderAdapter(
+            orders = emptyList(),
+            onCancelClick = { order -> cancelOrder(order) },
+            onTrackClick = { order ->
+                Toast.makeText(requireContext(), "Tracking for ${order.id} coming soon!", Toast.LENGTH_SHORT).show()
+            }
+        )
+        recyclerViewOrders.adapter = orderAdapter
+    }
+
     private fun listenForOrderUpdates() {
-        if (userId == null) return
+        if (userId == null) {
+            Toast.makeText(requireContext(), "User not authenticated", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         progressBarOrders.visibility = View.VISIBLE
+        txtEmptyState.visibility = View.GONE
+        recyclerViewOrders.visibility = View.GONE
+
         db.collection("orders")
             .whereEqualTo("userId", userId)
-            .orderBy("orderDate", com.google.firebase.firestore.Query.Direction.DESCENDING) // ✅ Sort by latest first
+            .orderBy("orderDate", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
+                progressBarOrders.visibility = View.GONE
+                swipeRefreshLayout.isRefreshing = false
+
                 if (error != null) {
-                    progressBarOrders.visibility = View.GONE
-                    swipeRefreshLayout.isRefreshing = false
                     Toast.makeText(requireContext(), "Error loading orders", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
-                if (snapshot != null) {
-                    val newOrders = snapshot.documents.map { doc ->
-                        val order = doc.toObject(OrderItem::class.java)
-                        order?.id = doc.id // Store Firestore Document ID
-                        order
-                    }.filterNotNull()
+                val newOrders = snapshot?.documents?.mapNotNull { doc ->
+                    OrderItem.fromDocument(doc) // ✅ safer deserialization
+                } ?: emptyList()
 
-                    progressBarOrders.visibility = View.GONE
-                    swipeRefreshLayout.isRefreshing = false
-                    orderAdapter.updateOrders(newOrders)
-
-                    // ✅ Show empty state if no orders exist
-                    if (newOrders.isEmpty()) {
-                        recyclerViewOrders.visibility = View.GONE
-                        txtEmptyState.visibility = View.VISIBLE
-                    } else {
-                        recyclerViewOrders.visibility = View.VISIBLE
-                        txtEmptyState.visibility = View.GONE
-                    }
+                if (newOrders.isEmpty()) {
+                    recyclerViewOrders.visibility = View.GONE
+                    txtEmptyState.visibility = View.VISIBLE
+                } else {
+                    recyclerViewOrders.visibility = View.VISIBLE
+                    txtEmptyState.visibility = View.GONE
                 }
+
+                orderAdapter.updateOrders(newOrders)
             }
     }
 
-
-    // ✅ Allow users to cancel orders, but NOT if status is "Accepted"
     private fun cancelOrder(order: OrderItem) {
-        if (order.status == "Accepted") {
-            Toast.makeText(requireContext(), "Cannot cancel an accepted order!", Toast.LENGTH_SHORT).show()
+        if (!order.status.equals("Pending", ignoreCase = true)) {
+            Toast.makeText(requireContext(), "Only pending orders can be cancelled.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val orderRef = FirebaseFirestore.getInstance().collection("orders").document(order.id)
-
-        orderRef.update("status", "Cancelled")
+        db.collection("orders").document(order.id)
+            .update("status", "Cancelled")
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Order Cancelled", Toast.LENGTH_SHORT).show()
             }

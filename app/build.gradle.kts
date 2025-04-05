@@ -39,10 +39,10 @@ android {
 dependencies {
     // ✅ Latest Firebase BOM
     implementation(platform("com.google.firebase:firebase-bom:32.2.2"))
-    // ✅ Use a stable Play Services Auth version
 
     // Other dependencies
     implementation(libs.firebase.auth.ktx)
+
     implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.database.ktx)
@@ -57,7 +57,6 @@ dependencies {
     implementation(libs.androidx.activity)
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     implementation(libs.lottie)
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

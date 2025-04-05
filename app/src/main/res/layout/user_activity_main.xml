@@ -11,32 +11,33 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- AppBarLayout for Toolbar (Top Navigation) -->
+        <!-- AppBarLayout for Toolbar -->
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary">
+            android:background="?attr/colorPrimary"
+            android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/topAppBar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
                 app:title="@string/krushna_foods"
                 app:titleTextColor="@android:color/white"
                 app:titleMarginStart="60dp"
-                app:navigationIcon="@drawable/menu" />  <!-- ✅ Added drawer icon -->
+                app:navigationIcon="@drawable/ic_user"/>
         </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- ViewPager2 for Swiping Between Fragments -->
-
-        <!-- Floating Action Button for Cart -->
+        <!-- ViewPager2 Below Toolbar -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="56dp" />
+            android:layout_marginBottom="56dp"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+        <!-- Floating Action Button for Enquiry -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabCart"
             android:layout_width="wrap_content"
@@ -44,8 +45,7 @@
             android:layout_margin="10dp"
             android:src="@drawable/chat"
             android:contentDescription="@string/enquiries"
-            app:layout_anchor="@id/bottomNavigationView"
-            app:layout_anchorGravity="top|end"
+            android:layout_gravity="bottom|end"
             app:backgroundTint="@color/colorPrimary" />
 
         <!-- Bottom Navigation View -->
@@ -60,7 +60,7 @@
             android:background="?android:attr/windowBackground" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <!-- ✅ Corrected Navigation Drawer -->
+    <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigationView"
         android:layout_width="wrap_content"
@@ -68,5 +68,4 @@
         android:layout_gravity="start"
         app:menu="@menu/drawer_menu"
         app:headerLayout="@layout/nav_header" />
-
 </androidx.drawerlayout.widget.DrawerLayout>

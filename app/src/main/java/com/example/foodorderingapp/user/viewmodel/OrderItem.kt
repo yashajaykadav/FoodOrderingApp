@@ -10,7 +10,7 @@ data class OrderItem(
     val items: List<Map<String, Any>> = emptyList(),
     val totalAmount: Int = 0,
     var orderDate: String = "", // Keep as String
-    var status: String = "",
+    var status: String = "Pending",
     var weight: String = "",
     var rejectionReason: String? = null
 ) {
@@ -30,7 +30,7 @@ data class OrderItem(
                 items = document.get("items") as? List<Map<String, Any>> ?: emptyList(),
                 totalAmount = document.get("totalAmount", Int::class.java) ?: 0,
                 orderDate = orderDate, // ✅ Always store as String
-                status = document.getString("status") ?: "",
+                status = document.getString("status") ?: "Pending",
                 weight = document.getString("weight") ?: "",
                 rejectionReason = document.getString("rejectionReason")
             )

@@ -1,53 +1,65 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:layout_marginTop="70dp"
+    android:background="?android:attr/windowBackground">
 
+    <!-- Title -->
     <TextView
-        android:layout_marginTop="60dp"
-        android:layout_width="match_parent"
+        android:id="@+id/titleOrders"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/order_history"
-        android:textSize="22sp"
+        android:textAppearance="?android:textAppearanceLarge"
         android:textStyle="bold"
-        android:gravity="center"
-        android:paddingBottom="10dp"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBarOrders"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/titleOrders"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Swipe to Refresh -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/titleOrders"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewOrders"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:layout_height="0dp"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewOrders"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="visible"/>
-
-            <TextView
-                android:id="@+id/txtEmptyState"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/no_orders_found"
-                android:textSize="18sp"
-                android:visibility="gone"
-                android:gravity="center"/>
-
-
-        </LinearLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-</LinearLayout>
+
+    <!-- Empty State -->
+    <TextView
+        android:id="@+id/txtEmptyState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_orders_found"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textStyle="italic"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/swipeRefreshLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
