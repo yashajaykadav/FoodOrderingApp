@@ -1,6 +1,5 @@
 package com.example.foodorderingapp.user.fragment
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.foodorderingapp.R
 import com.example.foodorderingapp.user.adapter.FoodAdapter
 import com.example.foodorderingapp.user.manager.CartManager
-import com.example.foodorderingapp.user.viewmodel.FoodItem
 import com.example.foodorderingapp.user.viewmodel.FoodViewModel
 
 class MenuFragment : Fragment() {
