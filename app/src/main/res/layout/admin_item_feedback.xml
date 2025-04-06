@@ -64,7 +64,7 @@
                 android:isIndicator="true"
                 android:stepSize="1.0"
                 style="?android:attr/ratingBarStyleSmall"
-                android:progressTint="@color/colorYellow"/>
+                android:progressTint="@color/darkYellow"/>
         </LinearLayout>
 
         <TextView

@@ -6,9 +6,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.foodorderingapp.admin.adapter.OrderAdapter
 import com.example.foodorderingapp.R
-import com.example.foodorderingapp.user.viewmodel.FoodItem
+import com.example.foodorderingapp.admin.adapter.OrderAdapter
+import com.example.foodorderingapp.admin.model.FoodItem // ✅ Correct import
 import com.example.foodorderingapp.admin.model.Order
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -45,7 +45,7 @@ class DeliveredOrdersActivity : AppCompatActivity() {
                     val order = Order(
                         orderId = doc.id,
                         shopName = doc.getString("shopName") ?: "Unknown",
-                        totalAmount = doc.get("totalAmount").toString().toInt(), // ✅ Convert totalAmount properly
+                        totalAmount = doc.get("totalAmount").toString().toIntOrNull() ?: 0,
                         status = doc.getString("status") ?: "Delivered",
                         userId = doc.getString("userId") ?: "N/A",
                         address = doc.getString("address") ?: "No Address",
@@ -58,7 +58,16 @@ class DeliveredOrdersActivity : AppCompatActivity() {
                                 val name = item["name"] as? String ?: "Unknown"
                                 val quantity = (item["quantity"] as? Number)?.toInt() ?: 0
                                 val price = (item["price"] as? Number)?.toInt() ?: 0
-                                itemsList.add(FoodItem(id = "", name = name, price = price, quantity = quantity, stock = 0, weight = ""))
+                                itemsList.add(
+                                    FoodItem(
+                                        id = "",
+                                        name = name,
+                                        price = price,
+                                        quantity = quantity,
+                                        stock = 0,
+                                        weight = ""
+                                    )
+                                )
                             }
                             itemsList
                         } catch (e: Exception) {

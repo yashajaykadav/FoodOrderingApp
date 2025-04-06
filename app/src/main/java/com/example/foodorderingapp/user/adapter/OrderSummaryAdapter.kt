@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.foodorderingapp.R
 import com.example.foodorderingapp.user.viewmodel.FoodItem
 
@@ -17,7 +18,7 @@ class OrderSummaryAdapter(private val cartItems: List<FoodItem>) :
         val foodName: TextView = view.findViewById(R.id.foodName)
         val foodPrice: TextView = view.findViewById(R.id.foodPrice)
         val quantityText: TextView = view.findViewById(R.id.quantityText)
-        val weightText: TextView = view.findViewById(R.id.weightText) // ✅ NEW
+        val weightText: TextView = view.findViewById(R.id.weightText)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderSummaryViewHolder {
@@ -31,8 +32,14 @@ class OrderSummaryAdapter(private val cartItems: List<FoodItem>) :
         holder.foodName.text = foodItem.name
         holder.foodPrice.text = "₹${foodItem.price * foodItem.quantity}"
         holder.quantityText.text = "Qty: ${foodItem.quantity}"
-        holder.weightText.text = "Weight: ${foodItem.weight}" // ✅ Set weight
-//        holder.foodImage.setImageResource(foodItem.imageRes)
+        holder.weightText.text = "Weight: ${foodItem.weight}"
+
+        // ✅ Load image using Glide from URL
+        Glide.with(holder.itemView.context)
+            .load(foodItem.imageUrl)
+            .placeholder(R.drawable.default_img) // default image
+            .error(R.drawable.default_img) // if image fails to load
+            .into(holder.foodImage)
     }
 
     override fun getItemCount() = cartItems.size

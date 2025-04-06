@@ -13,7 +13,7 @@
         android:background="?attr/colorPrimary"
         app:title="Delivered Orders"
         app:titleTextColor="@android:color/white"
-        app:navigationIcon="@drawable/back"
+        app:navigationIcon="@drawable/ic_arrow_back"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <!-- RecyclerView for Orders -->

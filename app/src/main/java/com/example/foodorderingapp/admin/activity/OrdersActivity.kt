@@ -1,15 +1,18 @@
 package com.example.foodorderingapp.admin.activity
 
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Toast
+import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.foodorderingapp.R
 import com.example.foodorderingapp.admin.adapter.OrderAdapter
 import com.example.foodorderingapp.admin.model.Order
-import com.google.android.material.chip.Chip
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.chip.ChipGroup
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -18,60 +21,87 @@ class OrdersActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: OrderAdapter
+    private lateinit var chipGroupFilter: ChipGroup
+    private lateinit var emptyStateView: View
     private val db = FirebaseFirestore.getInstance()
     private var ordersListener: ListenerRegistration? = null
     private var currentQuery: Query? = null
 
-    // Filter chips
-    private lateinit var chipAll: Chip
-    private lateinit var chipPending: Chip
-    private lateinit var chipAccepted: Chip
-    private lateinit var chipRejected: Chip
-    private lateinit var chipDelivered: Chip
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_orders)
+        supportActionBar?.hide()
+
+        val toolbar = findViewById<MaterialToolbar>(R.id.toolbarOrders)
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed() // Better than finish()
+        }
 
         initViews()
         setupRecyclerView()
-        setupChipListeners()
-        loadAllOrders()
+        setupChipGroup()
+        observeOrders()
     }
+
 
     private fun initViews() {
         recyclerView = findViewById(R.id.recyclerViewOrders)
-        chipAll = findViewById(R.id.chipAll)
-        chipPending = findViewById(R.id.chipPending)
-        chipAccepted = findViewById(R.id.chipAccepted)
-        chipRejected = findViewById(R.id.chipRejected)
-        chipDelivered = findViewById(R.id.chipDelivered)
+        emptyStateView = findViewById(R.id.emptyStateView)
+        chipGroupFilter = findViewById(R.id.chipGroupFilter)
     }
 
     private fun setupRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = OrderAdapter(mutableListOf(), this) {
-            // Refresh data when order is updated
             currentQuery?.let { loadOrders(it) }
         }
         recyclerView.adapter = adapter
     }
 
-    private fun setupChipListeners() {
-        chipAll.setOnClickListener { loadAllOrders() }
-        chipPending.setOnClickListener { loadOrdersByStatus("Pending") }
-        chipAccepted.setOnClickListener { loadOrdersByStatus("Accepted") }
-        chipRejected.setOnClickListener { loadOrdersByStatus("Rejected") }
-        chipDelivered.setOnClickListener {
-            startActivity(Intent(this, DeliveredOrdersActivity::class.java))
+    private fun setupChipGroup() {
+        chipGroupFilter.isSingleSelection = true
+        chipGroupFilter.check(R.id.chipAll)
+
+        chipGroupFilter.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                R.id.chipAll -> loadAllOrders()
+                R.id.chipPending -> loadOrdersByStatus("Pending")
+                R.id.chipAccepted -> loadOrdersByStatus("Accepted")
+                R.id.chipRejected -> loadOrdersByStatus("Rejected")
+                R.id.chipDelivered -> loadOrdersByStatus("Delivered")
+                else -> loadAllOrders()
+            }
         }
     }
 
+    private fun observeOrders() {
+        loadAllOrders()
+
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                checkEmptyState()
+            }
+
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                checkEmptyState()
+            }
+
+            override fun onChanged() {
+                checkEmptyState()
+            }
+        })
+    }
+
+    private fun checkEmptyState() {
+        emptyStateView.visibility = if (adapter.itemCount == 0) View.VISIBLE else View.GONE
+        recyclerView.visibility = if (adapter.itemCount == 0) View.GONE else View.VISIBLE
+    }
+
     private fun loadAllOrders() {
-        currentQuery = db.collection("orders").orderBy("orderDate", Query.Direction.DESCENDING)
+        currentQuery = db.collection("orders")
+            .orderBy("orderDate", Query.Direction.DESCENDING)
         loadOrders(currentQuery!!)
-        updateSelectedChip(chipAll)
     }
 
     private fun loadOrdersByStatus(status: String) {
@@ -79,45 +109,27 @@ class OrdersActivity : AppCompatActivity() {
             .whereEqualTo("status", status)
             .orderBy("orderDate", Query.Direction.DESCENDING)
         loadOrders(currentQuery!!)
-
-        val selectedChip = when(status) {
-            "Pending" -> chipPending
-            "Accepted" -> chipAccepted
-            "Rejected" -> chipRejected
-            else -> chipAll
-        }
-        updateSelectedChip(selectedChip)
     }
 
     private fun loadOrders(query: Query) {
         ordersListener?.remove()
         ordersListener = query.addSnapshotListener { snapshot, error ->
             if (error != null) {
-                showError("Error loading orders")
+                Log.e("OrdersActivity", "Error loading orders", error)
+                showError("Error loading orders: ${error.message}")
                 return@addSnapshotListener
             }
 
-            val orders = snapshot?.documents?.map { doc ->
-                Order(
-                    orderId = doc.id,
-                    userName = doc.getString("userName") ?: "",
-                    shopName = doc.getString("shopName") ?: "",
-                    address = doc.getString("userAddress") ?: "",
-                    totalAmount = doc.get("totalAmount") as? Int ?: 0,
-                    status = doc.getString("status") ?: "Pending",
-                    contact = doc.getString("contact") ?: "",
-                    orderDate = doc.getString("orderDate") ?: "",
-                    items = emptyList() // You'll need to implement proper item parsing
-                )
-            } ?: emptyList()
+            val orders = snapshot?.documents?.mapNotNull { doc ->
+                try {
+                    Order.fromDocument(doc)
+                } catch (e: Exception) {
+                    Log.e("OrdersActivity", "Error parsing order ${doc.id}", e)
+                    null
+                }
+            }?.toMutableList() ?: mutableListOf()
 
             adapter.updateOrders(orders)
-        }
-    }
-
-    private fun updateSelectedChip(selectedChip: Chip) {
-        listOf(chipAll, chipPending, chipAccepted, chipRejected).forEach { chip ->
-            chip.isChecked = chip == selectedChip
         }
     }
 

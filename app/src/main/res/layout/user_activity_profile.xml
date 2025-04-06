@@ -221,7 +221,7 @@
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:icon="@drawable/logout"
-            android:backgroundTint="@color/colorRed"
+            android:backgroundTint="@color/colorError"
             app:cornerRadius="16dp"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

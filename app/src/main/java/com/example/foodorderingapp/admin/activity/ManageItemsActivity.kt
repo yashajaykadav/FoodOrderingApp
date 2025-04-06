@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.foodorderingapp.R
 import com.example.foodorderingapp.admin.adapter.FoodItemAdapter
 import com.example.foodorderingapp.user.viewmodel.FoodItem
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
@@ -29,6 +30,8 @@ class ManageItemsActivity : AppCompatActivity() {
         supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_manage_items)
+        val toolbar = findViewById<MaterialToolbar>(R.id.OrderManage)
+        toolbar.setNavigationOnClickListener{finish()}
 
         recyclerView = findViewById(R.id.recyclerViewFoodItems)
         recyclerView.layoutManager = LinearLayoutManager(this)

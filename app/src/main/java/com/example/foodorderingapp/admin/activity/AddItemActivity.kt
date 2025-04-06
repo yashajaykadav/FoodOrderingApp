@@ -11,6 +11,7 @@ import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
 import com.example.foodorderingapp.R
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
@@ -35,6 +36,9 @@ class AddItemActivity : AppCompatActivity() {
         supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_add_item)
+
+        val toolbar = findViewById<MaterialToolbar>(R.id.AddFood)
+        toolbar.setNavigationOnClickListener{finish()}
 
         initializeViews()
         setupSpinners()

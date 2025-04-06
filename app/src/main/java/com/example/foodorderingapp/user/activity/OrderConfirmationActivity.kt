@@ -11,6 +11,7 @@ import com.example.foodorderingapp.R
 import com.example.foodorderingapp.user.adapter.OrderSummaryAdapter
 import com.example.foodorderingapp.user.manager.CartManager
 import com.example.foodorderingapp.user.viewmodel.FoodItem
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -22,11 +23,11 @@ class OrderConfirmationActivity : AppCompatActivity() {
     private lateinit var btnConfirmOrder: Button
     private lateinit var progressBar: ProgressBar
     private lateinit var totalAmountText: TextView
-    private lateinit var btnBack: ImageButton
 
     private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_order_confirmation)
 
@@ -35,9 +36,8 @@ class OrderConfirmationActivity : AppCompatActivity() {
         btnConfirmOrder = findViewById(R.id.btnConfirmOrder)
         progressBar = findViewById(R.id.progressBar)
         totalAmountText = findViewById(R.id.totalAmountText)
-        btnBack = findViewById(R.id.btnBack)
-
-        btnBack.setOnClickListener { finish() }
+        val toolbar = findViewById<MaterialToolbar>(R.id.ConfirmOrder)
+        toolbar.setNavigationOnClickListener{finish()}
 
         val cartItems = CartManager.getCartItems()
         if (cartItems.isEmpty()) {

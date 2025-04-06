@@ -38,12 +38,16 @@ class FeedbackActivity : AppCompatActivity() {
                 val userId = doc.getString("userId") ?: ""
                 val feedbackId = doc.id
 
+                if (userId.isBlank()) continue  // ✅ Prevent crash
+
                 val feedback = Feedback(
                     feedbackId = feedbackId,
                     userId = userId,
                     message = doc.getString("feedback") ?: "",
-                    rating = doc.getLong("rating")?.toInt() ?: 0, // ✅ Get feedback rating
+                    rating = doc.getLong("rating")?.toInt() ?: 0
                 )
+
+                feedbackList.add(feedback)
 
                 // Fetch user name from users collection
                 db.collection("users").document(userId).get()
@@ -52,14 +56,13 @@ class FeedbackActivity : AppCompatActivity() {
                             userDoc.getString("name") ?: "Unknown User"
                         adapter.notifyDataSetChanged()
                     }
-
-                feedbackList.add(feedback)
             }
             adapter.notifyDataSetChanged()
         }.addOnFailureListener { e ->
             Log.e("Feedback", "Error fetching feedback", e)
         }
     }
+
 //    private fun showEmptyState() {
 //        recyclerView.visibility = View.GONE
 //        tvEmptyState.visibility = View.VISIBLE

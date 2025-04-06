@@ -4,5 +4,19 @@
         <item name="colorPrimary">@color/google_blue</item>
         <item name="colorPrimaryVariant">@color/google_blue</item>
         <item name="colorOnPrimary">@android:color/white</item>
+        <item name="chipStyle">@style/Widget.MyApp.Chip.Filter</item>
+    </style>
+    <style name="Widget.MyApp.Chip.Filter" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="android:textColor">@color/chip_text_selected</item>
+        <item name="android:minHeight">36dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.MyApp.SmallComponent</item>
+    </style>
+
+    <style name="ShapeAppearance.MyApp.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
     </style>
 </resources>

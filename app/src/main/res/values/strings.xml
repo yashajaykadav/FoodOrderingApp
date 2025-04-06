@@ -4,7 +4,7 @@
     <string name="default_web_client_id">161520009409-iaaodnfdede1qkrvhn62db8aeep6e42a.apps.googleusercontent.com</string>
     <string name="enter_contact_number">Enter Contact Number</string>
     <string name="enter_shop_name">Enter Shop Name</string>
-    <string name="enter_shop_address">Enter Shop Address</string>
+    <string name="enter_shop_address">Enter Address </string>
     <string name="save_profile">Save Profile</string>
     <string name="enter_information">Enter Information</string>
     <string name="main_page">YOU ARE ENTERED INTO MAIN PAGE</string>
@@ -27,11 +27,11 @@
     <string name="checkout">Checkout</string>
     <string name="total_0">Total: ₹%d</string>
     <string name="rate_your_experience">Rate your experience</string>
-    <string name="your_feedback">Your feedback...</string>
+    <string name="your_feedback">Your feedback..</string>
     <string name="krushna_foods">Krushna Foods</string>
     <string name="food_ordering_app">Food Ordering App</string>
     <string name="feedback">We\'d love your feedback!</string>
-    <string name="writefeedback">Write your feedback here...</string>
+    <string name="writefeedback">Write your feedback here</string>s
     <string name="submit">Submit</string>
     <string name="back">Back</string>
     <string name="skip">Skip</string>
@@ -63,12 +63,12 @@
     <string name="order_placed_successfully">Order Placed Successfully!</string>
     <string name="complete_your_profile">Complete Your Profile</string>
     <string name="profile_picture">Profile Picture</string>
-    <string name="email_loading">Email: loading...</string>
+    <string name="email_loading">Email: loading</string>
     <string name="email_icon">Email Icon</string>
     <string name="phone_icon">Phone Icon</string>
-    <string name="contact_loading">Contact: loading...</string>
+    <string name="contact_loading">Contact: loading</string>
     <string name="location_icon">Location Icon</string>
-    <string name="address_loading">Address: loading...</string>
+    <string name="address_loading">Address: loading</string>
     <string name="admindashboard">AdminDashboard</string>
     <string name="view_feedback">Feedback</string>
     <string name="order_management">Order Management</string>
@@ -92,4 +92,28 @@
     <string name="decrease_quantity">decrease_quantity</string>
     <string name="increase_quantity">increase_quantity</string>
     <string name="weight">Weight</string>
+
+    <string name="order_id_format">Order #%s</string>
+    <string name="shop_format">Shop: %s</string>
+    <string name="total_price_format">Total: ₹%s</string>
+    <string name="contact_format">Contact: %s</string>
+    <string name="date_format">Date: %s</string>
+    <string name="user_loading">User: Loading…</string>
+    <string name="user_format">User: %s</string>
+    <string name="address_format">Address: %s</string>
+    <string name="no_items">No items in this order</string>
+    <string name="reason_format">Reason: %s</string>
+    <string name="price_format">₹%s</string>
+    <string name="reject_order_title">Reject Order</string>
+    <string name="reject">Reject</string>
+    <string name="enter_reason">Please enter a reason</string>
+    <string name="order_status_updated">Order %s%s</string>
+    <string name="update_failed">Failed to update order: %s</string>
+    <string name="all_orders">All Orders</string>
+    <string name="pending">Pending</string>
+    <string name="accepted">Accepted</string>
+    <string name="rejected">Rejected</string>
+    <string name="delivered">Delivered</string>
+    <string name="empty_orders_icon">Empty orders icon</string>
+    <string name="error_loading_orders">Error loading orders: %s</string>
 </resources>

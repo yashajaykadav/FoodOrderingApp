@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.foodorderingapp.R
 import com.example.foodorderingapp.admin.adapter.EnquiryAdapter
 import com.example.foodorderingapp.admin.model.Enquiry
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 
@@ -24,6 +25,8 @@ class AdminEnquiryActivity : AppCompatActivity() {
         supportActionBar?.hide()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.admin_activity_enquiry)
+        val toolbar = findViewById<MaterialToolbar>(R.id.enqueryTollbar)
+        toolbar.setNavigationOnClickListener{finish()}
 
         recyclerView = findViewById(R.id.recyclerViewEnquiries)
         recyclerView.layoutManager = LinearLayoutManager(this)

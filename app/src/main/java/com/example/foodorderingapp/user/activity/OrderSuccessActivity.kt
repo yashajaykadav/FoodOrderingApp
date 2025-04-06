@@ -14,6 +14,7 @@ class OrderSuccessActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_order_success)
+        supportActionBar?.hide()
 
         findViewById<TextView>(R.id.successMessage)
         val lottieSuccess = findViewById<LottieAnimationView>(R.id.lottieSuccess)

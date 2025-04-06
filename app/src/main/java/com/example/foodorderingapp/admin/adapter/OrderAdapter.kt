@@ -2,14 +2,19 @@ package com.example.foodorderingapp.admin.adapter
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.foodorderingapp.R
 import com.example.foodorderingapp.admin.model.Order
-import com.example.foodorderingapp.user.viewmodel.FoodItem
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -36,92 +41,126 @@ class OrderAdapter(
 
     override fun getItemCount(): Int = orderList.size
 
-    fun updateOrders(newOrders: List<Order>) {
-        orderList.clear()
-        orderList.addAll(newOrders)
+    fun updateOrders(newOrders: MutableList<Order>) {
+        orderList = newOrders
         notifyDataSetChanged()
     }
 
-    inner class OrderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val orderId: TextView = view.findViewById(R.id.textOrderId)
-        private val userName: TextView = view.findViewById(R.id.textUserName)
-        private val shopName: TextView = view.findViewById(R.id.textShopName)
-        private val userAddress: TextView = view.findViewById(R.id.textUserAddress)
-        private val totalAmount: TextView = view.findViewById(R.id.textTotalAmount)
-        private val orderStatus: TextView = view.findViewById(R.id.textOrderStatus)
-        private val contact: TextView = view.findViewById(R.id.textContact)
-        private val orderDate: TextView = view.findViewById(R.id.textOrderDate)
-        private val itemsList: TextView = view.findViewById(R.id.textItemsList)
-        private val rejectionReason: TextView = view.findViewById(R.id.textRejectionReason)
-        private val acceptButton: Button = view.findViewById(R.id.btnAcceptOrder)
-        private val rejectButton: Button = view.findViewById(R.id.btnRejectOrder)
-        private val deliverButton: Button = view.findViewById(R.id.btnDeliverOrder)
-        private val buttonContainer: View = view.findViewById(R.id.btnContainer)
-        private val cardView: View = view.findViewById(R.id.orderCard)
+    inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val orderId: TextView = itemView.findViewById(R.id.textOrderId)
+        private val userName: TextView = itemView.findViewById(R.id.textUserName)
+        private val shopName: TextView = itemView.findViewById(R.id.textShopName)
+        private val userAddress: TextView = itemView.findViewById(R.id.textUserAddress)
+        private val totalAmount: TextView = itemView.findViewById(R.id.textTotalAmount)
+        private val orderStatus: TextView = itemView.findViewById(R.id.textOrderStatus)
+        private val contact: TextView = itemView.findViewById(R.id.textContact)
+        private val orderDate: TextView = itemView.findViewById(R.id.textOrderDate)
+        private val itemsTableContainer: LinearLayout = itemView.findViewById(R.id.itemsTableContainer)
+        private val rejectionReason: TextView = itemView.findViewById(R.id.textRejectionReason)
+        private val acceptButton: MaterialButton = itemView.findViewById(R.id.btnAcceptOrder)
+        private val rejectButton: MaterialButton = itemView.findViewById(R.id.btnRejectOrder)
+        private val deliverButton: MaterialButton = itemView.findViewById(R.id.btnDeliverOrder)
+        private val buttonContainer: View = itemView.findViewById(R.id.btnContainer)
+        private val cardView: CardView = itemView.findViewById(R.id.orderCard)
 
         fun bind(order: Order) {
-            // Basic order info
-            orderId.text = "Order ID: ${order.orderId}"
-            shopName.text = "Shop: ${order.shopName ?: "N/A"}"
-            totalAmount.text = "Total: ₹${String.format("%.2f", order.totalAmount.toDouble())}"
-            orderStatus.text = "Status: ${order.status}"
-            contact.text = "Contact: ${order.contact ?: "N/A"}"
-            orderDate.text = "Date: ${formatDate(order.orderDate)}"
+            orderId.text = context.getString(R.string.order_id_format, order.orderId.takeLast(6).uppercase())
+            shopName.text = context.getString(R.string.shop_format, order.shopName.ifEmpty { "N/A" })
+            totalAmount.text = context.getString(R.string.total_price_format, order.totalAmount.toDouble().format(2))
+            orderStatus.text = order.status
+            contact.text = context.getString(R.string.contact_format, order.contact.ifEmpty { "N/A" })
+            orderDate.text = context.getString(R.string.date_format, formatDate(order.orderDate))
 
-            // Initialize user info with loading state
-            userName.text = "User: Loading..."
-            userAddress.text = "Address: Loading..."
+            userName.text = context.getString(R.string.user_loading)
+            userAddress.text = context.getString(R.string.address_loading)
 
-            // Fetch user details from Firestore
-            fetchUserDetails(order.userId) { name, address ->
-                userName.text = "User: ${name ?: "Unknown"}"
-                userAddress.text = "Address: ${address ?: "Not specified"}"
-            }
-
-            // Format items list
-            itemsList.text = formatItemsList(order.items)
-
-            // Handle rejection reason visibility
-            if (order.status == "Rejected" && !order.rejectionReason.isNullOrEmpty()) {
-                rejectionReason.visibility = View.VISIBLE
-                rejectionReason.text = "Reason: ${order.rejectionReason}"
+            if (order.userId.isNotEmpty()) {
+                fetchUserDetails(order.userId) { name, address ->
+                    userName.text = context.getString(R.string.user_format, name ?: "Unknown")
+                    userAddress.text = context.getString(R.string.address_format, address ?: "Not specified")
+                }
             } else {
-                rejectionReason.visibility = View.GONE
+                userName.text = context.getString(R.string.user_format, "Unknown")
+                userAddress.text = context.getString(R.string.address_format, "Not specified")
             }
 
-            // Update button visibility based on status
-            updateButtonVisibility(order.status)
+            itemsTableContainer.removeAllViews()
+            if (order.items.isNotEmpty()) {
+                addTableHeader()
+                order.items.forEach { item ->
+                    addFoodItemRow(item)
+                }
+            } else {
+                val emptyView = TextView(context).apply {
+                    text = context.getString(R.string.no_items)
+                    setPadding(8.dpToPx(), 16.dpToPx(), 8.dpToPx(), 16.dpToPx())
+                    setTextColor(context.getColor(R.color.text_secondary))
+                    textSize = 14f
+                }
+                itemsTableContainer.addView(emptyView)
+            }
 
-            // Set card color based on status
+            rejectionReason.visibility = if (order.status == "Rejected" && !order.rejectionReason.isNullOrEmpty()) {
+                rejectionReason.text = context.getString(R.string.reason_format, order.rejectionReason)
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+            updateButtonVisibility(order.status)
             setCardColor(order.status)
 
-            // Set click listeners
             acceptButton.setOnClickListener { updateOrderStatus(order, "Accepted") }
             rejectButton.setOnClickListener { showRejectDialog(order) }
             deliverButton.setOnClickListener { updateOrderStatus(order, "Delivered") }
         }
 
+
+        private fun addTableHeader() {
+            val headerView = LayoutInflater.from(context)
+                .inflate(R.layout.item_food_row, itemsTableContainer, false)
+            itemsTableContainer.addView(headerView)
+        }
+
+        private fun addFoodItemRow(item: com.example.foodorderingapp.admin.model.FoodItem) {
+            val rowView = LayoutInflater.from(context)
+                .inflate(R.layout.item_food_row, itemsTableContainer, false)
+            rowView.findViewById<TextView>(R.id.itemName)?.text = item.name
+            rowView.findViewById<TextView>(R.id.itemQty)?.text = item.quantity.toString()
+            rowView.findViewById<TextView>(R.id.itemPrice)?.text =
+                context.getString(R.string.price_format, item.price.toDouble().format(2))
+            rowView.findViewById<TextView>(R.id.itemTotal)?.text =
+                context.getString(R.string.price_format, (item.price * item.quantity).toDouble().format(2))
+            itemsTableContainer.addView(rowView)
+        }
+
         private fun formatDate(dateString: String): String {
             return try {
-                val date = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(dateString)
-                date?.let { dateFormat.format(it) } ?: dateString
+                val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                val date = inputFormat.parse(dateString)
+                date?.let { dateFormat.format(it) } ?: "Invalid Date"
             } catch (e: Exception) {
                 dateString
             }
         }
 
-        private fun formatItemsList(items: List<FoodItem>): String {
-            return items.joinToString("\n") { item ->
-                val totalPrice = item.price * item.quantity
-                "• ${item.name} (${item.quantity} × ₹${String.format("%.2f", item.price)}) = ₹${String.format("%.2f", totalPrice)}"
-            }
-        }
-
         private fun updateButtonVisibility(status: String) {
             buttonContainer.visibility = View.VISIBLE
-            acceptButton.visibility = if (status == "Pending") View.VISIBLE else View.GONE
-            rejectButton.visibility = if (status == "Pending") View.VISIBLE else View.GONE
-            deliverButton.visibility = if (status == "Accepted") View.VISIBLE else View.GONE
+            when (status) {
+                "Pending" -> {
+                    acceptButton.visibility = View.VISIBLE
+                    rejectButton.visibility = View.VISIBLE
+                    deliverButton.visibility = View.GONE
+                }
+                "Accepted" -> {
+                    acceptButton.visibility = View.GONE
+                    rejectButton.visibility = View.GONE
+                    deliverButton.visibility = View.VISIBLE
+                }
+                else -> {
+                    buttonContainer.visibility = View.GONE
+                }
+            }
         }
 
         private fun setCardColor(status: String) {
@@ -132,24 +171,23 @@ class OrderAdapter(
                 "Delivered" -> R.color.lightGreen
                 else -> R.color.card_default
             }
-            cardView.setBackgroundColor(context.getColor(colorRes))
+            cardView.setCardBackgroundColor(context.getColor(colorRes))
+
+            val textColor = when (status) {
+                "Pending" -> R.color.darkYellow
+                "Accepted" -> R.color.darkBlue
+                "Rejected" -> R.color.darkRed
+                "Delivered" -> R.color.darkGreen
+                else -> R.color.black
+            }
+            orderStatus.setTextColor(context.getColor(textColor))
+            orderStatus.backgroundTintList = context.getColorStateList(colorRes)
         }
 
         private fun fetchUserDetails(userId: String, callback: (String?, String?) -> Unit) {
-            if (userId.isBlank()) {
-                callback(null, null)
-                return
-            }
-
             db.collection("users").document(userId).get()
                 .addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        val name = document.getString("name")
-                        val address = document.getString("address")
-                        callback(name, address)
-                    } else {
-                        callback(null, null)
-                    }
+                    callback(document.getString("name"), document.getString("address"))
                 }
                 .addOnFailureListener {
                     callback(null, null)
@@ -162,17 +200,17 @@ class OrderAdapter(
         val input = dialogView.findViewById<EditText>(R.id.editRejectReason)
 
         AlertDialog.Builder(context)
-            .setTitle("Reject Order")
+            .setTitle(R.string.reject_order_title)
             .setView(dialogView)
-            .setPositiveButton("Reject") { _, _ ->
+            .setPositiveButton(R.string.reject) { _, _ ->
                 val reason = input.text.toString().trim()
                 if (reason.isNotEmpty()) {
                     updateOrderStatus(order, "Rejected", reason)
                 } else {
-                    Toast.makeText(context, "Please enter a reason", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, R.string.enter_reason, Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.cancel, null)
             .show()
     }
 
@@ -181,26 +219,29 @@ class OrderAdapter(
             "status" to status,
             "updatedAt" to System.currentTimeMillis()
         )
-
         rejectionReason?.let { updateData["rejectionReason"] = it }
 
         db.collection("orders").document(order.orderId)
             .update(updateData)
             .addOnSuccessListener {
-                order.status = status
-                order.rejectionReason = rejectionReason
-                notifyItemChanged(orderList.indexOf(order))
+                showSnackbar(context.getString(
+                    R.string.order_status_updated,
+                    status,
+                    rejectionReason ?: ""
+                ))
                 onOrderUpdated()
-                showSnackbar("Order $status" + (rejectionReason?.let { ": $it" } ?: ""))
             }
             .addOnFailureListener { e ->
-                showSnackbar("Failed: ${e.localizedMessage}")
+                showSnackbar(context.getString(R.string.update_failed, e.message))
             }
     }
 
     private fun showSnackbar(message: String) {
-        (context as? android.app.Activity)?.window?.decorView?.rootView?.let {
+        (context as? android.app.Activity)?.findViewById<View>(android.R.id.content)?.let {
             Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show()
         }
     }
+
+    private fun Int.dpToPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
+    private fun Double.format(digits: Int) = "%.${digits}f".format(this)
 }
