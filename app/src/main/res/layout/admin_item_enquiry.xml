@@ -37,7 +37,7 @@
 
         <!-- Timestamp -->
         <TextView
-            android:id="@+id/tvTimestamp"
+            android:id="@+id/timeStamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Timestamp"
@@ -93,7 +93,7 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textColor="@android:color/white"
-                app:backgroundTint="@color/colorPrimary"
+                app:backgroundTint="@color/card_teal"
                 app:cornerRadius="8dp"
                 app:icon="@drawable/ic_send"
                 app:iconGravity="start"

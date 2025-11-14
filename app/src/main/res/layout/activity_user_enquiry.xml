@@ -5,111 +5,100 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="@color/white"
+    android:background="#F4F6F8"
     tools:context=".user.activity.UserEnquiryActivity">
 
-    <!-- Back Button -->
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/back"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Go Back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"/>
-
-    <!-- Screen Title -->
-    <TextView
-        android:id="@+id/tvEnquiryTitle"
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/btnToolbar"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Send Your Enquiry"
-        android:textSize="22sp"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/btnBack"
+        android:background="@color/lightRed"
+        app:title="Send Your Enquiry"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        android:elevation="4dp"/>
 
-    <!-- RecyclerView for User Enquiries -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewEnquiries"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingVertical="8dp"
         android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@id/tvEnquiryTitle"
-        app:layout_constraintBottom_toTopOf="@id/cardEnquiryForm"
+        app:layout_constraintTop_toBottomOf="@id/btnToolbar"
+        app:layout_constraintBottom_toTopOf="@id/inputLayout"
         android:overScrollMode="never"/>
 
-    <!-- CardView for Input Field -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardEnquiryForm"
-        android:layout_width="match_parent"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/inputLayout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="8dp"
-        app:cardBackgroundColor="@color/white"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="12dp">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/messageTextInputLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_marginEnd="8dp"
+            android:hint="Type a message..."
+            app:boxCornerRadiusBottomEnd="24dp"
+            app:boxCornerRadiusBottomStart="24dp"
+            app:boxCornerRadiusTopEnd="24dp"
+            app:boxCornerRadiusTopStart="24dp"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnSendMessage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <!-- TextInputLayout for better styling -->
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etUserMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Type your message here..."
-                app:boxStrokeColor="@color/colorPrimary"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                android:inputType="textMultiLine"
+                android:maxLines="5"
+                android:minHeight="48dp"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:scrollbars="vertical" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etUserMessage"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:inputType="textMultiLine"
-                    android:background="@android:color/transparent"
-                    android:padding="12dp"
-                    android:textColor="@color/black"
-                    android:textColorHint="@color/gray"
-                    android:gravity="top|start"
-                    android:maxLines="5"
-                    android:scrollbars="vertical"/>
-            </com.google.android.material.textfield.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Send Message Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSendMessage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Send Message"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="16dp"
-                app:cornerRadius="10dp"
-                app:backgroundTint="@color/google_blue"
-                android:textSize="16sp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSendMessage"
+            style="?attr/materialIconButtonFilledStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/lightRed"
+            app:icon="@drawable/ic_send"
+            app:iconTint="@color/white"
+            app:layout_constraintBottom_toBottomOf="@id/messageTextInputLayout"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Progress Bar for Loading -->
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"/>
-        </LinearLayout>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:elevation="10dp"
+            android:indeterminateTint="@color/white"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/btnSendMessage"
+            app:layout_constraintEnd_toEndOf="@id/btnSendMessage"
+            app:layout_constraintStart_toStartOf="@id/btnSendMessage"
+            app:layout_constraintTop_toTopOf="@id/btnSendMessage"
+            tools:visibility="visible" />
 
-    </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,9 +5,14 @@
         android:id="@+id/nav_profile"
         android:title="@string/profile"
         android:icon="@drawable/user" />
+<!--    <item-->
+<!--        android:id="@+id/nav_language"-->
+<!--        android:title="Change Language"-->
+<!--        android:icon="@drawable/ic_language" />-->
+
     <item
         android:id="@+id/nav_settings"
-        android:title="@string/settings"
+        android:title="@string/About"
         android:icon="@drawable/setting" />
     <item
         android:id="@+id/nav_logout"
@@ -15,7 +20,7 @@
         android:icon="@drawable/logout" />
     <item
         android:id="@+id/nav_admin_dashboard"
-        android:title="@string/admindashboard"
+        android:title="@string/admin_dashboard"
         android:icon="@drawable/admin"
         app:showAsAction="never" />
 </menu>

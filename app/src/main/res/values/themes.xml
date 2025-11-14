@@ -1,11 +1,25 @@
 <resources>
-    <!-- Base application theme. -->
-    <style name="Theme.FoodOrderingApp" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.KrishnaFoods" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/google_blue</item>
         <item name="colorPrimaryVariant">@color/google_blue</item>
         <item name="colorOnPrimary">@android:color/white</item>
-        <item name="chipStyle">@style/Widget.MyApp.Chip.Filter</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
+
+    <style name="Theme.KrishnaFoods.user" parent="Theme.KrishnaFoods">
+        <item name="android:statusBarColor">@color/lightRed</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.KrishnaFoods.admin" parent="Theme.KrishnaFoods">
+        <item name="android:statusBarColor">@color/colorAccent</item>
+        <item name="android:windowLightStatusBar">false</item> </style>
+
+    <style name="Theme.KrishnaFoods.login" parent="Theme.KrishnaFoods">
+        <item name="android:statusBarColor">@color/google_blue</item>
+        <item name="android:windowLightStatusBar">false</item> </style>
+
+
     <style name="Widget.MyApp.Chip.Filter" parent="Widget.MaterialComponents.Chip.Filter">
         <item name="android:textColor">@color/chip_text_selected</item>
         <item name="android:minHeight">36dp</item>

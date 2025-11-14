@@ -9,7 +9,7 @@
     <color name="colorSecondary">#03DAC5</color>
     <color name="colorSecondaryDark">#018786</color>
     <color name="colorSecondaryLight">#66FFF9</color>
-
+    <color name="overlay_background">#80000000</color>
     <!-- Background Colors -->
     <color name="colorBackground">#FFFFFF</color>
     <color name="colorBackgroundDark">#121212</color>
@@ -18,7 +18,6 @@
 
     <!-- Text Colors -->
     <color name="colorTextPrimary">#212121</color>
-    <color name="textPrimary">#212121</color>
     <color name="text_primary">#212121</color>
     <color name="colorTextSecondary">#757575</color>
     <color name="text_secondary">#757575</color>
@@ -41,14 +40,13 @@
     <color name="nav_item_color">#FF5722</color>
 
     <!-- Card Colors -->
-    <color name="cardBackground">#FFFFFFFF</color>
     <color name="cardStroke">#1F000000</color>
     <color name="card_stroke">#1F000000</color>
     <color name="cardBorder">#E0E0E0</color>
     <color name="card_blue">#4285F4</color>
     <color name="card_green">#34A853</color>
     <color name="card_purple">#9C27B0</color>
-    <color name="card_orange">#FB8C00</color>
+    <color name="card_orange">#DB754B</color>
     <color name="card_red">#EA4335</color>
     <color name="card_teal">#009688</color>
     <color name="card_default">#3F51B5</color>
@@ -63,7 +61,6 @@
     <color name="darkYellow">#E6A700</color>
     <color name="lightBlue">#E7F2FF</color>
     <color name="darkBlue">#1976D2</color>
-    <color name="lightRed">#C87382</color>
     <color name="darkRed">#D32F2F</color>
     <color name="lightGreen">#E8F5E9</color>
     <color name="darkGreen">#388E3C</color>
@@ -71,6 +68,9 @@
     <color name="green">#388E3C</color>
     <color name="red">#D32F2F</color>
     <color name="blue">#1976D2</color>
+    <color name="lightRed">#E44A4A</color>
+
+
 
     <!-- Chip Colors -->
     <color name="chip_background">#F1F3F4</color>
@@ -81,4 +81,34 @@
 
     <!-- Empty State -->
     <color name="empty_state_icon">#BDBDBD</color>
+    <color name="cardBackground">#FFFFFF</color>
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#757575</color>
+    <color name="colorAccent">#FF5733</color>
+    <color name="stockGreen">#4CAF50</color>
+    <color name="quantityBackground">#F1F3F4</color>
+    <color name="user_theme">#925050</color>
+    <!-- res/values/colors.xml -->
+    <color name="light_peach">#FFE8D6</color>
+    <color name="facebook_blue">#4267B2</color>
+    <color name="sky_color">#57C1D1</color>
+
+    <color name="md_theme_primary">#6750A4</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_background">#FDFBFF</color>
+    <color name="md_theme_onBackground">#1C1B1F</color>
+    <color name="md_theme_surfaceContainerLow">#E6E0EC</color>
+    <color name="md_theme_onSurface">#1C1B1F</color>
+    <color name="md_theme_onSurfaceVariant">#49454F</color>
+    <color name="logos_background">@color/colorWarning</color>
+
+    <color name="bottom_nav_active_bg">#1A6200EE</color>  <!-- 10% opacity of primary color -->
+    <color name="bottom_nav_inactive_bg">@android:color/transparent</color>
+    <color name="bottom_nav_ripple_color">#336200EE</color>  <!-- 20% opacity of primary color -->
+
+    <color name="profile_background_color">#F0F2F5</color>
+    <color name="hint_color">#A9A9A9</color>
+    <color name="start_gradient_color">#6B8E23</color>
+    <color name="end_gradient_color">#3CB371</color>
+    <color name="card_background">#FFFFFF</color>
 </resources>

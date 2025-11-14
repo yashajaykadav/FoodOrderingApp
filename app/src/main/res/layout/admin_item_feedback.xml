@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="12dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    android:background="@color/cardBackground">
+    android:focusable="true"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
+    app:strokeColor="@color/cardStroke"
+    app:strokeWidth="1dp"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,31 +19,36 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- User Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
+
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:src="@drawable/ic_user"
-                app:tint="@color/colorTextSecondary"
-            android:contentDescription="User icon"/>
+                android:contentDescription="@string/user_format"
+                app:tint="@color/colorTextSecondary"/>
 
             <TextView
                 android:id="@+id/tvUserName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="User: John Doe"
+                android:layout_marginStart="12dp"
+                android:text="@string/user_loading"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/colorPrimaryLight"/>
+                android:textColor="@color/colorPrimaryLight"
+                android:ellipsize="end"
+                android:maxLines="1"/>
         </LinearLayout>
 
+        <!-- Rating -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -50,7 +59,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rating: "
+                android:text="@string/rating"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/colorPrimaryDark"/>
@@ -64,16 +73,21 @@
                 android:isIndicator="true"
                 android:stepSize="1.0"
                 style="?android:attr/ratingBarStyleSmall"
-                android:progressTint="@color/darkYellow"/>
+                android:progressTint="@color/darkYellow"
+                android:layout_marginStart="8dp"/>
         </LinearLayout>
 
+
+        <!-- Feedback Message -->
         <TextView
             android:id="@+id/tvMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="User Feedback"
+            android:text="@string/your_feedback"
             android:textSize="15sp"
-            android:textColor="@color/colorTextPrimary"/>
+            android:textColor="@color/colorTextPrimary"
+            android:ellipsize="end"
+            android:maxLines="4"/>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

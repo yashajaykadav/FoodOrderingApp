@@ -1,23 +1,17 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositories {
-        google()  // ✅ Needed for Google Play Services
+        google() // ✅ Needed for Google/Firebase dependencies
         mavenCentral()
     }
 }
-
 
 rootProject.name = "FoodOrderingApp"
 include(":app")

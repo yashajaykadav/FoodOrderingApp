@@ -18,12 +18,12 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!-- Food Image with better styling -->
+        <!-- Food Image -->
         <ImageView
             android:id="@+id/foodImage"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:contentDescription="@string/iteam_image"
+            android:contentDescription="@string/item_image"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="Food Name"
+                android:text="@string/food_name"
                 android:textColor="#FF1A1A1A"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -69,110 +69,102 @@
                 android:layout_marginTop="2dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="food_category"
+                android:text="@string/food_category"
+                android:textColor="#80000000"
+                android:textSize="12sp"
+                android:drawablePadding="4dp" />
+
+            <!-- Weight -->
+            <TextView
+                android:id="@+id/foodWeight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/weight"
                 android:textColor="#80000000"
                 android:textSize="12sp"
                 android:drawablePadding="4dp"
-                android:drawableStart="@drawable/ic_category"
-                android:drawableTint="#80000000" />
+                app:drawableStartCompat="@drawable/ic_weight" />
 
-            <!-- Weight and Stock -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/foodWeight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/weight"
-                    android:textColor="#80000000"
-                    android:textSize="12sp"
-                    android:drawablePadding="4dp"
-                    android:drawableStart="@drawable/ic_weight"
-                    app:drawableTint="#80000000" />
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="12dp"
-                    android:layout_marginHorizontal="8dp"
-                    android:background="#20000000" />
-
-                <TextView
-                    android:id="@+id/foodStock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/stock_badge_bg"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="1dp"
-                    android:text="In Stock"
-                    android:textColor="@android:color/white"
-                    android:textSize="10sp"
-                    android:textAllCaps="true"
-                    android:letterSpacing="0.05" />
-            </LinearLayout>
-
-            <!-- Price Information -->
+            <!-- Price Information - Updated for offer/original price -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
 
-                <TextView
-                    android:id="@+id/foodPrice"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="₹120"
-                    android:textColor="#FF5722"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/foodUnitPrice"
+                    <TextView
+                        android:id="@+id/foodOriginalPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="#80000000"
+                        android:textSize="14sp"
+                        android:paddingEnd="8dp"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/foodOfferPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/demo_price"
+                        android:textColor="#FF1A1A1A"                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <!-- Quantity Controls -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="(₹0.48/g)"
-                    android:textColor="#80000000"
-                    android:textSize="10sp" />
-            </LinearLayout>
+                    android:background="@drawable/rounded_quantity_bg"
+                    android:orientation="horizontal"
+                    android:padding="2dp">
 
-            <!-- Quantity Controls -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/rounded_quantity_bg"
-                android:orientation="horizontal"
-                android:padding="2dp">
+                    <ImageButton
+                        android:id="@+id/btnDecrease"
+                        style="@style/QuantityButtonStyle"
+                        android:src="@drawable/minus"
+                        android:backgroundTint="@color/colorError"
+                        android:contentDescription="@string/decrease_quantity"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        app:tint="@color/colorError" />
 
-                <ImageButton
-                    android:id="@+id/btnDecrease"
-                    style="@style/QuantityButtonStyle"
-                    android:src="@drawable/minus"
-                    android:contentDescription="@string/decrease_quantity"
-                    android:background="?attr/selectableItemBackgroundBorderless" />
+                    <EditText
+                        android:id="@+id/quantityText"
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:maxLength="2"
+                        android:text="@string/one"
+                        android:textColor="@android:color/black"
+                        android:textSize="14sp"
+                        android:importantForAutofill="no"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"/>
 
-                <EditText
-                    android:id="@+id/quantityText"
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="1"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
-
-                <ImageButton
-                    android:id="@+id/btnIncrease"
-                    style="@style/QuantityButtonStyle"
-                    android:src="@drawable/add"
-                    android:contentDescription="@string/increase_quantity"
-                    android:background="?attr/selectableItemBackgroundBorderless" />
+                    <ImageButton
+                        android:id="@+id/btnIncrease"
+                        style="@style/QuantityButtonStyle"
+                        android:src="@drawable/add"
+                        android:backgroundTint="@color/card_green"
+                        android:contentDescription="@string/increase_quantity"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        app:tint="@color/card_green" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
@@ -193,7 +185,7 @@
                 android:src="@drawable/ic_delete"
                 android:contentDescription="@string/remove"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="#FF5252" />
+                app:tint="@color/colorError" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -41,6 +41,51 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:161520009409:android:02b78d71b84ede52fe9440",
+        "android_client_info": {
+          "package_name": "com.foodordering.krishnafoods"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "161520009409-6d4ie39sk0358jstshhd176bfri3ir50.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.foodordering.krishnafoods",
+            "certificate_hash": "28985b77e19ec969dcad837609c0af77351c1fbb"
+          }
+        },
+        {
+          "client_id": "161520009409-pkv30ccc6v2kuube8slb19id0stqof87.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.foodordering.krishnafoods",
+            "certificate_hash": "78a4e52dd6c6afa659fdbe7fcacd862b9145ae96"
+          }
+        },
+        {
+          "client_id": "161520009409-iaaodnfdede1qkrvhn62db8aeep6e42a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcFsxRyA0rFpDhdROVSPaJXyerknccpFk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "161520009409-iaaodnfdede1qkrvhn62db8aeep6e42a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

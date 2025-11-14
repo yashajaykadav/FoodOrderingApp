@@ -1,8 +1,6 @@
 <resources>
-    <string name="app_name">FoodOrderingApp</string>
-    <string name="sign_in_with_google">Sign in with Google</string>
-    <string name="default_web_client_id">161520009409-iaaodnfdede1qkrvhn62db8aeep6e42a.apps.googleusercontent.com</string>
-    <string name="enter_contact_number">Enter Contact Number</string>
+    <string name="app_name" formatted="false">Krishna Foods</string>
+    <string name="enter_contact_number" formatted="false">Enter Contact Number</string>
     <string name="enter_shop_name">Enter Shop Name</string>
     <string name="enter_shop_address">Enter Address </string>
     <string name="save_profile">Save Profile</string>
@@ -11,8 +9,10 @@
     <string name="logout">Logout</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="add">Add</string>
+    <string name="sign_in_instruction">Sign in with Google to start ordering food. New users will need to set up their profile.</string>
+    <string name="profile_setup_prompt">Please complete your profile to continue.</string>
     <string name="add_to_cart">Add to Cart</string>
-    <string name="confirm_order">Confirm Order</string>
+    <string name="confirm_order">Confirm</string>
     <string name="remove">Remove</string>
     <string name="total_0_00">Total:0 Rs</string>
     <string name="order_history">Order History</string>
@@ -22,45 +22,42 @@
     <string name="decrease" translatable="false">-</string>
     <string name="plus" translatable="false">+</string>
     <string name="one" translatable="false">1</string>
-    <string name="food_image">Food Image</string>
     <string name="demo_price">100.00 Rs</string>
     <string name="checkout">Checkout</string>
     <string name="total_0">Total: ₹%d</string>
     <string name="rate_your_experience">Rate your experience</string>
     <string name="your_feedback">Your feedback..</string>
-    <string name="krushna_foods">Krushna Foods</string>
+    <string name="krishna_foods">Krishna Foods</string>
     <string name="food_ordering_app">Food Ordering App</string>
     <string name="feedback">We\'d love your feedback!</string>
-    <string name="writefeedback">Write your feedback here</string>s
+    <string name="write_feedback">Write your feedback here</string>s
     <string name="submit">Submit</string>
     <string name="back">Back</string>
     <string name="skip">Skip</string>
     <string name="search">Search</string>
     <string name="profile">Profile</string>
-    <string name="settings">Settings</string>
+    <string name="About">About</string>
     <string name="order_confirmation">Order Confirmation</string>
-    <string name="iteam_image">iteam_image</string>
+    <string name="item_image">item_image</string>
     <string name="status_processing">Status: Processing</string>
     <string name="items_shev_farsana">Items: shev, farsana</string>
-    <string name="totql">Total: $10.99</string>
     <string name="qty_1">Qty: 1</string>
     <string name="open_drawer">Open Navigation Drawer</string>
     <string name="close_drawer">Close Navigation Drawer</string>
     <string name="order_placed">🎉 Order Placed Successfully!</string>
     <string name="user_name">User Name</string>
     <string name="phone">Enter 10-digit Contact Number</string>
-    <string name="delete">Delete</string>
     <string name="items">Items:</string>
     <string name="order_date">Order Date:</string>
     <string name="logout_confirmation">Are you sure you want to log out?</string>
     <string name="yes">Yes</string>
-    <string name="cancel">Cancel</string>
     <string name="welcome_message">Welcome to Krishna Foods</string>
     <string name="app_logo">App Logo</string>
     <string name="total_300">Total: ₹300</string>
-    <string name="no_orders_found">No Orders Found</string>
     <string name="refresh">Refresh</string>
-    <string name="order_placed_successfully">Order Placed Successfully!</string>
+    <string name="order_placed_successfully">🎉 Order Placed Successfully!</string>
+    <string name="redirecting_feedback" translatable="false">Redirecting you to feedback...</string>
+
     <string name="complete_your_profile">Complete Your Profile</string>
     <string name="profile_picture">Profile Picture</string>
     <string name="email_loading">Email: loading</string>
@@ -69,11 +66,10 @@
     <string name="contact_loading">Contact: loading</string>
     <string name="location_icon">Location Icon</string>
     <string name="address_loading">Address: loading</string>
-    <string name="admindashboard">AdminDashboard</string>
     <string name="view_feedback">Feedback</string>
     <string name="order_management">Order Management</string>
     <string name="enquiries">Enquiries</string>
-    <string name="add_food">ADD FOOD ITEM</string>
+    <string name="add_food">Add Food Item</string>
     <string name="food_section">Food Management Section</string>
     <string name="option_icon">Option icon</string>
     <string name="action_go">Go</string>
@@ -88,10 +84,10 @@
     <string name="rejection_reason">Reason: %s</string>
     <string name="no_reason_provided">No reason provided</string>
     <string name="unknown_item">Unknown Item</string>
-    <string name="food_name">Food Name</string>
     <string name="decrease_quantity">decrease_quantity</string>
     <string name="increase_quantity">increase_quantity</string>
     <string name="weight">Weight</string>
+    <string name="you_save">You save </string>
 
     <string name="order_id_format">Order #%s</string>
     <string name="shop_format">Shop: %s</string>
@@ -103,17 +99,359 @@
     <string name="address_format">Address: %s</string>
     <string name="no_items">No items in this order</string>
     <string name="reason_format">Reason: %s</string>
-    <string name="price_format">₹%s</string>
+    <string name="discount_format">%d%% OFF</string>
     <string name="reject_order_title">Reject Order</string>
     <string name="reject">Reject</string>
     <string name="enter_reason">Please enter a reason</string>
-    <string name="order_status_updated">Order %s%s</string>
-    <string name="update_failed">Failed to update order: %s</string>
+    <string name="order_status_updated" formatted="false">Order %s%s</string>
     <string name="all_orders">All Orders</string>
     <string name="pending">Pending</string>
     <string name="accepted">Accepted</string>
     <string name="rejected">Rejected</string>
     <string name="delivered">Delivered</string>
     <string name="empty_orders_icon">Empty orders icon</string>
-    <string name="error_loading_orders">Error loading orders: %s</string>
+    <string name="cart_empty">Your cart is empty 🛒</string>
+    <string name="price_formats">₹%d</string>
+    <string name="stock_formats">Stock: %d</string>
+    <!-- Notification Titles -->
+    <string name="notification_order_accepted_title">Order Accepted</string>
+    <string name="notification_order_rejected_title">Order Rejected</string>
+    <string name="notification_order_delivered_title">Order Delivered</string>
+    <string name="notification_order_updated_title">Order Updated</string>
+
+    <!-- Notification Bodies -->
+    <string name="notification_order_accepted_body">Your order #%s has been accepted and is being prepared</string>
+    <string name="notification_order_rejected_body" formatted="false">Your order %s was rejected by %s</string>
+    <string name="notification_order_delivered_body">Your order #%s has been delivered.</string>
+    <string name="notification_order_updated_body" formatted="false">Your order #%s status has been updated to %s</string>    <string name="manage_items">Manage Items</string>
+    <string name="add_item">Add Item</string>
+    <string name="add_item_description">Add new food item</string>
+    <string name="view_cart">View Cart</string>
+    <string name="no_items_found">No items found</string>
+    <string name="empty_state">Empty Cart</string>
+
+    <string name="price">Price</string>
+    <string name="stock">Stock</string>
+    <string name="quantity">Quantity</string>
+    <string name="category">Category</string>
+    <string name="update">Update</string>
+    <string name="update_food_item">Update Food Item</string>
+    <string name="food_image_description">"Food Image Description "</string>
+    <string name="food_category">Food Category</string>
+    <string name="food_description">Food Description\n</string>
+    <string name="food_weight">Weight Of Food</string>
+    <string name="food_price">Price Of Food</string>
+    <string name="switch_user">Switch to User App</string>
+
+    <string name="food_background">Food pattern background</string>
+    <string name="sign_in_with_facebook">Sign in with Facebook</string>
+    <string name="sign_in_with_facebook_desc">Sign in using your Facebook account</string>
+    <string name="continue_as_guest">Continue as Guest</string>
+    <string name="continue_as_guest_desc">Browse the app without signing in</string>
+    <string name="loading_message">Please wait…</string>
+    <string name="tagline">Sign in with Google to continue</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_up">Don’t have an account? Sign Up</string>
+    <string name="google_sign_in_button">Google Sign-In Button</string>
+    <string name="view_details">View Details</string>
+    <string name="view_details_button">View Details Button</string>
+    <string name="top_wave_desc">Top decorative wave</string>
+    <string name="profile_animation_desc">Profile animation</string>
+    <string name="fill_details_title">Fill Details</string>
+    <string name="fill_details_subtitle">Enter your information to continue</string>
+    <string name="hint_name">Full Name</string>
+    <string name="hint_email">Email Address</string>
+    <string name="hint_phone">Phone Number</string>
+    <string name="btn_save">Save</string>
+    <string name="bottom_wave_desc">Bottom decorative wave</string>
+    <string name="profile_setup_instructions">Please provide your contact details, shop name, and full delivery address to proceed with ordering.</string>
+    <string name="phone_number_hint">Phone Number</string>
+    <string name="phone_helper_text">Enter a 10-digit phone number for order updates</string>
+    <string name="shop_name_hint">Shop Name</string>
+    <string name="shop_name_helper_text">Enter your shop\'s name</string>
+    <string name="address_hint">Delivery Address</string>
+    <string name="address_helper_text">Enter full address including street, city, and zip code</string>
+    <string name="phone_error">Enter a valid 10-digit phone number</string>
+    <string name="shop_name_error">Enter a valid shop name (at least 3 characters)</string>
+    <string name="address_error">Enter a complete delivery address</string>
+    <string name="loading_cart">Loading Cart Items</string>
+    <string name="error_loading_cart">Error While Fetching</string>
+
+
+    <string name="Total_amount">Total: ₹%d</string>
+    <string name="user_not_logged_in">User not logged in!</string>
+    <string name="checking_profile">Checking profile…</string>
+    <string name="placing_order">Placing your order…</string>
+    <string name="error_fetching_profile">Error fetching profile details!</string>
+    <string name="profile_incomplete">Please complete your profile before ordering!</string>
+    <string name="order_failed">Order failed!</string>
+    <string name="checking_user_role">Checking user role…</string>
+    <string name="checking_access">Verifying access…</string>
+    <string name="about_app_version">Version %s</string>
+    <string name="about_developer_info">Developed by Yash Ajay Kadav\nWebsite: github.com/yashajaykadav\nEmail: yashkadav52@gmail.com</string>
+    <string name="about_acknowledgments">This app uses:\n- Firebase for authentication and data storage\n- Lottie for animations\n- Glide for image loading\n- Material Design components\nThank you to all contributors!</string>
+    <string name="privacy_policy_url">https://github.com/yashajaykadav/privacy-policy</string>
+    <string name="terms_of_service_url">https://github.com/yashajaykadav/privacy-policy</string>
+    <string name="error_opening_link">Failed to open link!</string>
+    <string name="loading_link">Opening link…</string>
+    <string name="confirm_order_title" translatable="false">Confirm Order</string>
+    <string name="confirm_order_message" translatable="false">Are you sure you want to place this order?</string>
+    <string name="confirm" translatable="false">Confirm</string>
+    <string name="profile_incomplete_title" translatable="false">Incomplete Profile</string>
+    <string name="update_profile" translatable="false">Update Profile</string>
+    <string name="no_data" translatable="false">Not Available</string>
+
+    <string name="switch_to_user_confirmation">Are you sure you want to switch to user mode?</string>
+    <string name="no">No</string>
+    <string name="stats_load_error">Failed to load statistics</string>
+    <string name="view_orders">View Orders</string>
+    <string name="delivered_orders">Delivered Orders</string>
+    <string name="user_enquiries">User Enquiries</string>
+    <string name="advertisement">Advertisement</string>
+    <string name="settings">Settings</string>
+
+    <string name="admin_dashboard">Admin Dashboard</string>
+    <string name="todays_summary">Today\'s Summary</string>
+    <string name="todays_summary_description">Summary of today\'s admin statistics</string>
+    <string name="quick_access">Quick Access</string>
+    <string name="quick_access_description">Quick access to admin functions</string>
+    <string name="products">Products</string>
+    <string name="switch_to_user">Switch to User Mode</string>
+    <string name="retry">Retry</string>
+    <string name="pending_orders_icon">Pending orders icon</string>
+    <string name="delivered_orders_icon">Delivered orders icon</string>
+    <string name="menu_items_icon">Menu items icon</string>
+    <string name="pending_orders_count">Number of pending orders</string>
+    <string name="delivered_orders_count">Number of delivered orders</string>
+    <string name="menu_items_count">Number of menu items</string>
+    <string name="admin_option_icon">Admin option icon</string>
+    <string name="add_to_cart_with_price">Add to Cart (₹%d)</string>
+    <string name="about_title">About Krishna Foods</string>
+    <string name="app_logo_description">Krishna Foods Logo</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="max_quantity_reached">Maximum quantity reached!</string>
+    <string name="item_added_to_cart">%1$s x%2$d added to cart!</string>
+    <string name="failed_to_add_to_cart">Failed to add to cart. Please try again.</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="price_format">₹%d</string>
+    <string name="weight_format">%s</string>
+    <string name="original_price">₹999</string>
+    <string name="original_total">Original Total: </string>
+    <string name="failed_to_load_banners">Failed to Load Banners</string>
+    <string name="quantity_format">Qty: %d</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="your_savings">Your Savings</string>
+    <string name="please_sign_in_to_view_banners">Please Sign In To View Banners</string>
+    <string name="currency_format">₹ %d</string>
+    <string name="savings_format">- ₹ %d</string>
+    <string name="placing_your_order">Placing your order…</string>
+    <string name="total">Total: </string>
+    <string name="no_internet_connection">Internet Is Not Available</string>
+    <string name="start_shopping">Start Shopping</string>
+    <string name="edit_profile">Edit Your Profile</string>
+
+    <string name="confirm_cancel_message" translatable="false">Are you sure you want to cancel this order?</string>
+    <string name="error_loading_orders" translatable="false">Error Loading Orders</string>
+    <string name="failed_to_load_orders" translatable="false">Failed to load orders: %1$s</string>
+    <string name="no_orders_found" translatable="false">No Orders Found</string>
+    <string name="no_orders_message" translatable="false">You haven\'t placed any orders yet</string>
+    <string name="user_not_authenticated" translatable="false">User not authenticated</string>
+    <string name="only_pending_orders_can_be_cancelled" translatable="false">Only pending orders can be cancelled</string>
+    <string name="order_cancelled_successfully" translatable="false">Order cancelled successfully</string>
+    <string name="failed_to_cancel_order" translatable="false">Failed to cancel order</string>
+
+    <string name="error_user_not_authenticated" translatable="false">User not authenticated. Please log in again.</string>
+    <string name="error_failed_to_load_orders" translatable="false">Failed to load orders: %1$s</string>
+
+    <string name="snackbar_only_pending_cancellable" translatable="false">Only pending orders can be cancelled</string>
+    <string name="snackbar_order_cancelled_success" translatable="false">Order cancelled successfully</string>
+    <string name="snackbar_order_cancelled_failure" translatable="false">Failed to cancel order</string>
+
+    <string name="dialog_cancel_order_title" translatable="false">Cancel Order</string>
+    <string name="dialog_cancel_order_message" translatable="false">Are you sure you want to cancel this order?</string>
+
+    <string name="action_yes" translatable="false">Yes</string>
+    <string name="action_no" translatable="false">No</string>
+    <string name="action_retry" translatable="false">Retry</string>
+    <string name="action_start_shopping" translatable="false">Start Shopping</string>
+
+    <string name="empty_orders_title" translatable="false">No Orders Found</string>
+    <string name="empty_orders_description" translatable="false">You haven\'t placed any orders yet</string>
+    <!-- Common Strings -->
+    <string name="ok">OK</string>
+    <string name="error_title">Error</string>
+
+    <!-- Login Activity Strings -->
+    <string name="logging_in">Logging you in\u2026</string>
+    <string name="signing_in_with_google">Signing in with Google\u2026</string>
+    <string name="authenticating_with_firebase">Authenticating with Firebase\u2026</string>
+    <string name="default_version">1.0.0</string>
+
+    <!-- Error Messages -->
+    <string name="google_sign_in_failed">Google Sign-In failed: %1$s</string>
+    <string name="no_id_token_received">No ID token received. Please try again.</string>
+    <string name="authentication_failed">Authentication failed: %1$s</string>
+    <string name="sign_in_cancelled">Sign-in cancelled. Please try again.</string>
+    <string name="firebase_auth_failed">Firebase authentication failed: %1$s</string>
+    <string name="failed_to_save_user">Failed to save user data: %1$s</string>
+    <string name="failed_to_check_user">Failed to check user data: %1$s</string>
+    <string name="failed_to_get_fcm_token">Failed to retrieve FCM token: %1$s</string>
+
+    <!-- Terms and Conditions -->
+    <string name="terms_not_accepted_title">Terms Not Accepted</string>
+    <string name="terms_not_accepted_message">You must accept the Privacy Policy and Terms of Service to continue.</string>
+
+    <!-- Button Texts -->
+    <string name="btn_google_sign_in">Sign in with Google</string>
+
+    <!-- Checkbox Text -->
+    <string name="accept_terms">I agree to the Privacy Policy and Terms of Service</string>
+    <string name="original_price_text">Original Price</string>
+    <string name="offered_price_txt">Offered Price</string>
+    <string name="select_category">Select Category</string>
+    <string name="select_weight">Select Weight</string>
+
+    <string name="upload_advertisement">Upload Advertisement</string>
+    <string name="update_advertisement">Update Advertisement</string>
+    <string name="uploading">Uploading…</string>
+
+    <!-- Dialogs -->
+    <string name="delete_advertisement">Delete Advertisement</string>
+    <string name="delete_ad_confirmation">Are you sure you want to delete this advertisement?</string>
+
+    <!-- Toasts -->
+    <string name="please_select_image">Please select an image</string>
+    <string name="failed_existing_image_url">Failed to get existing image URL.</string>
+    <string name="upload_failed">Upload failed: %1$s</string>
+    <string name="upload_retrying">Retrying upload…</string>
+    <string name="ad_saved_success">Advertisement saved successfully!</string>
+    <string name="ad_save_failed">Failed to save: %1$s</string>
+    <string name="ads_load_error">Error loading ads: %1$s</string>
+    <string name="ad_deleted">Advertisement deleted</string>
+    <string name="ad_delete_failed">Failed to delete: %1$s</string>
+    <string name="no_advertisements">No Advertisement</string>
+
+    <string name="active">Active</string>
+    <string name="inactive">Inactive</string>
+    <string name="activate">Activate</string>
+    <string name="deactivate">Deactivate</string>
+    <string name="delete">Delete</string>
+    <string name="advertisement_image">Advertisement Image</string>
+    <string name="select_image_warning">Please select an image</string>
+    <string name="upload_retry">Retrying upload…</string>
+    <string name="ad_save_success">Advertisement saved successfully!</string>
+    <string name="ad_load_error">Error loading ads: %s</string>
+    <string name="ad_status_updated">Advertisement status updated</string>
+    <string name="ad_status_update_failed">Failed to update status: %s</string>
+    <string name="ad_delete_success">Advertisement deleted</string>
+    <string name="select_image_error">Please select an image</string>
+    <string name="no_internet">No internet connection</string>
+    <string name="login_first">Please login first</string>
+    <string name="image_url_error">Image upload failed: No URL returned</string>
+    <string name="image_upload_fail">Image upload failed</string>
+    <string name="add_food_fail">Failed to add food item</string>
+    <string name="add_food_button">Add Food</string>
+
+    <string name="order_date_content_desc">Order date and time</string>
+    <string name="order_status_content_desc">Order status</string>
+    <string name="order_total_content_desc">Total order amount</string>
+    <string name="item">Item</string>
+    <string name="qty">Qty</string>
+
+    <string name="item_column_header">Item column header</string>
+    <string name="quantity_column_header">Quantity column header</string>
+    <string name="weight_column_header">Weight column header</string>
+    <string name="price_column_header">Price column header</string>
+    <string name="rejection_reason_content_desc">Reason for order rejection</string>
+    <string name="cancel_order_button_desc">Cancel order button</string>
+
+    <string name="lang_english">English</string>
+    <string name="lang_marathi">Marathi</string>
+    <string name="choose_language">Choose Language</string>
+    <string name="logout_confirm">Are you sure you want to logout?</string>
+    <string name="checking_role">Checking user role…</string>
+    <string name="verifying">Verifying access…</string>
+    <string name="admin_access_denied">Access Denied! Admins Only</string>
+    <string name="rate_app">Rate App</string>
+    <string name="about_app">Krishna Foods, based in Vita, Sangli, is a trusted manufacturer of delicious bakery items and Namkeens."</string>
+    <string name="thank_you_message">Thank you for your order!</string>
+    <string name="delivery_details">Delivery Details</string>
+    <string name="payment_delivery_info">Payment and Delivery Info</string>
+    <string name="track_order">Track Order</string>
+    <string name="continue_shopping" formatted="false">Continue Shopping</string>
+    <string name="order_success">Order Successful</string>
+    <string name="thank_you_description">Thank you message</string>
+    <string name="customer_name">Customer Name</string>
+    <string name="delivery_address">Address</string>
+    <string name="customer_contact">Customer Contact</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="delivery_status">Delivery Status</string>
+    <string name="estimated_delivery">Estimated Delivery</string>
+    <string name="toolbar_description">Order Confirmation Toolbar</string>
+    <string name="password_hint" translatable="false">Enter Password</string>
+    <string name="btn_login" translatable="false">Login</string>
+    <string name="order_summary" translatable="false">Order Summary</string>
+    <string name="customer_details" translatable="false">Customer Details</string>
+    <string name="contact_information" translatable="false">Contact Info</string>
+    <string name="payment_via_cod" translatable="false">Cash On Delivery</string>
+    <string name="estimated_delivery_2_Days" formatted="false" translatable="false">Deliver in 2-3 Business days</string>
+    <string name="Sample_email" translatable="false">user@example.com</string>
+    <string name="make_admin" translatable="false">Make Admin</string>
+    <string name="make_user" translatable="false">Make User</string>
+    <string name="rating" translatable="false">Rating:</string>
+    <string name="bo_feedback" translatable="false">No feedback to review yet</string>
+    <!-- Image selection -->
+    <string name="select_image_source">Select image source</string>[3][4]
+    <string name="food_image">Food image</string>[2][1]
+    <string name="tap_to_select">Tap to select</string>[1][2]
+
+    <!-- Fields and hints -->
+    <string name="food_name">Food name</string>[1][2]
+    <string name="fill_all_fields">Please fill all required fields</string>[2][1]
+
+    <!-- Upload / network -->
+    <string name="uploading_image">Uploading image…</string>[4][5]
+    <string name="image_compress_error">Could not process image. Try another</string>[5][4]
+
+    <!-- Firestore results -->
+    <string name="add_food_success">Food item added</string>[4][5]
+
+    <!-- Camera / permissions -->
+    <string name="camera_setup_error">Unable to open camera</string>[4][5]
+
+    <!-- Cancelable loading overlay -->
+    <string name="cancel">Cancel</string>[3][5]
+    <string name="cancel_upload_title" translatable="false">Cancel upload?</string>[3][5]
+    <string name="cancel_upload_message" translatable="false">The image upload is in progress. Canceling will stop the upload and close this screen.</string>
+    [6][5]
+    <string name="cancel_anyway" translatable="false">Cancel anyway</string>[6][5]
+    <string name="keep_uploading" translatable="false">Keep uploading</string>[6][5]
+
+    <!-- Validation -->
+    <string name="offer_price_gt_original" translatable="false">Offer price cannot be higher than original price</string>
+    <string name="no_delivered" translatable="false">No delivered orders yet.</string>
+    <string name="order_items" formatted="false" translatable="false">Order Items</string>
+    <string name="shop" translatable="false">Shop:</string>
+    <string name="bill_summary" translatable="false">Bill Summary</string>
+    <string name="warning">warning\n</string>
+    <string name="back_press_warning" translatable="false">loading in progress. Are you sure you want to go back?</string>
+    <string name="order_id" translatable="false">Order ID</string>
+    <string name="add_food_toolbar">Add Food Toolbar</string>
+    <string name="select_category_dropdown">Category Dropdown</string>
+    <string name="select_weight_dropdown">Weight or Volume Dropdown</string>
+    <string name="food_name_error">Food name is required</string>
+    <string name="invalid_price_error">Enter a valid price greater than 0</string>
+    <string name="camera_permission_denied">Camera permission denied</string>
+    <string name="msg_max_quantity">Maximum quantity is 99</string>
+    <string name="msg_max_quantity_reached">Maximum quantity reached</string>
+    <string name="label_weight">Weight: %1$s</string>
+    <string name="label_category">Category: %1$s</string>
+    <string name="offer_price_error">Enter Valid Offer Price</string>
+        <string name="camera">Camera</string>
+        <string name="gallery">Gallery</string>
+        <string name="error_fetching_categories">Failed to fetch categories. Using default values.</string>
+        <string name="error_fetching_options">Failed to fetch options. Using default values.</string>
+    <string name="loading_your_orders">Loading your orders...</string>
+    <string name="you_dont_orders_yet">You haven\'t placed any orders yet</string>
+
 </resources>

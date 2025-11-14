@@ -1,27 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="QuantityButtonStyle" parent="Widget.MaterialComponents.Button">
-        <item name="android:layout_width">36dp</item>
-        <item name="android:layout_height">36dp</item>
-        <item name="android:background">@drawable/circular_button_bg</item>
-        <item name="android:tint">@color/colorPrimary</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="QuantityButtonStyle">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:tint">?attr/colorPrimary</item>
     </style>
 
-    <style name="ActionButtonStyle" parent="Widget.MaterialComponents.Button">
+    <style name="ActionButtonStyle">
         <item name="android:layout_width">36dp</item>
         <item name="android:layout_height">36dp</item>
-        <item name="android:background">@drawable/circular_button_bg</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-    </style>
-    <style name="Theme.FoodOrderingApp.Light" parent="Theme.Material3.Light">
-        <item name="colorPrimary">#6200EE</item>
-        <item name="colorPrimaryVariant">#3700B3</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="android:windowBackground">#FFFFFF</item> <!-- Ensures white background -->
-        <item name="android:textColorPrimary">#000000</item> <!-- Ensures black text -->
+        <item name="android:scaleType">centerInside</item>
     </style>
 
         <!-- Text Styles -->
@@ -85,6 +74,86 @@
 
     <style name="ShapeAppearanceOverlay.CornerSmall" parent="">
         <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">24dp</item>
+        <item name="cornerSizeTopRight">24dp</item>
+    </style>
+    <style name="CircleImageStyle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+    <style name="BottomSheetDialogRounded" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
+    </style>
+
+    <style name="BottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    <style name="CircleImageWithBorder" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+    <drawable name="divider_vertical_8dp">
+        <shape android:shape="rectangle">
+            <size android:height="8dp" />
+        </shape>
+    </drawable>
+    <style name="ShapeNavigationDrawer" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">24dp</item>
+        <item name="cornerSizeBottomRight">24dp</item>
+    </style>
+    <style name="ShapeBottomNavBar" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+        <item name="android:elevation">8dp</item>
+    </style>
+    <style name="UserActionButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:backgroundTint">@color/colorPrimary</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Add these to your existing styles.xml -->
+    <style name="BottomNavItemStyle" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
+        <item name="itemTextAppearanceActive">@style/BottomNavTextActive</item>
+        <item name="itemTextAppearanceInactive">@style/BottomNavTextInactive</item>
+        <item name="itemRippleColor">@color/bottom_nav_ripple</item>
+        <item name="itemBackground">@drawable/bottom_nav_item_background</item>
+    </style>
+
+    <style name="BottomNavTextActive" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="BottomNavTextInactive" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.App.CornerSize12dp" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+    <!-- Define a theme for the rounded dialog pop-up -->
+    <style name="CustomDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:windowBackground">@drawable/dialog_background_rounded</item>
+        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
+    </style>
+
+    <!-- (Optional) Dialog slide animation -->
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/dialog_slide_down</item>
+        <item name="android:windowExitAnimation">@anim/dialog_slide_up</item>
     </style>
 
 </resources>

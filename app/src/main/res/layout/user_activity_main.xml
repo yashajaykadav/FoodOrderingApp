@@ -6,68 +6,65 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Main Content Inside CoordinatorLayout -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- AppBarLayout for Toolbar -->
         <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
+            android:id="@+id/appBarLayout" android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar">
-
+            android:fitsSystemWindows="false" >
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/topAppBar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:title="@string/krushna_foods"
-                app:titleTextColor="@android:color/white"
-                app:titleMarginStart="60dp"
-                app:navigationIcon="@drawable/ic_user"/>
+                android:background="@color/lightRed"
+                app:navigationIcon="@drawable/user"
+                app:title="@string/krishna_foods"
+                app:titleTextColor="@color/white" />
         </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- ViewPager2 Below Toolbar -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="56dp"
+            android:layout_marginBottom="0dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-        <!-- Floating Action Button for Enquiry -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabCart"
+            android:id="@+id/fabEnquiry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="80dp"
-            android:src="@drawable/chat"
+            android:layout_marginBottom="55dp"
+            android:src="@drawable/ic_chat"
             android:contentDescription="@string/enquiries"
-            app:backgroundTint="@color/colorPrimary"
+            app:backgroundTint="@color/lightRed"
             app:layout_anchor="@id/bottomNavigationView"
             app:layout_anchorGravity="end" />
 
-        <!-- Bottom Navigation View -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="wrap_content" style="@style/BottomNavItemStyle"
+            app:itemIconSize="20dp"
             android:layout_gravity="bottom"
             app:menu="@menu/bottom_nav_menu"
-            app:itemIconTint="@color/nav_item_color"
-            app:itemTextColor="@color/nav_item_color"
-            android:background="?android:attr/windowBackground" />
+            app:itemIconTint="@color/bottom_nav_icon_tint"
+            app:backgroundTint="@color/lightRed"
+            app:shapeAppearanceOverlay="@style/ShapeBottomNavBar" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigationView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="@color/white"
         app:menu="@menu/drawer_menu"
-        app:headerLayout="@layout/nav_header" />
+        app:headerLayout="@layout/nav_header"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:shapeAppearanceOverlay="@style/ShapeNavigationDrawer" />
+
 </androidx.drawerlayout.widget.DrawerLayout>

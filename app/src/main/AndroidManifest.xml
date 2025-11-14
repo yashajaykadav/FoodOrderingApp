@@ -2,88 +2,153 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Camera feature (optional - app works without camera) -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
+    <!-- Required Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/logos"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.FoodOrderingApp.Light"
+        android:theme="@style/Theme.FoodOrderingApp"
+        android:windowSoftInputMode="adjustResize"
         tools:targetApi="31">
+
+        <!-- Admin Activities -->
+        <activity
+            android:name=".admin.activity.ManageAdvertisementActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".admin.activity.AdminEnquiryActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
-        <activity
-            android:name=".user.activity.UserEnquiryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".admin.activity.AddItemActivity"
-            android:exported="false" /> <!-- 🔹 Admin Activities -->
         <activity
             android:name=".admin.activity.AdminSettingsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.OrdersActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.ManageItemsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.FeedbackActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.DeliveredOrdersActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.OrderDetailsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".admin.activity.ViewOrdersActivity"
-            android:exported="false" />
+            android:screenOrientation="portrait"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="OPEN_ORDER_DETAILS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Firebase Messaging Service -->
+        <service
+            android:name=".admin.message.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".admin.activity.AdminMainActivity"
-            android:exported="false" /> <!-- 🔹 User Activities -->
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <!-- User Activities -->
+        <activity
+            android:name=".user.activity.EditProfileActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".user.activity.UserEnquiryActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".admin.activity.AddItemActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".user.activity.FeedbackActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".user.activity.LoginActivity"
-            android:exported="true">
+            android:screenOrientation="portrait"
+            android:exported="true"
+            android:theme="@style/Theme.KrishnaFoods.login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- 🔹 Corrected MainActivity Path -->
+        </activity>
         <activity
             android:name=".user.activity.MainActivity"
-            android:exported="true" /> <!-- 🔹 Other Activities -->
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.KrishnaFoods.user" />
         <activity
             android:name=".user.activity.ProfileActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".user.activity.OrderSuccessActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".user.activity.OrderConfirmationActivity"
-            android:exported="false" />
+            android:screenOrientation="portrait"
+            android:exported="false"
+            android:theme="@style/Theme.KrishnaFoods.user" />
         <activity
             android:name=".user.activity.ProfileSetupActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.KrishnaFoods.login" />
+        <activity
+            android:name=".user.activity.AboutActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.KrishnaFoods.user" />
 
+        <!-- FileProvider for Camera -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+            android:resource="@xml/file_path" />
+        </provider>
+
+        <!-- Firebase Meta Data -->
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
-
-        <meta-data
-            android:name="com.google.android.gms.auth.api.signin.CLIENT_ID"
-            android:value="161520009409-iaaodnfdede1qkrvhn62db8aeep6e42a.apps.googleusercontent.com" />
+            android:value="@integer/google_play_services_version" />
     </application>
 
 </manifest>

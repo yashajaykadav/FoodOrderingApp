@@ -18,7 +18,7 @@
         app:title="User Enquiries"
         app:titleCentered="true"
         app:navigationIcon="@drawable/ic_arrow_back"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorAccent"
         android:titleTextColor="@android:color/white"
         app:titleTextAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"

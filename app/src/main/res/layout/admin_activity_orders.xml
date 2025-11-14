@@ -8,18 +8,30 @@
     tools:context=".admin.activity.OrdersActivity"
     android:background="@color/gray">
 
-    <!-- ✅ MaterialToolbar con Back Button -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarOrders"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@color/colorAccent"
         app:title="@string/order_management"
         app:titleTextColor="@android:color/white"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Chip Filter Group -->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchViewOrders"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:queryHint="Search by name or order ID"
+        android:background="@drawable/spinner_background"
+        android:iconifiedByDefault="false"
+        app:layout_constraintTop_toBottomOf="@id/toolbarOrders"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chipGroupFilter"
         android:layout_width="0dp"
@@ -31,7 +43,7 @@
         app:selectionRequired="true"
         app:chipSpacingHorizontal="8dp"
         app:chipSpacingVertical="8dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbarOrders"
+        app:layout_constraintTop_toBottomOf="@id/searchViewOrders"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -82,21 +94,8 @@
             app:chipStrokeWidth="1dp"
             android:textColor="@color/black"
             app:checkedIconEnabled="false"/>
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipDelivered"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/delivered"
-            app:chipBackgroundColor="@color/chip_selector"
-            app:chipStrokeColor="@color/chip_stroke_selector"
-            app:chipStrokeWidth="1dp"
-            android:textColor="@color/black"
-            app:checkedIconEnabled="false"/>
     </com.google.android.material.chip.ChipGroup>
 
-    <!-- Empty State View -->
     <LinearLayout
         android:id="@+id/emptyStateView"
         android:layout_width="0dp"
@@ -128,7 +127,6 @@
             android:fontFamily="sans-serif-medium"/>
     </LinearLayout>
 
-    <!-- Orders List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewOrders"
         android:layout_width="0dp"

@@ -16,6 +16,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Order ID and Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,6 +47,7 @@
                 android:gravity="center"/>
         </LinearLayout>
 
+        <!-- User and Shop Info -->
         <TextView
             android:id="@+id/textUserName"
             android:layout_width="match_parent"
@@ -86,6 +88,7 @@
             android:textSize="15sp"
             android:textColor="@color/text_primary"/>
 
+        <!-- Table Header Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -117,7 +120,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.5"
-                android:text="Price"
+                android:text="Weight"
                 android:textAlignment="textEnd"
                 android:textColor="@color/white"
                 android:textStyle="bold"
@@ -134,6 +137,7 @@
                 android:textSize="14sp"/>
         </LinearLayout>
 
+        <!-- Dynamic Food Item Rows -->
         <LinearLayout
             android:id="@+id/itemsTableContainer"
             android:layout_width="match_parent"
@@ -141,6 +145,7 @@
             android:orientation="vertical"
             android:background="@drawable/table_background"/>
 
+        <!-- Total Amount -->
         <TextView
             android:id="@+id/textTotalAmount"
             android:layout_width="match_parent"
@@ -151,6 +156,7 @@
             android:textStyle="bold"
             android:textColor="@color/black"/>
 
+        <!-- Rejection Reason -->
         <TextView
             android:id="@+id/textRejectionReason"
             android:layout_width="match_parent"
@@ -162,6 +168,7 @@
             android:padding="8dp"
             android:visibility="gone"/>
 
+        <!-- Action Buttons -->
         <LinearLayout
             android:id="@+id/btnContainer"
             android:layout_width="match_parent"

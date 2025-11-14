@@ -5,53 +5,72 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"> <!-- Fixed line #8 -->
+    android:background="@android:color/white">
 
+    <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/feed_toolbar"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         app:title="User Feedbacks"
         app:titleCentered="true"
-        android:background="?attr/colorPrimary"
+        android:background="@color/colorAccent"
         app:titleTextColor="@color/white"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:menu="@menu/admin_feedback_menu"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewFeedback"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/feed_toolbar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/admin_item_feedback"/>
 
-    <TextView
-        android:id="@+id/tvEmptyState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No feedback to review yet"
-        android:textSize="16sp"
-        android:textColor="@color/colorSecondary"
+    <!-- Lottie Loading Animation -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieLoadingFeedback"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/loading"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Empty State Text -->
+    <TextView
+        android:id="@+id/tvEmptyFeedback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bo_feedback"
+        android:textSize="16sp"
+        android:textColor="@color/colorSecondary"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/feed_toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Optional Empty State Image -->
     <ImageView
-        android:id="@+id/ivEmptyState"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:id="@+id/ivEmptyFeedback"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:src="@drawable/ic_empty_orders"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/tvEmptyState"
-        app:layout_constraintStart_toStartOf="@id/tvEmptyState"
-        app:layout_constraintEnd_toEndOf="@id/tvEmptyState"/>
+        app:layout_constraintBottom_toTopOf="@id/tvEmptyFeedback"
+        app:layout_constraintStart_toStartOf="@id/tvEmptyFeedback"
+        app:layout_constraintEnd_toEndOf="@id/tvEmptyFeedback"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

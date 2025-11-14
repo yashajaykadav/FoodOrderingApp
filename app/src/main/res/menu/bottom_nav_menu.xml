@@ -1,18 +1,19 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/nav_menu"
-        android:icon="@drawable/home"
-        android:title="@string/menu" />
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-    android:id="@+id/nav_cart"
-    android:icon="@drawable/cart"
-    android:title="@string/cart"
+        android:id="@+id/nav_menu"
+        android:icon="@drawable/home"
+        android:tooltipText="@string/menu"
+        android:title="Menu" />
+    <item
+        android:id="@+id/nav_cart"
+        android:icon="@drawable/cart"
+        android:title="Cart"
+        android:tooltipText="@string/cart"
         app:showAsAction="always"
         app:actionLayout="@layout/cart_badge_layout"/>
-
-
-    <item android:id="@+id/nav_orders"
+    <item
+        android:id="@+id/nav_orders"
         android:icon="@drawable/download"
-        android:title="@string/orders" />
+        android:tooltipText="@string/orders"
+        android:title="Orders" />
 </menu>
