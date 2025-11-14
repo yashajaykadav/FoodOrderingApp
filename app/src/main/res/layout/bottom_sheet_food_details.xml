@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvFoodName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:paddingBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/original_price_text"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etOriginalPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="10"
+            android:hint="@string/food_price"
+            android:inputType="numberDecimal"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/offered_price_txt"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etOfferPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="10"
+            android:hint="@string/available_quantity"
+            android:inputType="number"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/weight"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etFoodWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:hint="@string/enter_weight"
+            android:inputType="text"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:clickable="false"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/food_category"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="4dp"/>
+
+        <EditText
+            android:id="@+id/etFoodCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="nakeen"
+            android:hint="@string/enter_category"
+            android:inputType="text"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:clickable="false"/>
+
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/btnClose"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/cancel"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="@color/colorSecondary"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btnDeleteFood"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/delete"
+                android:backgroundTint="@color/colorError"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btnUpdateFood"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/update"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="@color/stockGreen"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <dimen name="margin_screen">28dp</dimen>
+        <dimen name="card_inner_padding">24dp</dimen>
+        <dimen name="toolbar_elevation">8dp</dimen>
+        <dimen name="card_elevation">12dp</dimen>
+        <dimen name="card_corner">16dp</dimen>
+        <dimen name="box_corner">12dp</dimen>
+        <dimen name="input_min_height">200dp</dimen>
+        <dimen name="input_padding">18dp</dimen>
+        <dimen name="button_text_size">20sp</dimen>
+        <dimen name="button_corner">30dp</dimen>
+        <dimen name="space_xs">12dp</dimen>
+        <dimen name="space_s">14dp</dimen>
+        <dimen name="space_m">24dp</dimen>
+        <dimen name="recycler_padding_top">16dp</dimen>
+        <dimen name="recycler_padding_bottom">120dp</dimen>
+
+</resources>

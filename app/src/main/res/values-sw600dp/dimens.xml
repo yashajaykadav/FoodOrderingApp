@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="welcome_text_size">28sp</dimen>
+    <dimen name="instruction_text_size">20sp</dimen>
+    <dimen name="checkbox_text_size">18sp</dimen>
+    <dimen name="button_text_size">20sp</dimen>
+    <dimen name="footer_text_size">18sp</dimen>
+    <dimen name="loading_text_size">20sp</dimen>
+    <dimen name="loader_size">150dp</dimen>
+        <dimen name="margin_screen">20dp</dimen>
+        <dimen name="card_inner_padding">20dp</dimen>
+        <dimen name="toolbar_elevation">6dp</dimen>
+        <dimen name="card_elevation">10dp</dimen>
+        <dimen name="card_corner">14dp</dimen>
+        <dimen name="box_corner">10dp</dimen>
+        <dimen name="input_min_height">160dp</dimen>
+        <dimen name="input_padding">16dp</dimen>
+        <dimen name="button_corner">28dp</dimen>
+        <dimen name="space_xs">10dp</dimen>
+        <dimen name="space_s">12dp</dimen>
+        <dimen name="space_m">20dp</dimen>
+        <dimen name="recycler_padding_top">12dp</dimen>
+        <dimen name="recycler_padding_bottom">100dp</dimen>
+</resources>

@@ -1,0 +1,5 @@
+<layoutAnimation xmlns:android="http://schemas.android.com/apk/res/android"
+    android:animation="@anim/item_fade_scale"
+    android:animationOrder="normal"
+    android:delay="15%"
+    android:interpolator="@android:anim/decelerate_interpolator" />

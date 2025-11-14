@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Camera images stored in app's private files directory -->
+    <files-path
+        name="camera_images"
+        path="/" />
+
+    <!-- Compressed images in cache directory -->
+    <cache-path
+        name="cache_images"
+        path="/" />
+
+    <!-- Alternative: Use external files if needed -->
+    <external-files-path
+        name="external_images"
+        path="/" />
+</paths>

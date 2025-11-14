@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
+    app:cardBackgroundColor="@color/cardBackground"
+    android:foreground="?attr/selectableItemBackground"
+    android:transitionName="card_transition">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="@drawable/order_item_bg">
+
+        <!-- Food Image -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/foodImageContainer"
+            android:layout_width="0dp"
+            android:layout_height="140dp"
+            android:layout_marginEnd="12dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.35">
+
+            <ImageView
+                android:id="@+id/foodImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/food_image_description"
+                android:src="@drawable/default_img"
+                tools:src="@tools:sample/avatars" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Info Column -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp"
+            app:layout_constraintStart_toEndOf="@id/foodImageContainer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/foodImageContainer">
+
+            <TextView
+                android:id="@+id/foodName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textPrimary"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:lineSpacingExtra="2sp"
+                tools:text="Delicious Burger" />
+
+            <TextView
+                android:id="@+id/foodCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:lineSpacingExtra="1sp"
+                tools:text="Fast Food" />
+
+            <TextView
+                android:id="@+id/foodWeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:lineSpacingExtra="1sp"
+                tools:text="300g" />
+        </LinearLayout>
+
+        <!-- Price Row -->
+        <LinearLayout
+            android:id="@+id/priceContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="@id/foodImageContainer"
+            app:layout_constraintTop_toBottomOf="@id/foodImageContainer">
+
+            <TextView
+                android:id="@+id/foodOriginalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp"
+                android:visibility="gone"
+                android:lineSpacingExtra="1sp"
+                tools:text="₹120" />
+
+            <TextView
+                android:id="@+id/foodOfferPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:lineSpacingExtra="2sp"
+                tools:text="₹99" />
+        </LinearLayout>
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/foodDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/textSecondary"
+            android:textSize="14sp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:lineSpacingExtra="2sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/priceContainer"
+            tools:text="Delicious burger with cheese, lettuce, tomato and special sauce" />
+
+        <!-- Actions Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/foodDescription"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Quantity Selector -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                app:cardCornerRadius="12dp"
+                app:cardBackgroundColor="@color/quantityBackground"
+                app:cardElevation="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageButton
+                        android:id="@+id/minusButton"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/minus"
+                        android:contentDescription="@string/decrease_quantity"
+                        android:scaleType="centerInside"
+                        app:tint="@color/colorError" />
+
+                    <TextView
+                        android:id="@+id/quantityText"
+                        android:layout_width="44dp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="@string/one"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="20sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        tools:text="@string/one" />
+
+                    <ImageButton
+                        android:id="@+id/plusButton"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/add"
+                        android:contentDescription="@string/increase_quantity"
+                        android:scaleType="centerInside"
+                        app:tint="@color/green" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Add to Cart Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/addToCartButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="@string/add_to_cart"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingHorizontal="16dp"
+                app:cornerRadius="12dp"
+                app:elevation="3dp"
+                android:backgroundTint="@color/colorAccent" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
