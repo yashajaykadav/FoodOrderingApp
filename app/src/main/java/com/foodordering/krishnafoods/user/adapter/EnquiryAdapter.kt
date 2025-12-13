@@ -1,64 +1,59 @@
+/*
+ * Developed by: Yash Kadav
+ * Email: yashkadav52@gmail.com
+ * Project: Krishna Foods (ADCET CSE 2026)
+ */
+
 package com.foodordering.krishnafoods.user.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.foodordering.krishnafoods.R
-import com.foodordering.krishnafoods.user.viewmodel.Enquiry
+import com.foodordering.krishnafoods.core.model.Enquiry
 
-class EnquiryAdapter :
-    ListAdapter<Enquiry, RecyclerView.ViewHolder>(EnquiryDiffCallback()) {
+class EnquiryAdapter : ListAdapter<Enquiry, EnquiryAdapter.EnquiryViewHolder>(EnquiryDiffCallback()) {
 
-    companion object {
-        private const val VIEW_TYPE_USER = 0
-        private const val VIEW_TYPE_ADMIN = 1
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EnquiryViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_enquiry_message, parent, false)
+        return EnquiryViewHolder(view)
     }
 
-    override fun getItemViewType(position: Int): Int {
-        val enquiry = getItem(position)
-        return if (enquiry.reply.isEmpty()) VIEW_TYPE_USER else VIEW_TYPE_ADMIN
+    override fun onBindViewHolder(holder: EnquiryViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        return if (viewType == VIEW_TYPE_USER) {
-            val view = inflater.inflate(R.layout.item_message_user, parent, false)
-            UserViewHolder(view)
-        } else {
-            val view = inflater.inflate(R.layout.item_message_admin, parent, false)
-            AdminViewHolder(view)
-        }
-    }
+    class EnquiryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        // We use one layout that contains both User and Admin bubbles (controlled by visibility)
+        private val tvUserMsg: TextView = view.findViewById(R.id.tvUserMessage)
+        private val layoutAdminReply: LinearLayout = view.findViewById(R.id.layoutAdminReply)
+        private val tvAdminMsg: TextView = view.findViewById(R.id.tvAdminMessage)
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val enquiry = getItem(position)
-        when (holder) {
-            is UserViewHolder -> holder.bind(enquiry)
-            is AdminViewHolder -> holder.bind(enquiry)
-        }
-    }
-
-    class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val userMessage: TextView = view.findViewById(R.id.tvUserMessage)
         fun bind(enquiry: Enquiry) {
-            userMessage.text = enquiry.message
-        }
-    }
+            // Always show user query
+            tvUserMsg.text = enquiry.message
 
-    class AdminViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val adminReply: TextView = view.findViewById(R.id.tvAdminReply)
-        fun bind(enquiry: Enquiry) {
-            adminReply.text = enquiry.reply
+            // Show admin reply only if it exists
+            if (enquiry.reply.isNotEmpty()) {
+                layoutAdminReply.isVisible = true
+                tvAdminMsg.text = enquiry.reply
+            } else {
+                layoutAdminReply.isVisible = false
+            }
         }
     }
 
     class EnquiryDiffCallback : DiffUtil.ItemCallback<Enquiry>() {
         override fun areItemsTheSame(oldItem: Enquiry, newItem: Enquiry): Boolean {
-            return oldItem.id == newItem.id
+            // Ensure your Firestore Enquiry object has an ID field!
+            // If not, compare timestamps or use objects directly
+            return oldItem.timestamp == newItem.timestamp
         }
 
         override fun areContentsTheSame(oldItem: Enquiry, newItem: Enquiry): Boolean {

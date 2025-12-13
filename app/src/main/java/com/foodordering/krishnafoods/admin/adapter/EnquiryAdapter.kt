@@ -1,71 +1,74 @@
+/*
+ * Developed by: Yash Kadav
+ * Email: yashkadav52@gmail.com
+ * Project: Krishna Foods (ADCET CSE 2026)
+ */
 
 package com.foodordering.krishnafoods.admin.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.foodordering.krishnafoods.R
-import com.foodordering.krishnafoods.admin.model.Enquiry
+import com.foodordering.krishnafoods.core.model.Enquiry
+import com.foodordering.krishnafoods.databinding.AdminItemEnquiryBinding // Make sure this is generated
 
-// Step 1: Add a listener to the constructor
-class EnquiryAdapter(private val onReplyClicked: (enquiry: Enquiry, replyText: String) -> Unit)
-    : ListAdapter<Enquiry, EnquiryAdapter.EnquiryViewHolder>(EnquiryDiffCallback()) {
+class EnquiryAdapter(
+    private val onReplyClicked: (enquiry: Enquiry, replyText: String) -> Unit
+) : ListAdapter<Enquiry, EnquiryAdapter.EnquiryViewHolder>(EnquiryDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EnquiryViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.admin_item_enquiry, parent, false)
-        return EnquiryViewHolder(view)
+        val binding = AdminItemEnquiryBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return EnquiryViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: EnquiryViewHolder, position: Int) {
-        val enquiry = getItem(position)
-        holder.bind(enquiry)
+        holder.bind(getItem(position))
     }
 
-    // Inner class to prevent memory leaks and handle binding logic
-    inner class EnquiryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val tvUserName: TextView = view.findViewById(R.id.tvUserName)
-        private val tvUserMessage: TextView = view.findViewById(R.id.tvUserMessage)
-        private val tvAdminReply: TextView = view.findViewById(R.id.tvAdminReply)
-        private val etReply: EditText = view.findViewById(R.id.etReply)
-        private val btnSendReply: Button = view.findViewById(R.id.btnSendReply)
+    inner class EnquiryViewHolder(private val binding: AdminItemEnquiryBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         fun bind(enquiry: Enquiry) {
-            tvUserName.text = "User: ${enquiry.userName}"
-            tvUserMessage.text = "User Message:\n${enquiry.message}"
+            binding.apply {
+                // Set User Details
+                tvUserName.text = enquiry.userName.ifEmpty { "User" }
+                tvUserMessage.text = enquiry.message
 
-            val hasReplied = enquiry.reply.isNotEmpty()
-            tvAdminReply.visibility = if (hasReplied) View.VISIBLE else View.GONE
-            etReply.visibility = if (hasReplied) View.GONE else View.VISIBLE
-            btnSendReply.visibility = if (hasReplied) View.GONE else View.VISIBLE
+                // Check if already replied
+                val hasReplied = enquiry.reply.isNotEmpty()
 
-            if (hasReplied) {
-                tvAdminReply.text = "Admin Reply:\n${enquiry.reply}"
-            }
+                // Logic: Show Reply Text if replied, otherwise show Input Field
+                if (hasReplied) {
+                    tvAdminReply.isVisible = true
+                    tvAdminReply.text = "You: ${enquiry.reply}" // "You" indicates Admin
 
-            btnSendReply.setOnClickListener {
-                val replyText = etReply.text.toString().trim()
-                if (replyText.isNotEmpty()) {
-                    // Step 2: Use the callback to pass the event to the Activity.
-                    // The adapter no longer updates Firestore itself.
-                    onReplyClicked(enquiry, replyText)
+                    layoutReplyInput.isVisible = false // Hide input area
+                } else {
+                    tvAdminReply.isVisible = false
+                    layoutReplyInput.isVisible = true // Show input area
+                    etReply.setText("") // Clear previous text
+                }
+
+                // Click Listener
+                btnSendReply.setOnClickListener {
+                    val replyText = etReply.text.toString().trim()
+                    if (replyText.isNotEmpty()) {
+                        onReplyClicked(enquiry, replyText)
+                    } else {
+                        etReply.error = "Enter a reply"
+                    }
                 }
             }
         }
     }
 
     class EnquiryDiffCallback : DiffUtil.ItemCallback<Enquiry>() {
-        override fun areItemsTheSame(oldItem: Enquiry, newItem: Enquiry): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: Enquiry, newItem: Enquiry): Boolean {
-            return oldItem == newItem
-        }
+        override fun areItemsTheSame(oldItem: Enquiry, newItem: Enquiry) = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: Enquiry, newItem: Enquiry) = oldItem == newItem
     }
 }

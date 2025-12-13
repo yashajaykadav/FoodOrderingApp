@@ -1,5 +1,6 @@
 package com.foodordering.krishnafoods.user.adapter
 
+import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
@@ -12,10 +13,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.foodordering.krishnafoods.R
 import com.foodordering.krishnafoods.user.viewmodel.FoodItem
+import androidx.core.graphics.toColorInt
 
 class FoodAdapter(
     private var foodList: MutableList<FoodItem>,
-    private val onItemClick: (FoodItem) -> Unit
+    private val onItemClick: (FoodItem) -> Unit,
 ) : RecyclerView.Adapter<FoodAdapter.FoodViewHolder>() {
 
     inner class FoodViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -35,10 +37,7 @@ class FoodAdapter(
         val foodItem = foodList[position]
         val context = holder.itemView.context
 
-        // --- Name ---
         holder.foodName.text = foodItem.name
-
-        // --- Price logic ---
         if (foodItem.offerPrice < foodItem.originalPrice) {
             holder.foodOriginalPrice.apply {
                 text = "₹${foodItem.originalPrice}"
@@ -48,25 +47,23 @@ class FoodAdapter(
 
             holder.foodOfferPrice.apply {
                 text = "₹${foodItem.offerPrice}"
-                setTextColor(context.getColor(R.color.colorAccent))
+                setTextColor("#E53935".toColorInt()) // Red color
             }
         } else {
             holder.foodOriginalPrice.visibility = View.GONE
             holder.foodOfferPrice.apply {
                 text = "₹${foodItem.originalPrice}"
-                setTextColor(context.getColor(R.color.gray))
+                setTextColor(Color.BLACK)
             }
         }
-
-        // --- Image ---
-        if (!foodItem.imageUrl.isNullOrBlank()) {
+        if (foodItem.imageUrl.isNotBlank()) {
             Glide.with(context)
                 .load(foodItem.imageUrl)
                 .apply(
                     RequestOptions()
                         .placeholder(R.drawable.default_img)
-                        .error(R.drawable.ic_placeholder_image)
-                        .fitCenter()
+                        .error(R.drawable.default_img) // Use default on error
+                        .centerCrop() // Forces image to fill the 100dp height
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                 )
                 .into(holder.foodImage)
@@ -74,7 +71,6 @@ class FoodAdapter(
             holder.foodImage.setImageResource(R.drawable.default_img)
         }
 
-        // --- Click ---
         holder.itemView.setOnClickListener { onItemClick(foodItem) }
     }
 

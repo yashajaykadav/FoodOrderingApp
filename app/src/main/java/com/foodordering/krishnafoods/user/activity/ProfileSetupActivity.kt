@@ -1,155 +1,170 @@
+/*
+ * Developed by: Yash Kadav
+ * Email: yashkadav52@gmail.com
+ * Project: Krishna Foods (ADCET CSE 2026)
+ */
+
 package com.foodordering.krishnafoods.user.activity
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import com.airbnb.lottie.LottieAnimationView
+import androidx.core.view.updateLayoutParams
 import com.foodordering.krishnafoods.R
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.foodordering.krishnafoods.databinding.ActivityProfileSetupBinding
+import com.foodordering.krishnafoods.user.util.NetworkUtil
+import com.foodordering.krishnafoods.user.util.showToast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
 class ProfileSetupActivity : AppCompatActivity() {
 
-    private lateinit var editTextContact: TextInputEditText
-    private lateinit var editTextShopName: TextInputEditText
-    private lateinit var editTextAddress: TextInputEditText
-    private lateinit var layoutContact: TextInputLayout
-    private lateinit var layoutShopName: TextInputLayout
-    private lateinit var layoutAddress: TextInputLayout
-    private lateinit var btnSave: MaterialButton
-    private lateinit var lottieLoading: LottieAnimationView
+    private lateinit var binding: ActivityProfileSetupBinding
+    private val auth by lazy { FirebaseAuth.getInstance() }
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 1. Setup UI & Binding
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        binding = ActivityProfileSetupBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         supportActionBar?.hide()
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        setContentView(R.layout.activity_profile_setup)
+        setupWindowInsets()
+        setupListeners()
+    }
 
-        // MODIFIED: Initialize all views together first
-        editTextContact = findViewById(R.id.editTextContact)
-        editTextShopName = findViewById(R.id.editTextShopName)
-        editTextAddress = findViewById(R.id.editTextAddress)
-        layoutContact = findViewById(R.id.layoutContact)
-        layoutShopName = findViewById(R.id.layoutShopName)
-        layoutAddress = findViewById(R.id.layoutAddress)
-        btnSave = findViewById(R.id.btnSave) // Initialized here once
-        lottieLoading = findViewById(R.id.lottieLoading)
-        val lottieAvatar = findViewById<View>(R.id.lottieAvatar)
-
-        // Handle the insets using the initialized properties
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.rootLayout)) { view, insets ->
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rootLayout) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-            (lottieAvatar.layoutParams as ViewGroup.MarginLayoutParams).topMargin =
-                systemBars.top + (60 * resources.displayMetrics.density).toInt()
+            // Adjust Avatar Top Margin
+            binding.lottieAvatar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = systemBars.top + (40 * resources.displayMetrics.density).toInt()
+            }
 
-            // MODIFIED: Re-use the 'btnSave' property instead of a new local variable
-            (btnSave.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin =
-                systemBars.bottom + (50 * resources.displayMetrics.density).toInt()
-
+            // Adjust Save Button Bottom Margin
+            binding.btnSave.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = systemBars.bottom + (32 * resources.displayMetrics.density).toInt()
+            }
             insets
         }
+    }
 
-        // The rest of your setup logic
+    private fun setupListeners() {
         val userName = intent.getStringExtra("USER_NAME") ?: ""
         val userEmail = intent.getStringExtra("USER_EMAIL") ?: ""
 
-        btnSave.setOnClickListener {
-            validateAndSave(userName, userEmail)
+        if(userName.isNotEmpty()) {
+            binding.textViewSubtitle.text = getString(R.string.welcome_message, userName)
+        }
+
+        binding.btnSave.setOnClickListener {
+            if (NetworkUtil.isInternetAvailable(this)) {
+                validateAndSave(userName, userEmail)
+            } else {
+                NetworkUtil.showInternetDialog(this) { validateAndSave(userName, userEmail) }
+            }
         }
     }
 
     private fun validateAndSave(userName: String, userEmail: String) {
-        val contact = editTextContact.text.toString().trim()
-        val shopName = editTextShopName.text.toString().trim()
-        val address = editTextAddress.text.toString().trim()
-        val phoneNumber = FirebaseAuth.getInstance().currentUser?.phoneNumber ?: ""
+        val contact = binding.editTextContact.text.toString().trim()
+        val shopName = binding.editTextShopName.text.toString().trim()
+        val address = binding.editTextAddress.text.toString().trim()
+        val authPhone = auth.currentUser?.phoneNumber ?: ""
 
-        layoutContact.error = null
-        layoutShopName.error = null
-        layoutAddress.error = null
+        // Reset Errors
+        binding.layoutContact.error = null
+        binding.layoutShopName.error = null
+        binding.layoutAddress.error = null
 
-        var valid = true
+        var isValid = true
 
-        // Validate phone number
-        if (contact.isBlank() && phoneNumber.isBlank()) {
-            layoutContact.error = getString(R.string.phone_error)
-            valid = false
-        } else if (contact.isNotBlank() && !contact.matches(Regex("^[0-9]{10}$"))) {
-            layoutContact.error = getString(R.string.phone_error)
-            valid = false
+        // Validate Contact (Must be 10 digits OR user logged in via phone)
+        if (contact.isEmpty() && authPhone.isEmpty()) {
+            binding.layoutContact.error = "Phone number is required"
+            isValid = false
+        } else if (contact.isNotEmpty() && !contact.matches(Regex("^[0-9]{10}$"))) {
+            binding.layoutContact.error = "Enter a valid 10-digit number"
+            isValid = false
         }
 
-        // Validate shop name
-        if (shopName.isBlank() || shopName.length < 3) {
-            layoutShopName.error = getString(R.string.shop_name_error)
-            valid = false
+        // Validate Shop Name (Min 3 chars)
+        if (shopName.isEmpty() || shopName.length < 3) {
+            binding.layoutShopName.error = "Shop name must be at least 3 characters"
+            isValid = false
         }
 
-        // Validate address (basic check for length and content)
-        if (address.isBlank() || address.length < 10) {
-            layoutAddress.error = getString(R.string.address_error)
-            valid = false
+        // Validate Address (Min 10 chars)
+        if (address.isEmpty() || address.length < 10) {
+            binding.layoutAddress.error = "Please provide a complete address"
+            isValid = false
         }
 
-        if (!valid) return
-
-        showLoading(true)
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user == null) {
-            Toast.makeText(this, "Authentication error. Please sign in again.", Toast.LENGTH_LONG).show()
-            showLoading(false)
-            return
+        if (isValid) {
+            val finalContact = contact.ifEmpty { authPhone }
+            saveToFirestore(userName, userEmail, finalContact, shopName, address)
         }
+    }
 
-        val userData = mapOf(
+    private fun saveToFirestore(name: String, email: String, contact: String, shop: String, address: String) {
+        val user = auth.currentUser ?: return
+        setLoading(true)
+
+        val userData = hashMapOf(
             "uid" to user.uid,
-            "name" to userName,
-            "email" to userEmail,
-            "contact" to contact.ifEmpty { phoneNumber },
-            "shopName" to shopName,
+            "name" to name,
+            "email" to email,
+            "contact" to contact,
+            "shopName" to shop,
             "address" to address,
             "role" to "user",
+            "profileCompleted" to true,
             "updatedAt" to System.currentTimeMillis()
         )
 
-        FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(user.uid)
+        firestore.collection("users").document(user.uid)
             .set(userData, SetOptions.merge())
             .addOnSuccessListener {
-                Toast.makeText(this, "Profile saved successfully!", Toast.LENGTH_LONG).show()
-                navigateToMainActivity()
+                if (!isDestroyed) {
+                    setLoading(false)
+                    showToast("Profile Setup Complete!")
+                    navigateToHome()
+                }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(
-                    this,
-                    "Failed to save profile: ${e.localizedMessage}",
-                    Toast.LENGTH_LONG
-                ).show()
-                showLoading(false)
+                if (!isDestroyed) {
+                    setLoading(false)
+                    showToast("Error: ${e.localizedMessage}")
+                }
             }
     }
 
-    private fun showLoading(isLoading: Boolean) {
-        lottieLoading.visibility = if (isLoading) View.VISIBLE else View.GONE
-        btnSave.isEnabled = !isLoading
-        btnSave.alpha = if (isLoading) 0.5f else 1.0f
+    private fun setLoading(isLoading: Boolean) {
+        if (isLoading) {
+            binding.btnSave.text = "" // Hide text
+            binding.btnSave.isEnabled = false
+            binding.lottieLoading.visibility = View.VISIBLE
+        } else {
+            binding.btnSave.text = getString(R.string.save_profile)
+            binding.btnSave.isEnabled = true
+            binding.lottieLoading.visibility = View.GONE
+        }
     }
 
-    private fun navigateToMainActivity() {
-        startActivity(Intent(this, MainActivity::class.java))
+    private fun navigateToHome() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
         finish()
     }
 }

@@ -1,8 +1,10 @@
 package com.foodordering.krishnafoods.user.repository
 
 import com.foodordering.krishnafoods.user.viewmodel.FoodItem
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.tasks.await
 
 class FoodRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -35,6 +37,25 @@ class FoodRepository {
     fun stopListening() {
         listener?.remove()
         listener = null
+    }
+    suspend fun fetchFoodsByIds(ids: List<String>): List<FoodItem> {
+        if (ids.isEmpty()) return emptyList()
+
+        val CHUNK = 10
+        val results = mutableListOf<FoodItem>()
+
+        val chunks = ids.chunked(CHUNK)
+        for (chunk in chunks) {
+            val q = db.collection("foods")
+                .whereIn(FieldPath.documentId(), chunk)
+                .get()
+                .await()
+
+            q.documents.forEach { snap ->
+                snap.toObject(FoodItem::class.java)?.let { results.add(it) }
+            }
+        }
+        return results
     }
 
     fun getCategories(onResult: (List<String>) -> Unit) {

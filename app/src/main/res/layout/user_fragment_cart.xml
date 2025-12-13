@@ -8,12 +8,12 @@
     android:background="#F5F5F5">
 
     <androidx.constraintlayout.widget.Group
-        android:id="@+id/loadingGroup"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:constraint_referenced_ids="lottieLoadingCart"
-        tools:visibility="visible" />
+    android:id="@+id/loadingGroup"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:visibility="gone"
+    app:constraint_referenced_ids="lottieLoadingCart"
+    tools:visibility="visible" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/emptyGroup"
@@ -62,8 +62,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/cart_empty"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="18sp"
+        android:textColor="?attr/colorOnBackground" android:textSize="18sp"
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -91,8 +90,7 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingTop="16dp"
-        android:paddingBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/checkoutCard"
+        android:paddingBottom="120dp" app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -104,13 +102,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="80dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="20dp"
+        android:layout_marginBottom="24dp" app:cardBackgroundColor="?attr/colorSurface" app:cardCornerRadius="20dp"
         app:cardElevation="12dp"
         app:contentPadding="16dp"
-        app:strokeColor="#1A000000"
-        app:strokeWidth="1dp"
+        app:strokeColor="?attr/colorOutline" app:strokeWidth="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -124,8 +119,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/total_0"
-                android:textColor="#2E7D32"
-                android:textSize="20sp"
+                android:textColor="?attr/colorPrimary" android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -136,9 +130,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/checkout"
-                android:textColor="@android:color/white"
-                app:backgroundTint="#2E7D32"
-                app:cornerRadius="8dp"
+                android:textColor="?attr/colorOnPrimary" app:backgroundTint="?attr/colorPrimary" app:cornerRadius="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

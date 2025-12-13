@@ -32,7 +32,6 @@ class OrdersActivity : AppCompatActivity() {
 
     private var ordersListener: ListenerRegistration? = null
 
-    // This list will hold the orders filtered by status (from Firestore)
     private val statusFilteredOrders = mutableListOf<Order>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,13 +63,12 @@ class OrdersActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // ✅ FIX: Pass an empty lambda {} to match the adapter's original constructor.
-        // The real-time listener makes the old refresh callback unnecessary.
+
         adapter = OrderAdapter(mutableListOf(), this) { }
 
         recyclerView.adapter = adapter
 
-        // This observer to show/hide the empty state is a great pattern.
+
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onChanged() = checkEmptyState()
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = checkEmptyState()
@@ -84,7 +82,6 @@ class OrdersActivity : AppCompatActivity() {
             startOrdersListener()
         }
 
-        // When search text changes, filter the *current* list (client-side)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
@@ -94,10 +91,6 @@ class OrdersActivity : AppCompatActivity() {
         })
     }
 
-    /**
-     * Re-builds and attaches the Firestore listener based on the selected filter chip.
-     * This is efficient as it only downloads relevant data.
-     */
     private fun startOrdersListener() {
         // Remove any previous listener to avoid multiple streams
         ordersListener?.remove()
@@ -171,7 +164,6 @@ class OrdersActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Always remove the listener to prevent memory leaks
         ordersListener?.remove()
     }
 }

@@ -2,16 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Camera feature (optional - app works without camera) -->
+    <!-- Camera availability (optional) -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
-    <!-- Required Permissions -->
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Required for Android 11+ when launching system camera -->
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -28,43 +36,30 @@
         <!-- Admin Activities -->
         <activity
             android:name=".admin.activity.ManageAdvertisementActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.AdminEnquiryActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.AdminSettingsActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.OrdersActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.ManageItemsActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.FeedbackActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.DeliveredOrdersActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.OrderDetailsActivity"
-            android:screenOrientation="portrait"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="OPEN_ORDER_DETAILS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+            android:exported="false" />
 
-        <!-- Firebase Messaging Service -->
+        <!-- Firebase Messaging -->
         <service
             android:name=".admin.message.MyFirebaseMessagingService"
             android:exported="false">
@@ -75,29 +70,25 @@
 
         <activity
             android:name=".admin.activity.AdminMainActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
 
         <!-- User Activities -->
         <activity
             android:name=".user.activity.EditProfileActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".user.activity.UserEnquiryActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".admin.activity.AddItemActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".user.activity.FeedbackActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
+
+        <!-- Login Launcher Activity -->
         <activity
             android:name=".user.activity.LoginActivity"
-            android:screenOrientation="portrait"
             android:exported="true"
             android:theme="@style/Theme.KrishnaFoods.login">
             <intent-filter>
@@ -105,36 +96,31 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".user.activity.MainActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.KrishnaFoods.user" />
         <activity
             android:name=".user.activity.ProfileActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".user.activity.OrderSuccessActivity"
-            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".user.activity.OrderConfirmationActivity"
-            android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.KrishnaFoods.user" />
         <activity
             android:name=".user.activity.ProfileSetupActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.KrishnaFoods.login" />
         <activity
             android:name=".user.activity.AboutActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.KrishnaFoods.user" />
 
-        <!-- FileProvider for Camera -->
+        <!-- FileProvider -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -142,13 +128,14 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-            android:resource="@xml/file_path" />
+                android:resource="@xml/file_path" />
         </provider>
 
         <!-- Firebase Meta Data -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
     </application>
 
 </manifest>

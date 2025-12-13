@@ -15,7 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="FoodOrderingApp">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-05-18T10:16:46.142370900Z">
+        <DropdownSelection timestamp="2025-11-26T09:21:08.611137200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=RZ8N60G2DTP" />

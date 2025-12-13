@@ -1,32 +1,47 @@
+/*
+ * Developed by: Yash Kadav
+ * Email: yashkadav52@gmail.com
+ * Project: Krishna Foods (ADCET CSE 2026)
+ */
+
 package com.foodordering.krishnafoods.user.activity
 
 import android.content.Intent
-import android.media.MediaPlayer
-import android.os.Build
 import android.os.Bundle
-import android.os.Vibrator
-import android.os.VibratorManager
-import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.foodordering.krishnafoods.R
-import com.google.android.material.button.MaterialButton
+import com.foodordering.krishnafoods.databinding.ActivityOrderSuccessBinding
+import com.foodordering.krishnafoods.user.util.playSound
+import com.foodordering.krishnafoods.user.util.vibrateDevice
 
 class OrderSuccessActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityOrderSuccessBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Enable edge-to-edge display
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        setContentView(R.layout.activity_order_success)
+        binding = ActivityOrderSuccessBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         supportActionBar?.hide()
 
-        // Handle window insets for edge-to-edge
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.rootLayout)) { view, insets ->
+        playSound(R.raw.order_confirmation)
+        vibrateDevice(500)
+
+        setupWindowInsets()
+        displayOrderDetails()
+        setupButtons()
+        setupBackPressHandler()
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rootLayout) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.updatePadding(
                 left = systemBars.left,
@@ -36,63 +51,46 @@ class OrderSuccessActivity : AppCompatActivity() {
             )
             insets
         }
+    }
 
-        // Get data from intent
-        val orderId = intent.getStringExtra("orderId") ?: "N/A"
-        val totalAmount = intent.getDoubleExtra("totalAmount", 0.0)
+    private fun displayOrderDetails() {
+        val orderId = intent.getStringExtra("orderId") ?: "Unknown"
 
-        // Set text views
-        findViewById<TextView>(R.id.orderIdText).text = orderId
-        findViewById<TextView>(R.id.totalAmountText).text = "₹${String.format("%.2f", totalAmount)}"
+        val totalAmountDouble = intent.getDoubleExtra("totalAmount", 0.0)
+        val totalAmountInt = totalAmountDouble.toInt()
 
-        // Play feedback
-        playSound()
-        vibratePhone()
+        binding.orderIdText.text = getString(R.string.order_id_format, orderId)
 
-        // Setup button clicks
-        findViewById<MaterialButton>(R.id.btnTrackOrder).setOnClickListener {
-            // Navigate to an order tracking or order history screen
-            // Example: startActivity(Intent(this, OrderHistoryActivity::class.java))
-            finish() // Close this activity
+        // Now passing an Int, which matches your %d in strings.xml
+        binding.totalAmountText.text = getString(R.string.currency_format, totalAmountInt)
+    }
+
+    private fun setupButtons() {
+        binding.btnTrackOrder.setOnClickListener {
+            navigateToHome(openOrdersTab = true)
         }
 
-        findViewById<MaterialButton>(R.id.btnProvideFeedback).setOnClickListener {
+        binding.btnProvideFeedback.setOnClickListener {
             startActivity(Intent(this, FeedbackActivity::class.java))
-            finish() // Close this activity
+            finish()
         }
     }
 
-    private fun playSound() {
-        MediaPlayer.create(this, R.raw.order_confirmation).apply {
-            start()
-            setOnCompletionListener { it.release() }
-        }
-    }
-
-    private fun vibratePhone() {
-        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // For Android 12 and higher
-            val vibratorManager =
-                getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vibratorManager.defaultVibrator
-        } else {
-            // For older versions
-            @Suppress("DEPRECATION")
-            getSystemService(VIBRATOR_SERVICE) as Vibrator
-        }
-
-        if (vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(
-                    android.os.VibrationEffect.createOneShot(
-                        500,
-                        android.os.VibrationEffect.DEFAULT_AMPLITUDE
-                    )
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                vibrator.vibrate(500)
+    private fun setupBackPressHandler() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navigateToHome(openOrdersTab = false)
             }
+        })
+    }
+
+    private fun navigateToHome(openOrdersTab: Boolean) {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        if (openOrdersTab) {
+            intent.putExtra("NAVIGATE_TO", "ORDERS")
         }
+        startActivity(intent)
+        finish()
     }
 }

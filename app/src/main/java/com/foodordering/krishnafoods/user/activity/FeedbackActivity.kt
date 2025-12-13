@@ -2,102 +2,110 @@ package com.foodordering.krishnafoods.user.activity
 
 import android.os.Bundle
 import android.view.View
-import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.foodordering.krishnafoods.R
+import com.foodordering.krishnafoods.databinding.ActivityFeedbackBinding
+import com.foodordering.krishnafoods.user.util.showToast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class FeedbackActivity : AppCompatActivity() {
 
-    private lateinit var ratingBar: RatingBar
-    private lateinit var feedbackInput: EditText
-    private lateinit var btnSubmitFeedback: Button
-    private lateinit var btnSkipFeedback: Button
-    private lateinit var progressBar: ProgressBar
-
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
+    private lateinit var binding: ActivityFeedbackBinding
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
+    private val auth by lazy { FirebaseAuth.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_feedback)
+        binding = ActivityFeedbackBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        window.statusBarColor = ContextCompat.getColor(this,R.color.sky_color)
-
-        // Initialize views
-        ratingBar = findViewById(R.id.ratingBar)
-        feedbackInput = findViewById(R.id.feedbackInput)
-        btnSubmitFeedback = findViewById(R.id.btnSubmitFeedback)
-        btnSkipFeedback = findViewById(R.id.btnSkipFeedback)
-        progressBar = findViewById(R.id.progressBar)
-
-        // Submit Feedback Button Click
-        btnSubmitFeedback.setOnClickListener { submitFeedback() }
-
-        // Skip Feedback Button Click
-        btnSkipFeedback.setOnClickListener { skipFeedback() }
+        setupWindow()
+        setupListeners()
     }
 
-    private fun submitFeedback() {
+    private fun setupWindow() {
+        supportActionBar?.hide()
+        window.statusBarColor = ContextCompat.getColor(this, R.color.lightRed)
+    }
+
+    private fun setupListeners() {
+        binding.apply {
+            toolbar.setNavigationOnClickListener { finish() }
+            btnSubmitFeedback.setOnClickListener { validateAndSubmit() }
+            btnSkipFeedback.setOnClickListener { showSkipDialog() }
+        }
+    }
+
+    private fun validateAndSubmit() {
         val userId = auth.currentUser?.uid
         if (userId == null) {
-            Toast.makeText(this, "Please log in to submit feedback", Toast.LENGTH_SHORT).show()
+            showToast("Please log in to submit feedback")
             return
         }
 
-        val rating = ratingBar.rating
-        val feedback = feedbackInput.text.toString().trim()
+        val rating = binding.ratingBar.rating
+        val feedbackText = binding.feedbackInput.text.toString().trim()
 
-        // Validate rating
         if (rating == 0f) {
-            Toast.makeText(this, "Please provide a rating", Toast.LENGTH_SHORT).show()
+            showToast("Please provide a rating")
+            return
+        }
+        if (feedbackText.isEmpty()) {
+            binding.feedbackInput.error = "Feedback cannot be empty"
+            showToast("Please provide some feedback")
             return
         }
 
-        // Validate feedback (optional)
-        if (feedback.isEmpty()) {
-            Toast.makeText(this, "Please provide some feedback", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Show progress bar
-        progressBar.visibility = View.VISIBLE
-        btnSubmitFeedback.isEnabled = false
-
-        val feedbackData = mapOf(
+        val feedbackData = hashMapOf<String, Any>(
             "userId" to userId,
             "rating" to rating,
-            "feedback" to feedback,
-            "timestamp" to System.currentTimeMillis()
+            "feedback" to feedbackText,
+            "timestamp" to System.currentTimeMillis(),
+            "device" to android.os.Build.MODEL
         )
 
-        // Save feedback to Firebase Firestore
+        sendToFirestore(feedbackData)
+    }
+
+    // FIX: Changed parameter from 'HashMap' to 'Map' to be more flexible
+    private fun sendToFirestore(data: Map<String, Any>) {
+        setLoadingState(true)
+
         firestore.collection("feedback")
-            .add(feedbackData)
+            .add(data)
             .addOnSuccessListener {
-                progressBar.visibility = View.GONE
-                btnSubmitFeedback.isEnabled = true
-                Toast.makeText(this, "Feedback submitted successfully!", Toast.LENGTH_SHORT).show()
-                finish() // Close feedback screen after submission
+                if (!isDestroyed && !isFinishing) {
+                    setLoadingState(false)
+                    showToast("Feedback submitted successfully!")
+                    finish()
+                }
             }
             .addOnFailureListener { e ->
-                progressBar.visibility = View.GONE
-                btnSubmitFeedback.isEnabled = true
-                Toast.makeText(this, "Failed to submit feedback: ${e.message}", Toast.LENGTH_LONG).show()
+                if (!isDestroyed && !isFinishing) {
+                    setLoadingState(false)
+                    showToast("Failed: ${e.localizedMessage}")
+                }
             }
     }
 
-    private fun skipFeedback() {
+    private fun setLoadingState(isLoading: Boolean) {
+        binding.apply {
+            progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            btnSubmitFeedback.isEnabled = !isLoading
+            btnSkipFeedback.isEnabled = !isLoading
+            feedbackInput.isEnabled = !isLoading
+            ratingBar.isEnabled = !isLoading
+        }
+    }
+
+    private fun showSkipDialog() {
         AlertDialog.Builder(this)
             .setTitle("Skip Feedback?")
             .setMessage("Are you sure you want to skip providing feedback?")
-            .setPositiveButton("Yes") { _, _ ->
-                finish()
-            }
+            .setPositiveButton("Yes") { _, _ -> finish() }
             .setNegativeButton("No", null)
             .show()
     }

@@ -456,5 +456,12 @@
     <string name="available_quantity">Enter available quantity in stock</string>
     <string name="enter_weight">Enter weight (e.g., 500g) or volume</string>
     <string name="enter_category">Enter food category</string>
+    <string name="saving_info">Saving Details</string>
+    <string name="write_your_review">Write your review (Optional)</string>
+    <string name="type_a_message">Type a message...</string>
+    <string name="user_query">User Query</string>
+    <string name="support_team">Support Team</string>
+    <string name="admin_reply">Admin Reply</string>
+    <string name="reply">Reply</string>
 
 </resources>

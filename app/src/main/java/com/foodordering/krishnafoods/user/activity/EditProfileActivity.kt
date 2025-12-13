@@ -1,162 +1,134 @@
 package com.foodordering.krishnafoods.user.activity
 
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView // Import TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.bumptech.glide.Glide
 import com.foodordering.krishnafoods.R
-import com.google.android.material.appbar.MaterialToolbar
+import com.foodordering.krishnafoods.databinding.ActivityEditProfileBinding
+import com.foodordering.krishnafoods.user.util.loadUrl
+import com.foodordering.krishnafoods.user.util.showToast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class EditProfileActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityEditProfileBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
-    // UI Components
-    private lateinit var profileToolbar: MaterialToolbar
-    private lateinit var userNameEditText: EditText
-    private lateinit var shopNameEditText: EditText
-    private lateinit var userContactEditText: EditText
-    private lateinit var userAddressEditText: EditText
-    private lateinit var profileImage: ImageView
-    private lateinit var saveButton: Button
-    private lateinit var cancelButton: TextView // Changed to TextView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit_profile)
+        binding = ActivityEditProfileBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Initialize Firebase
+        // UI Setup
+        window.statusBarColor = ContextCompat.getColor(this, R.color.lightRed)
+        setupToolbar()
+
+        // Firebase Setup
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // Initialize all UI components from the layout
-        initViews()
-
-        // Set up the toolbar
-        setupToolbar()
-
-        // Hide the default action bar and set status bar color
-        supportActionBar?.hide()
-        window.statusBarColor = ContextCompat.getColor(this, R.color.lightRed)
         val userId = auth.currentUser?.uid
         if (userId == null) {
-            showToast("User not logged in!")
+            showToast("Session expired. Please log in again.")
             finish()
             return
         }
 
-        // Fetch user data
         fetchUserData(userId)
-
-        // Set up button listeners
-        setupButtonListeners()
-    }
-
-    private fun initViews() {
-        // Initialize UI components
-        profileToolbar = findViewById(R.id.profileToolbar)
-        userNameEditText = findViewById(R.id.userNameEditText)
-        // userEmailEditText = findViewById(R.id.userEmailEditText) // This view is not in your original XML, so I commented it out
-        shopNameEditText = findViewById(R.id.shopNameEditText)
-        userContactEditText = findViewById(R.id.userContactEditText)
-        userAddressEditText = findViewById(R.id.userAddressEditText)
-
-        // This is correct. The code finds the ImageView with the ID 'profileImage'
-        // which is located inside the CardView in your XML. No changes are needed here.
-        profileImage = findViewById(R.id.profileImage)
-
-        saveButton = findViewById(R.id.saveButton)
-        cancelButton = findViewById(R.id.cancelButton)
+        setupListeners()
     }
 
     private fun setupToolbar() {
-        // Now profileToolbar is guaranteed to be initialized
-        profileToolbar.setNavigationOnClickListener {
-            finish()
-        }
+        binding.profileToolbar.setNavigationOnClickListener { finish() }
     }
 
-    private fun setupButtonListeners() {
-        saveButton.setOnClickListener {
-            saveProfileChanges()
+    private fun setupListeners() {
+        binding.saveButton.setOnClickListener {
+            validateAndSaveProfile()
         }
 
-        cancelButton.setOnClickListener {
+        binding.cancelButton.setOnClickListener {
             finish()
         }
     }
 
     private fun fetchUserData(userId: String) {
-        val userRef = db.collection("users").document(userId)
+        // UI Feedback: Disable editing while loading (optional)
+        binding.saveButton.isEnabled = false
 
-        userRef.get()
+        db.collection("users").document(userId).get()
             .addOnSuccessListener { document ->
+                if (isDestroyed || isFinishing) return@addOnSuccessListener // Prevent Crash
+
                 if (document.exists()) {
-                    val name = document.getString("name") ?: "Unknown"
-                    val shop = document.getString("shopName") ?: "No Shop Name"
-                    val contact = document.getString("contact") ?: "N/A"
-                    val address = document.getString("address") ?: "N/A"
-                    val profileImageUrl = document.getString("photoUrl")
+                    binding.apply {
+                        userNameEditText.setText(document.getString("name"))
+                        shopNameEditText.setText(document.getString("shopName"))
+                        userContactEditText.setText(document.getString("contact"))
+                        userAddressEditText.setText(document.getString("address"))
 
-                    // Update UI
-                    userNameEditText.setText(name)
-                    shopNameEditText.setText(shop)
-                    userContactEditText.setText(contact)
-                    userAddressEditText.setText(address)
-
-                    // Load profile image
-                    if (!profileImageUrl.isNullOrEmpty()) {
-                        Glide.with(this)
-                            .load(profileImageUrl)
-                            .placeholder(R.drawable.ic_profile_placeholder)
-                            .error(R.drawable.ic_profile_placeholder)
-                            .into(profileImage)
+                        // Use our modular extension
+                        profileImage.loadUrl(document.getString("photoUrl"))
                     }
                 } else {
-                    showToast("User not found!")
+                    showToast("User details not found.")
+                }
+                binding.saveButton.isEnabled = true
+            }
+            .addOnFailureListener { e ->
+                if (!isDestroyed) {
+                    showToast("Failed to load data: ${e.localizedMessage}")
+                    binding.saveButton.isEnabled = true
                 }
             }
-            .addOnFailureListener { exception ->
-                showToast("Error fetching user data: ${exception.message}")
-            }
     }
 
-    private fun saveProfileChanges() {
+    private fun validateAndSaveProfile() {
+        val name = binding.userNameEditText.text.toString().trim()
+        val shop = binding.shopNameEditText.text.toString().trim()
+        val contact = binding.userContactEditText.text.toString().trim()
+        val address = binding.userAddressEditText.text.toString().trim()
+
+        // Input Validation
+        if (name.isEmpty()) {
+            binding.userNameEditText.error = "Name is required"
+            return
+        }
+        if (contact.length < 10) {
+            binding.userContactEditText.error = "Valid contact required"
+            return
+        }
+
+        saveToFirebase(name, shop, contact, address)
+    }
+
+    private fun saveToFirebase(name: String, shop: String, contact: String, address: String) {
         val userId = auth.currentUser?.uid ?: return
 
-        val name = userNameEditText.text.toString().trim()
-        val shop = shopNameEditText.text.toString().trim()
-        val contact = userContactEditText.text.toString().trim()
-        val address = userAddressEditText.text.toString().trim()
+        4
+        binding.saveButton.text = getString(R.string.save_profile) // Ensure this string exists or use "Saving..."
+        binding.saveButton.isEnabled = false
 
-        val userRef = db.collection("users").document(userId)
-
-        userRef.update(
-            mapOf(
-                "name" to name,
-                "shopName" to shop,
-                "contact" to contact,
-                "address" to address
-            )
+        val updates = mapOf(
+            "name" to name,
+            "shopName" to shop,
+            "contact" to contact,
+            "address" to address
         )
-            .addOnSuccessListener {
-                showToast("Profile updated successfully")
-                finish()
-            }
-            .addOnFailureListener { exception ->
-                showToast("Error updating profile: ${exception.message}")
-            }
-    }
 
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        db.collection("users").document(userId)
+            .update(updates)
+            .addOnSuccessListener {
+                showToast("Profile updated successfully!")
+                finish() // Close activity on success
+            }
+            .addOnFailureListener { e ->
+                showToast("Update failed: ${e.localizedMessage}")
+                // Reset button state on failure
+                binding.saveButton.text = getString(R.string.saving_info) // Ensure "Save" string exists
+                binding.saveButton.isEnabled = true
+            }
     }
 }

@@ -12,23 +12,22 @@ android {
 
     buildFeatures {
         buildConfig = true
+            viewBinding = true
     }
 
     defaultConfig {
         applicationId = "com.foodordering.krishnafoods"
         minSdk = 24
         targetSdk = 36
-        versionCode = 16
-        versionName = "1.1.3"
+        versionCode = 17
+        versionName = "1.1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Cloudinary credentials
         buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${project.property("CLOUDINARY_CLOUD_NAME")}\"")
         buildConfigField("String", "CLOUDINARY_API_KEY", "\"${project.property("CLOUDINARY_API_KEY")}\"")
         buildConfigField("String", "CLOUDINARY_UPLOAD_PRESET", "\"${project.property("CLOUDINARY_UPLOAD_PRESET")}\"")
 
-        // Firebase (dynamic endpoint based on project ID)
         buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${project.property("FIREBASE_PROJECT_ID")}\"")
         buildConfigField(
             "String",
@@ -48,13 +47,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // EDIT: This block generates the native debug symbols required by the Play Console.
+
             ndk {
                 debugSymbolLevel = "FULL"
             }
         }
         debug {
-            // Inherits settings from defaultConfig.
+
         }
     }
 
@@ -81,26 +80,19 @@ android {
 
 dependencies {
 
-    // Firebase BoM manages Firebase dependency versions
     implementation(platform(libs.firebase.bom))
 
-    // Firebase dependencies
-    implementation(libs.firebase.auth.ktx)
-    implementation(libs.firebase.firestore.ktx)
-    implementation(libs.firebase.database.ktx)
-    implementation(libs.firebase.messaging.ktx)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.messaging)
 
-    // Cloudinary for image uploads
     implementation(libs.cloudinary.android)
 
-    // SUGGESTION: This is a server-side library. Verify if it's truly needed on Android.
-    // The standard library 'play.services.auth' is usually sufficient.
     implementation(libs.google.auth.library.oauth2.http)
 
-    // OkHttp for HTTP requests
     implementation(libs.okhttp)
 
-    // AndroidX and Material dependencies
     implementation(libs.play.services.auth)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -111,14 +103,12 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.gridlayout)
     implementation(libs.androidx.activity)
-    annotationProcessor(libs.compiler) // For Glide
+    annotationProcessor(libs.glide.compiler)
     implementation(libs.lottie)
     implementation(libs.dotsindicator)
     implementation(libs.gson)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
-
-    // Testing dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,36 +1,20 @@
-// Author: Yash Kadav
-// Email: yashkadav52@gmail.com
 package com.foodordering.krishnafoods.user.activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
-import android.view.ViewGroup
 import android.view.animation.AnimationSet
 import android.view.animation.AnimationUtils
-import android.widget.CheckBox
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import com.foodordering.krishnafoods.BuildConfig
 import com.foodordering.krishnafoods.R
-import com.foodordering.krishnafoods.admin.activity.AdminMainActivity
-import com.foodordering.krishnafoods.user.util.LoadingDialog
-import com.foodordering.krishnafoods.user.util.NetworkUtil
+import com.foodordering.krishnafoods.databinding.ActivityLoginBinding
+import com.foodordering.krishnafoods.user.util.*
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
-import com.google.android.gms.common.api.ApiException
-import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -40,255 +24,195 @@ import com.google.firebase.messaging.FirebaseMessaging
 
 class LoginActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityLoginBinding
     private lateinit var signInClient: SignInClient
-    private lateinit var firebaseAuth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
     private lateinit var loadingDialog: LoadingDialog
+
+    // Dependencies
+    private val auth by lazy { FirebaseAuth.getInstance() }
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
 
-        // *** START: EDGE-TO-EDGE IMPLEMENTATION ***
-        // This enables the app to draw behind the system bars.
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        // *** END: EDGE-TO-EDGE IMPLEMENTATION ***
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        setContentView(R.layout.activity_login)
-        val logo = findViewById<ImageView>(R.id.logo)
-        val footer = findViewById<View>(R.id.footer)
+        setupEdgeToEdgeUI(
+            rootView = binding.rootLayout,
+            topView = binding.logo,
+            bottomView = binding.footer
+        )
 
-        // *** DELETED THIS LINE ***
-        // window.statusBarColor = ContextCompat.getColor(this, R.color.google_blue)
-
-        // *** START: HANDLE WINDOW INSETS ***
-        // Find the root view you gave an ID to in the XML.
-        val rootView = findViewById<View>(R.id.rootLayout)
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val logoParams = logo.layoutParams as ViewGroup.MarginLayoutParams
-            // We add 8dp (the original margin) to the status bar height.
-            logoParams.topMargin = systemBars.top + (8 * resources.displayMetrics.density).toInt()
-            logo.layoutParams = logoParams
-
-            // Apply the bottom inset as a margin to the footer.
-            val footerParams = footer.layoutParams as ViewGroup.MarginLayoutParams
-            // We add 16dp (the original margin) to the navigation bar height.
-            footerParams.bottomMargin = systemBars.bottom + (16 * resources.displayMetrics.density).toInt()
-            footer.layoutParams = footerParams
-            insets
-        }
-        // *** END: HANDLE WINDOW INSETS ***
-
-        // Init
         loadingDialog = LoadingDialog(this)
-        firebaseAuth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
         signInClient = Identity.getSignInClient(this)
 
-        val signInButton = findViewById<MaterialButton>(R.id.btnGoogleSignIn)
-        val acceptTerms = findViewById<CheckBox>(R.id.acceptTerms)
-        val privacyPolicy = findViewById<TextView>(R.id.privacyPolicy)
-        val termsOfService = findViewById<TextView>(R.id.termsOfService)
+        setupAnimations()
+        setupListeners()
+        checkAutoLogin()
+    }
 
-        // Animations
-        val scaleUp = AnimationUtils.loadAnimation(this, R.anim.scale_up)
-        val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
-        val slideUp = AnimationUtils.loadAnimation(this, R.anim.slide_up)
-        val animationSet = AnimationSet(true).apply {
-            addAnimation(scaleUp)
-            addAnimation(fadeIn)
-            addAnimation(slideUp)
-            duration = 1500
-        }
-        Handler(Looper.getMainLooper()).postDelayed({
-            logo.startAnimation(animationSet)
-        }, 500)
+    private fun setupListeners() {
+        binding.btnGoogleSignIn.setOnClickListener {
+            if (!binding.acceptTerms.isChecked) {
+                showToast("Please accept Terms & Privacy Policy first.")
+                return@setOnClickListener
+            }
 
-        // Auto-login if already signed in
-        firebaseAuth.currentUser?.let {
+            // 2. REUSABLE: Network Check
             if (NetworkUtil.isInternetAvailable(this)) {
-                loadingDialog.show("Logging you in...")
-                checkUserInFirestore(it)
+                startGoogleSignIn()
             } else {
-                NetworkUtil.showInternetDialog(this) {
-                    loadingDialog.show("Logging you in...")
-                    checkUserInFirestore(it)
-                }
+                NetworkUtil.showInternetDialog(this) { startGoogleSignIn() }
             }
         }
 
-        // One Tap sign-in request
+        binding.privacyPolicy.setOnClickListener { openExternalUrl("https://github.com/yashajaykadav/privacy-policy") }
+        binding.termsOfService.setOnClickListener { openExternalUrl("https://github.com/yashajaykadav/privacy-policy") }
+    }
+
+    private fun checkAutoLogin() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            loadingDialog.show("Welcome back...")
+            fetchUserProfile(currentUser)
+        }
+    }
+
+    // --- Google Auth Flow ---
+
+    private fun startGoogleSignIn() {
+        loadingDialog.show("Connecting to Google...")
         val signInRequest = BeginSignInRequest.builder()
             .setGoogleIdTokenRequestOptions(
                 BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                     .setSupported(true)
-                    .setServerClientId(BuildConfig.DEFAULT_WEB_CLIENT_ID) // from google-services.json
+                    .setServerClientId(BuildConfig.DEFAULT_WEB_CLIENT_ID)
                     .setFilterByAuthorizedAccounts(false)
                     .build()
             )
             .build()
 
-        // Links
-        privacyPolicy.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, "https://github.com/yashajaykadav/privacy-policy".toUri()))
-        }
-        termsOfService.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, "https://github.com/yashajaykadav/privacy-policy".toUri()))
-        }
-
-        // Google Sign-In button
-        signInButton.setOnClickListener {
-            if (acceptTerms.isChecked) {
-                if (NetworkUtil.isInternetAvailable(this)) {
-                    loadingDialog.show("Signing in with Google...")
-                    signInClient.beginSignIn(signInRequest)
-                        .addOnSuccessListener { result ->
-                            googleSignInLauncher.launch(
-                                IntentSenderRequest.Builder(result.pendingIntent).build()
-                            )
-                        }
-                        .addOnFailureListener { e: Exception ->
-                            loadingDialog.dismiss()
-                            Toast.makeText(
-                                this,
-                                "Google Sign-In failed: ${e.localizedMessage}",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                } else {
-                    NetworkUtil.showInternetDialog(this) {
-                        loadingDialog.show("Signing in with Google...")
-                        signInClient.beginSignIn(signInRequest)
-                            .addOnSuccessListener { result ->
-                                googleSignInLauncher.launch(
-                                    IntentSenderRequest.Builder(result.pendingIntent).build()
-                                )
-                            }
-                            .addOnFailureListener { e: Exception ->
-                                loadingDialog.dismiss()
-                                Toast.makeText(
-                                    this,
-                                    "Google Sign-In failed: ${e.localizedMessage}",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                    }
+        signInClient.beginSignIn(signInRequest)
+            .addOnSuccessListener { result ->
+                try {
+                    googleSignInLauncher.launch(IntentSenderRequest.Builder(result.pendingIntent).build())
+                } catch (e: Exception) {
+                    loadingDialog.dismiss()
+                    showToast("Error launching sign-in: ${e.message}")
                 }
-            } else {
-                Toast.makeText(this, "Please accept the Terms & Privacy Policy to continue.", Toast.LENGTH_LONG).show()
             }
-        }
+            .addOnFailureListener {
+                loadingDialog.dismiss()
+                showToast("Sign-in failed: ${it.message}")
+            }
     }
 
-    // Google Sign-In Result
-    private val googleSignInLauncher =
-        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-            loadingDialog.dismiss()
-            if (result.resultCode == RESULT_OK) {
-                try {
-                    val credential = signInClient.getSignInCredentialFromIntent(result.data)
-                    val idToken = credential.googleIdToken
-                    if (idToken != null) {
-                        firebaseAuthWithGoogle(idToken)
-                    } else {
-                        Toast.makeText(this, "No ID token received. Please try again.", Toast.LENGTH_LONG).show()
-                    }
-                } catch (e: ApiException) {
-                    Toast.makeText(this, "Authentication failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                }
+    private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val credential = signInClient.getSignInCredentialFromIntent(result.data)
+            val idToken = credential.googleIdToken
+            if (idToken != null) {
+                firebaseAuthWithGoogle(idToken)
             } else {
-                Toast.makeText(this, "Sign-in cancelled. Please try again.", Toast.LENGTH_LONG).show()
+                loadingDialog.dismiss()
+                showToast("Google Error: ID Token missing")
             }
+        } else {
+            loadingDialog.dismiss()
         }
+    }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
-        loadingDialog.show("Authenticating with Firebase...")
         val credential = GoogleAuthProvider.getCredential(idToken, null)
-        firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    firebaseAuth.currentUser?.let { checkUserInFirestore(it) }
-                } else {
-                    loadingDialog.dismiss()
-                    Toast.makeText(
-                        this,
-                        "Firebase authentication failed: ${task.exception?.localizedMessage}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+        auth.signInWithCredential(credential)
+            .addOnSuccessListener { result ->
+                result.user?.let { fetchUserProfile(it) }
+            }
+            .addOnFailureListener {
+                loadingDialog.dismiss()
+                showToast("Authentication Failed: ${it.message}")
             }
     }
 
-    private fun checkUserInFirestore(user: FirebaseUser) {
+    // --- Firestore Logic ---
+
+    private fun fetchUserProfile(user: FirebaseUser) {
+        // Fetch FCM Token first (for notifications)
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            val token = if (task.isSuccessful) task.result else ""
+            checkUserDatabase(user, token)
+        }
+    }
+
+    private fun checkUserDatabase(user: FirebaseUser, fcmToken: String) {
         val userRef = firestore.collection("users").document(user.uid)
 
-        FirebaseMessaging.getInstance().token
-            .addOnSuccessListener { token ->
-                userRef.get().addOnSuccessListener { document ->
-                    if (document.exists()) {
-                        val email = document.getString("email")
-                        val shopName = document.getString("shopName")
-                        val contact = document.getString("contact")
-                        val address = document.getString("address")
-                        val role = document.getString("role") ?: "user"
+        userRef.get().addOnSuccessListener { document ->
+            if (isDestroyed || isFinishing) return@addOnSuccessListener
 
-                        // update FCM token
-                        userRef.set(mapOf("fcmToken" to token), SetOptions.merge())
-
-                        if (email.isNullOrEmpty() || shopName.isNullOrEmpty() ||
-                            contact.isNullOrEmpty() || address.isNullOrEmpty()
-                        ) {
-                            loadingDialog.dismiss()
-                            Toast.makeText(this, getString(R.string.profile_setup_prompt), Toast.LENGTH_LONG).show()
-                            navigateToProfileSetup(user)
-                        } else {
-                            loadingDialog.dismiss()
-                            navigateBasedOnRole(role)
-                        }
-                    } else {
-                        // New user
-                        val newUser = hashMapOf(
-                            "email" to (user.email ?: ""),
-                            "role" to "user",
-                            "shopName" to "",
-                            "contact" to "",
-                            "address" to "",
-                            "photoUrl" to (user.photoUrl?.toString() ?: ""),
-                            "createdAt" to System.currentTimeMillis(),
-                            "fcmToken" to token
-                        )
-                        userRef.set(newUser).addOnSuccessListener {
-                            loadingDialog.dismiss()
-                            Toast.makeText(this, getString(R.string.profile_setup_prompt), Toast.LENGTH_LONG).show()
-                            navigateToProfileSetup(user)
-                        }.addOnFailureListener { e: Exception ->
-                            loadingDialog.dismiss()
-                            Toast.makeText(this, "Failed to save user data: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                        }
-                    }
-                }.addOnFailureListener { e: Exception ->
-                    loadingDialog.dismiss()
-                    Toast.makeText(this, "Failed to check user data: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+            if (document.exists()) {
+                // Existing User: Update Token
+                if (fcmToken.isNotEmpty()) {
+                    userRef.set(mapOf("fcmToken" to fcmToken), SetOptions.merge())
                 }
-            }.addOnFailureListener { e: Exception ->
+
+                // Check if profile is complete
+                val isProfileComplete = !document.getString("contact").isNullOrEmpty() &&
+                        !document.getString("address").isNullOrEmpty()
+
                 loadingDialog.dismiss()
-                Toast.makeText(this, "Failed to retrieve FCM token: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+
+                if (isProfileComplete) {
+                    val role = document.getString("role")
+                    NavigationUtils.navigateBasedOnRole(this, role)
+                } else {
+                    NavigationUtils.navigateToProfileSetup(this, user)
+                }
+            } else {
+                createUserProfile(user, fcmToken)
+            }
+        }.addOnFailureListener {
+            loadingDialog.dismiss()
+            showToast("Database Error: ${it.message}")
+        }
+    }
+
+    private fun createUserProfile(user: FirebaseUser, fcmToken: String) {
+        val newUser = hashMapOf(
+            "email" to (user.email ?: ""),
+            "role" to "user",
+            "shopName" to "",
+            "contact" to "",
+            "address" to "",
+            "photoUrl" to (user.photoUrl?.toString() ?: ""),
+            "createdAt" to System.currentTimeMillis(),
+            "fcmToken" to fcmToken
+        )
+
+        firestore.collection("users").document(user.uid)
+            .set(newUser)
+            .addOnSuccessListener {
+                loadingDialog.dismiss()
+
+                NavigationUtils.navigateToProfileSetup(this, user)
+            }
+            .addOnFailureListener {
+                loadingDialog.dismiss()
+                showToast("Account Creation Failed: ${it.message}")
             }
     }
 
-    private fun navigateToProfileSetup(user: FirebaseUser) {
-        startActivity(Intent(this, ProfileSetupActivity::class.java).apply {
-            putExtra("USER_NAME", user.displayName)
-            putExtra("USER_EMAIL", user.email)
-        })
-        finish()
-    }
-
-    private fun navigateBasedOnRole(role: String) {
-        startActivity(Intent(this,
-            if (role == "admin") AdminMainActivity::class.java else MainActivity::class.java
-        ))
-        finish()
+    private fun setupAnimations() {
+        val animationSet = AnimationSet(true).apply {
+            addAnimation(AnimationUtils.loadAnimation(this@LoginActivity, R.anim.scale_up))
+            addAnimation(AnimationUtils.loadAnimation(this@LoginActivity, R.anim.fade_in))
+            addAnimation(AnimationUtils.loadAnimation(this@LoginActivity, R.anim.slide_up))
+            duration = 1500
+        }
+        Handler(Looper.getMainLooper()).postDelayed({
+            binding.logo.startAnimation(animationSet)
+        }, 500)
     }
 }

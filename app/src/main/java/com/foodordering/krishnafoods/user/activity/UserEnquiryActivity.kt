@@ -1,142 +1,97 @@
+/*
+ * Developed by: Yash Kadav
+ * Email: yashkadav52@gmail.com
+ * Project: Krishna Foods (ADCET CSE 2026)
+ */
+
 package com.foodordering.krishnafoods.user.activity
 
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.foodordering.krishnafoods.R
+import com.foodordering.krishnafoods.core.viewmodel.EnquiryCoreViewModel
+import com.foodordering.krishnafoods.databinding.ActivityUserEnquiryBinding
 import com.foodordering.krishnafoods.user.adapter.EnquiryAdapter
-import com.foodordering.krishnafoods.user.viewmodel.Enquiry
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.button.MaterialButton
+import com.foodordering.krishnafoods.user.util.gone
+import com.foodordering.krishnafoods.user.util.showToast
+import com.foodordering.krishnafoods.user.util.visible
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
 
 class UserEnquiryActivity : AppCompatActivity() {
 
-    private val db = FirebaseFirestore.getInstance()
-    private val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    private lateinit var binding: ActivityUserEnquiryBinding
 
-    private var enquiryListener: ListenerRegistration? = null
+    // 1. Initialize the Core ViewModel
+    private val viewModel: EnquiryCoreViewModel by viewModels()
+    private val adapter by lazy { EnquiryAdapter() }
 
-    private lateinit var etMessage: EditText
-    private lateinit var btnSend: MaterialButton  // Changed to MaterialButton
-    private lateinit var progressBar: ProgressBar
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: EnquiryAdapter
+    private val userId: String by lazy { FirebaseAuth.getInstance().currentUser?.uid ?: "" }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
-        setContentView(R.layout.activity_user_enquiry)
+        binding = ActivityUserEnquiryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        window.statusBarColor = ContextCompat.getColor(this, R.color.lightRed)
-
-        etMessage = findViewById(R.id.etUserMessage)
-        btnSend = findViewById(R.id.btnSendMessage)
-        progressBar = findViewById(R.id.progressBar)
-        recyclerView = findViewById(R.id.recyclerViewEnquiries)
-
-        val toolbar = findViewById<MaterialToolbar>(R.id.btnToolbar)
-        toolbar.setNavigationOnClickListener { finish() }
-
-        // Setup RecyclerView
-        adapter = EnquiryAdapter()
-        recyclerView.layoutManager = LinearLayoutManager(this).apply {
-            stackFromEnd = true
-        }
-        recyclerView.adapter = adapter
-
-        btnSend.setOnClickListener {
-            val message = etMessage.text.toString().trim()
-            if (message.isNotEmpty()) {
-                sendEnquiry(message)
-            } else {
-                Toast.makeText(this, "Please enter a message", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        setupRealtimeListener()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        enquiryListener?.remove()
-    }
-
-    private fun sendEnquiry(message: String) {
-        progressBar.visibility = View.VISIBLE
-        btnSend.isEnabled = false
-        btnSend.icon?.let { it.alpha = 0 } // hide icon safely
-
-        if (message.length > 500) {
-            Toast.makeText(this, "Message too long (max 500 chars)", Toast.LENGTH_SHORT).show()
-            progressBar.visibility = View.GONE
-            btnSend.isEnabled = true
-            btnSend.icon?.let { it.alpha = 255 } // restore icon
+        if (userId.isEmpty()) {
+            showToast("Login required")
+            finish()
             return
         }
 
-        val enquiry = Enquiry(
-            userId = userId,
-            message = message,
-            timestamp = System.currentTimeMillis(),
-            reply = "" // initially no reply
-        )
+        setupUI()
+        setupObservers()
 
-        val enquiriesRef = db.collection("users").document(userId).collection("enquiries")
-
-        enquiriesRef.add(enquiry)
-            .addOnSuccessListener {
-                progressBar.visibility = View.GONE
-                btnSend.isEnabled = true
-                btnSend.icon?.let { it.alpha = 255 } // restore icon
-
-                etMessage.text.clear()
-                recyclerView.post {
-                    recyclerView.smoothScrollToPosition(adapter.itemCount - 1)
-                }
-            }
-            .addOnFailureListener { e ->
-                progressBar.visibility = View.GONE
-                btnSend.isEnabled = true
-                btnSend.icon?.let { it.alpha = 255 } // restore icon
-                Toast.makeText(this, "Failed to send message: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        // 2. Start Listening in "User Mode" (pass userId)
+        viewModel.startListening(userId)
     }
 
-    private fun setupRealtimeListener() {
-        val enquiriesRef = db.collection("users").document(userId).collection("enquiries")
+    private fun setupUI() {
+        window.statusBarColor = ContextCompat.getColor(this, R.color.lightRed)
+        binding.btnToolbar.setNavigationOnClickListener { finish() }
 
-        enquiryListener = enquiriesRef
-            .orderBy("timestamp", Query.Direction.ASCENDING)
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) {
-                    Log.w("UserEnquiryActivity", "Listen failed.", e)
-                    return@addSnapshotListener
-                }
+        binding.recyclerViewEnquiries.apply {
+            layoutManager = LinearLayoutManager(this@UserEnquiryActivity).apply {
+                stackFromEnd = true
+            }
+            adapter = this@UserEnquiryActivity.adapter
+        }
 
-                if (snapshots != null) {
-                    val latestEnquiries = snapshots.toObjects(Enquiry::class.java)
-                    adapter.submitList(latestEnquiries)
+        binding.btnSendMessage.setOnClickListener {
+            val msg = binding.etUserMessage.text.toString().trim()
+            if (msg.isNotEmpty()) {
+                // 3. Use Core function 'sendEnquiry'
+                viewModel.sendEnquiry(userId, msg)
+                binding.etUserMessage.text?.clear()
+            }
+        }
+    }
 
-                    if (latestEnquiries.isNotEmpty()) {
-                        recyclerView.post {
-                            recyclerView.smoothScrollToPosition(latestEnquiries.size - 1)
-                        }
-                    }
+    private fun setupObservers() {
+        // A. Observe List
+        viewModel.enquiries.observe(this) { list ->
+            adapter.submitList(list) {
+                // Scroll to bottom when new message arrives
+                if (list.isNotEmpty()) {
+                    binding.recyclerViewEnquiries.smoothScrollToPosition(list.size - 1)
                 }
             }
+        }
+
+        // B. Observe Loading (Renamed from isLoading -> loading)
+        viewModel.loading.observe(this) { isLoading ->
+            if (isLoading) binding.progressBar.visible() else binding.progressBar.gone()
+            binding.btnSendMessage.isEnabled = !isLoading
+        }
+
+        // C. Observe Message (Renamed from toastMessage -> message)
+        viewModel.message.observe(this) { msg ->
+            msg?.let {
+                showToast(it)
+                viewModel.clearMessage()
+            }
+        }
     }
 }

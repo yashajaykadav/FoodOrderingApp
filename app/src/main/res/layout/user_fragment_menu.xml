@@ -25,41 +25,20 @@
             app:expandedTitleMarginEnd="0dp"
             app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Title">
 
-            <!-- Optional pinned toolbar -->
-            <!--
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                android:background="@color/white"
-                app:title="Menu"
-                app:titleTextColor="@color/text_primary"/>
-            -->
-
-            <!-- Banner Card (Parallax) -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/bannerCard"
+            <!-- Direct ViewPager2 without CardView -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/heroViewPager"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
+                android:clipToPadding="false"
+                android:clipChildren="false"
+                android:paddingStart="40dp"
+                android:paddingEnd="40dp"
+                android:overScrollMode="never"
                 app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="0.6">
+                app:layout_collapseParallaxMultiplier="0.6" />
 
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/heroViewPager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:overScrollMode="never"/>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Dots indicator below banner -->
+            <!-- Dots indicator -->
             <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
                 android:id="@+id/dotsIndicator"
                 android:layout_width="wrap_content"
@@ -73,6 +52,7 @@
                 app:selectedDotColor="@color/colorAccent"
                 app:progressMode="true"/>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Content below collapsible banner -->

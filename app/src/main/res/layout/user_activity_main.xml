@@ -11,24 +11,27 @@
         android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appBarLayout" android:layout_width="match_parent"
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="false" >
             <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/topAppBar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@color/lightRed"
-                app:navigationIcon="@drawable/user"
-                app:title="@string/krishna_foods"
-                app:titleTextColor="@color/white" />
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorAccent"
+            app:navigationIcon="@drawable/user"
+            app:title="@string/krishna_foods"
+            app:titleTextColor="?attr/colorOnPrimary" />
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="0dp"
+
+            android:layout_marginBottom="56dp"
+
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -36,23 +39,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="55dp"
+
+            android:layout_marginBottom="72dp"
+
             android:src="@drawable/ic_chat"
             android:contentDescription="@string/enquiries"
-            app:backgroundTint="@color/lightRed"
+            app:backgroundTint="?attr/colorPrimary"
             app:layout_anchor="@id/bottomNavigationView"
-            app:layout_anchorGravity="end" />
-
+            app:layout_anchorGravity="end|bottom" />
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" style="@style/BottomNavItemStyle"
+            android:layout_height="wrap_content"
+            style="@style/BottomNavItemStyle"
             app:itemIconSize="20dp"
             android:layout_gravity="bottom"
             app:menu="@menu/bottom_nav_menu"
             app:itemIconTint="@color/bottom_nav_icon_tint"
-            app:backgroundTint="@color/lightRed"
+            app:backgroundTint="@color/colorAccent"
             app:shapeAppearanceOverlay="@style/ShapeBottomNavBar" />
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -60,7 +66,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/white"
+        android:fitsSystemWindows="true"
+        android:background="?attr/colorSurface"
         app:menu="@menu/drawer_menu"
         app:headerLayout="@layout/nav_header"
         app:itemIconTint="@color/nav_item_color"

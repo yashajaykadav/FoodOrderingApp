@@ -318,7 +318,7 @@
                 android:textStyle="bold"
                 android:layout_marginTop="8dp"
                 app:cornerRadius="12dp"
-                app:backgroundTint="@color/lightRed"
+style="@style/BottomNavItemStyle"
                 app:strokeWidth="0dp" />
 
         </LinearLayout>

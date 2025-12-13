@@ -1,11 +1,8 @@
-// Author: Yash Kadav
-// Email: yashkadav52@gmail.com
 package com.foodordering.krishnafoods.user.activity
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -20,8 +17,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.foodordering.krishnafoods.R
 import com.foodordering.krishnafoods.user.adapter.OrderSummaryAdapter
 import com.foodordering.krishnafoods.user.manager.CartManager
-import com.foodordering.krishnafoods.user.util.LoadingDialog
-import com.foodordering.krishnafoods.user.util.NetworkUtil
+import com.foodordering.krishnafoods.user.viewmodel.OrderTotals
+import com.foodordering.krishnafoods.user.repository.FoodRepository
+import com.foodordering.krishnafoods.user.repository.OrderRepository
+import com.foodordering.krishnafoods.user.repository.UserRepository
+import com.foodordering.krishnafoods.user.util.AnimHelper
+import com.foodordering.krishnafoods.user.util.NetworkHelper
+import com.foodordering.krishnafoods.user.util.safeCall
 import com.foodordering.krishnafoods.user.viewmodel.FoodItem
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
@@ -29,16 +31,11 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import com.foodordering.krishnafoods.user.viewmodel.OrderStatus as order
 
 class OrderConfirmationActivity : AppCompatActivity() {
 
+    // Views
     private lateinit var toolbar: MaterialToolbar
     private lateinit var recyclerViewOrder: RecyclerView
     private lateinit var btnConfirmOrder: MaterialButton
@@ -51,11 +48,15 @@ class OrderConfirmationActivity : AppCompatActivity() {
     private lateinit var savingsRow: LinearLayout
     private lateinit var savingsValue: TextView
 
-    private val db = FirebaseFirestore.getInstance()
+    // Helpers / repos
+    private val userRepo = UserRepository()
+    private val foodRepo = FoodRepository()
+    private val orderRepo = OrderRepository()
     private val auth = FirebaseAuth.getInstance()
-    private lateinit var loadingDialog: LoadingDialog
 
-    private var cartItemsWithDetails = emptyList<FoodItem>()
+    private lateinit var loadingDialog: com.foodordering.krishnafoods.user.util.LoadingDialog
+
+    private var cartItemsWithDetails: List<FoodItem> = emptyList()
     private var customerContact = ""
     private var customerShopName = ""
     private var customerAddress = ""
@@ -63,9 +64,7 @@ class OrderConfirmationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Enable edge-to-edge layout
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         setContentView(R.layout.activity_order_confirmation)
 
         window.statusBarColor = ContextCompat.getColor(this, R.color.lightRed)
@@ -73,10 +72,12 @@ class OrderConfirmationActivity : AppCompatActivity() {
 
         initViews()
         setupWindowInsets()
-        setupClickListeners()
+        setupClicks()
 
-        loadingDialog = LoadingDialog(this)
-        fetchCustomerDetails()
+        loadingDialog = com.foodordering.krishnafoods.user.util.LoadingDialog(this)
+
+        // Kickoff - require internet, then load user -> cart -> items
+        NetworkHelper.requireInternet(this) { fetchCustomerDataAndCart() }
     }
 
     private fun initViews() {
@@ -95,152 +96,99 @@ class OrderConfirmationActivity : AppCompatActivity() {
 
     private fun setupWindowInsets() {
         val appBarLayout = findViewById<com.google.android.material.appbar.AppBarLayout>(R.id.appBarLayout)
-
         ViewCompat.setOnApplyWindowInsetsListener(appBarLayout) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(
-                view.paddingLeft,
-                systemBars.top,
-                view.paddingRight,
-                view.paddingBottom
-            )
+            view.setPadding(view.paddingLeft, systemBars.top, view.paddingRight, view.paddingBottom)
             insets
         }
     }
 
-    private fun setupClickListeners() {
+    private fun setupClicks() {
         toolbar.setNavigationOnClickListener { finish() }
 
         btnConfirmOrder.setOnClickListener {
-            if (cartItemsWithDetails.isNotEmpty()) {
-                showOrderConfirmationDialog()
-            } else {
+            if (cartItemsWithDetails.isEmpty()) {
                 Toast.makeText(this, R.string.cart_empty, Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            showOrderConfirmationDialog()
         }
     }
 
-    private fun showOrderConfirmationDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.confirm_order_title)
-            .setMessage(R.string.confirm_order_message)
-            .setPositiveButton(R.string.confirm) { _, _ ->
-                val totalAmount = calculateOrderTotals(cartItemsWithDetails).second
-                confirmOrder(cartItemsWithDetails, totalAmount)
-            }
-            .setNegativeButton(R.string.cancel) { _, _ -> }
-            .setCancelable(true)
-            .show()
-    }
-
-    private fun fetchCustomerDetails() {
+    private fun fetchCustomerDataAndCart() {
         val user = auth.currentUser
         if (user == null) {
             Toast.makeText(this, R.string.user_not_logged_in, Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, com.foodordering.krishnafoods.user.activity.LoginActivity::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
             finish()
-            return
-        }
-
-        if (!NetworkUtil.isInternetAvailable(this)) {
-            NetworkUtil.showInternetDialog(this) { fetchCustomerDetails() }
             return
         }
 
         loadingDialog.show(getString(R.string.loading_message))
 
         lifecycleScope.launch {
-            try {
-                val userDoc = db.collection("users").document(user.uid).get().await()
-
-                if (userDoc.exists()) {
-                    val userInfo = userDoc.data ?: emptyMap()
-                    customerContact = userInfo["contact"] as? String ?: ""
-                    customerShopName = userInfo["shopName"] as? String ?: ""
-                    customerAddress = userInfo["address"] as? String ?: ""
-
-                    updateCustomerDetailsUI()
-
-                    if (customerContact.isEmpty() || customerShopName.isEmpty() || customerAddress.isEmpty()) {
-                        loadingDialog.dismiss()
-                        promptProfileIncomplete()
-                    } else {
-                        fetchCartDetails()
-                    }
-                } else {
-                    loadingDialog.dismiss()
-                    promptProfileIncomplete()
-                }
-            } catch (_: Exception) {
-                loadingDialog.dismiss()
-                Toast.makeText(this@OrderConfirmationActivity, R.string.error_fetching_profile, Toast.LENGTH_SHORT).show()
-                handleCartError()
-                finish()
+            // 1. fetch user profile
+            val userMap = safeCall(onError = { loadingDialog.dismiss() }) {
+                userRepo.fetchUserData(user.uid)
             }
+
+            if (userMap == null) {
+                loadingDialog.dismiss()
+                promptProfileIncomplete()
+                return@launch
+            }
+
+            customerContact = userMap["contact"] as? String ?: ""
+            customerShopName = userMap["shopName"] as? String ?: ""
+            customerAddress = userMap["address"] as? String ?: ""
+
+            updateCustomerUI()
+
+            if (customerContact.isEmpty() || customerShopName.isEmpty() || customerAddress.isEmpty()) {
+                loadingDialog.dismiss()
+                promptProfileIncomplete()
+                return@launch
+            }
+
+            // 2. load cart items (local manager)
+            val localCart = CartManager.getCartItems()
+            if (localCart.isEmpty()) {
+                loadingDialog.dismiss()
+                handleEmptyCart()
+                return@launch
+            }
+
+            // 3. fetch full food details in bulk
+            val ids = localCart.mapNotNull { it.id }.distinct()
+            val foods = safeCall(onError = { loadingDialog.dismiss() }) {
+                foodRepo.fetchFoodsByIds(ids)
+            } ?: emptyList()
+
+            // map and restore quantities from local cart
+            val foodsMap = foods.associateBy { it.id }
+            val finalList = localCart.mapNotNull { cart ->
+                foodsMap[cart.id]?.copy(quantity = cart.quantity)
+            }
+
+            if (finalList.isEmpty()) {
+                loadingDialog.dismiss()
+                handleEmptyCart()
+                return@launch
+            }
+
+            cartItemsWithDetails = finalList
+            loadingDialog.dismiss()
+            setupRecyclerView()
+            updatePriceSummary()
         }
     }
 
-    private fun updateCustomerDetailsUI() {
+    private fun updateCustomerUI() {
         tvShopName.text = customerShopName.ifEmpty { getString(R.string.no_data) }
         tvContact.text = customerContact.ifEmpty { getString(R.string.no_data) }
         tvAddress.text = customerAddress.ifEmpty { getString(R.string.no_data) }
 
-        val slideInAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_in_top)
-        customerDetailsCard.startAnimation(slideInAnimation)
-    }
-
-    private fun fetchCartDetails() {
-        loadingDialog.show(getString(R.string.loading_cart))
-
-        lifecycleScope.launch {
-            try {
-                val incompleteCartItems = CartManager.getCartItems()
-                if (incompleteCartItems.isEmpty()) {
-                    handleEmptyCart()
-                    return@launch
-                }
-
-                val fullCartItems = fetchFullItemDetails(incompleteCartItems)
-
-                if (fullCartItems.isEmpty()) {
-                    handleEmptyCart()
-                    return@launch
-                }
-
-                cartItemsWithDetails = fullCartItems
-                loadingDialog.dismiss()
-                setupRecyclerView()
-                updatePriceSummary()
-
-            } catch (_: Exception) {
-                loadingDialog.dismiss()
-                Toast.makeText(this@OrderConfirmationActivity, R.string.error_loading_cart, Toast.LENGTH_SHORT).show()
-                handleCartError()
-            }
-        }
-    }
-
-    private suspend fun fetchFullItemDetails(items: List<FoodItem>): List<FoodItem> {
-        val fullItems = mutableListOf<FoodItem>()
-        for (cartItem in items) {
-            if (cartItem.id.isNotBlank()) {
-                try {
-                    val foodSnapshot = db.collection("foods").document(cartItem.id).get().await()
-                    foodSnapshot.toObject(FoodItem::class.java)?.copy(quantity = cartItem.quantity)?.let {
-                        fullItems.add(it)
-                    }
-                } catch (_: Exception) {
-                    // Log error but continue processing other items
-                }
-            }
-        }
-        return fullItems
-    }
-
-    private fun handleEmptyCart() {
-        loadingDialog.dismiss()
-        Toast.makeText(this, R.string.cart_empty, Toast.LENGTH_SHORT).show()
-        finish()
+        AnimHelper.slideTop(this, customerDetailsCard)
     }
 
     private fun setupRecyclerView() {
@@ -250,98 +198,101 @@ class OrderConfirmationActivity : AppCompatActivity() {
     }
 
     private fun updatePriceSummary() {
-        val (totalOriginalPrice, totalAmount, totalSavings) = calculateOrderTotals(cartItemsWithDetails)
+        val totals = calculateTotals(cartItemsWithDetails)
 
-        subtotalValue.text = getString(R.string.currency_format, totalOriginalPrice.toInt())
-
-        if (totalSavings > 0) {
+        subtotalValue.text = getString(R.string.currency_format, totals.original.toInt())
+        if (totals.savings > 0.0) {
             savingsRow.visibility = View.VISIBLE
-            savingsValue.text = getString(R.string.savings_format, totalSavings.toInt())
+            savingsValue.text = getString(R.string.savings_format, totals.savings.toInt())
         } else {
             savingsRow.visibility = View.GONE
         }
-
-        totalAmountValue.text = getString(R.string.currency_format, totalAmount.toInt())
+        totalAmountValue.text = getString(R.string.currency_format, totals.finalAmount.toInt())
     }
 
-    private fun calculateOrderTotals(cartItems: List<FoodItem>): Triple<Double, Double, Double> {
-        var totalOriginalPrice = 0.0
-        var totalAmount = 0.0
+    private fun calculateTotals(items: List<FoodItem>): OrderTotals {
+        var original = 0.0
+        var finalAmt = 0.0
 
-        cartItems.forEach { item ->
-            val originalPrice = item.originalPrice.toString().toDoubleOrNull() ?: 0.0
-            val offerPrice = if (item.offerPrice > 0 && item.offerPrice < originalPrice)
-                item.offerPrice.toDouble() else originalPrice
-            val quantity = item.quantity.toDouble()
+        items.forEach { item ->
+            val op = item.originalPrice.toString().toDoubleOrNull() ?: 0.0
+            val fp = if (item.offerPrice > 0 && item.offerPrice < op) item.offerPrice.toDouble() else op
+            val qty = item.quantity.toDouble()
 
-            totalOriginalPrice += originalPrice * quantity
-            totalAmount += offerPrice * quantity
+            original += op * qty
+            finalAmt += fp * qty
         }
-        val totalSavings = totalOriginalPrice - totalAmount
-        return Triple(totalOriginalPrice, totalAmount, totalSavings)
+        return OrderTotals(original, finalAmt, original - finalAmt)
     }
 
-    private fun confirmOrder(cartItems: List<FoodItem>, totalAmount: Double) {
-        if (!NetworkUtil.isInternetAvailable(this)) {
-            NetworkUtil.showInternetDialog(this) { showOrderConfirmationDialog() }
+    private fun showOrderConfirmationDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.confirm_order_title)
+            .setMessage(R.string.confirm_order_message)
+            .setPositiveButton(R.string.confirm) { _, _ ->
+                placeOrder()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun placeOrder() {
+        if (!com.foodordering.krishnafoods.user.util.NetworkUtil.isInternetAvailable(this)) {
+            com.foodordering.krishnafoods.user.util.NetworkUtil.showInternetDialog(this) { placeOrder() }
             return
         }
 
-        btnConfirmOrder.startAnimation(AnimationUtils.loadAnimation(this, R.anim.button_click))
+        AnimHelper.click(this, btnConfirmOrder)
         btnConfirmOrder.isEnabled = false
         loadingDialog.show(getString(R.string.placing_order))
 
         lifecycleScope.launch {
-            try {
-                val orderId = saveOrderToFirestore(cartItems, totalAmount)
-                CartManager.clearCart(this@OrderConfirmationActivity)
+            val totals = calculateTotals(cartItemsWithDetails)
+            val user = auth.currentUser
+            if (user == null) {
                 loadingDialog.dismiss()
+                Toast.makeText(this@OrderConfirmationActivity, R.string.user_not_logged_in, Toast.LENGTH_SHORT).show()
+                btnConfirmOrder.isEnabled = true
+                return@launch
+            }
 
-                val intent = Intent(this@OrderConfirmationActivity, com.foodordering.krishnafoods.user.activity.OrderSuccessActivity::class.java)
-                intent.putExtra("orderId", orderId)
-                intent.putExtra("totalAmount", totalAmount)
-                startActivity(intent)
-                finish()
+            val orderId = safeCall(onError = {
+                loadingDialog.dismiss()
+            }) {
+                orderRepo.saveOrder(
+                    userId = user.uid,
+                    contact = customerContact,
+                    shopName = customerShopName,
+                    address = customerAddress,
+                    items = cartItemsWithDetails,
+                    totalAmount = totals.finalAmount,
+                    status = com.foodordering.krishnafoods.user.viewmodel.OrderStatus.PENDING
+                )
+            }
 
-            } catch (_: Exception) {
+            if (orderId == null) {
+                // failed
                 loadingDialog.dismiss()
                 Toast.makeText(this@OrderConfirmationActivity, R.string.order_failed, Toast.LENGTH_SHORT).show()
                 btnConfirmOrder.isEnabled = true
+                return@launch
             }
+
+            // success
+            CartManager.clearCart(this@OrderConfirmationActivity)
+            loadingDialog.dismiss()
+
+            startActivity(Intent(this@OrderConfirmationActivity, OrderSuccessActivity::class.java).apply {
+                putExtra("orderId", orderId)
+                putExtra("totalAmount", totals.finalAmount)
+            })
+            finish()
         }
     }
 
-    private fun handleCartError() {
-        Snackbar.make(recyclerViewOrder, R.string.error_loading_cart, Snackbar.LENGTH_INDEFINITE)
-            .setAction(R.string.retry) { fetchCartDetails() }
-            .show()
-    }
-
-    private suspend fun saveOrderToFirestore(cartItems: List<FoodItem>, totalAmount: Double): String {
-        val user = auth.currentUser ?: throw IllegalStateException("User cannot be null when saving an order")
-
-        val orderData = hashMapOf(
-            "userId" to user.uid,
-            "contact" to customerContact,
-            "shopName" to customerShopName,
-            "address" to customerAddress,
-            "items" to cartItems.map {
-                mapOf(
-                    "id" to it.id,
-                    "name" to it.name,
-                    "originalPrice" to it.originalPrice,
-                    "offerPrice" to it.offerPrice,
-                    "quantity" to it.quantity,
-                    "weight" to it.weight
-                )
-            },
-            "totalAmount" to totalAmount,
-            "orderDate" to SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date()),
-            "status" to order.PENDING
-        )
-
-        val documentReference = db.collection("orders").add(orderData).await()
-        return documentReference.id
+    private fun handleEmptyCart() {
+        Snackbar.make(recyclerViewOrder, R.string.cart_empty, Snackbar.LENGTH_SHORT).show()
+        finish()
     }
 
     private fun promptProfileIncomplete() {
@@ -349,7 +300,7 @@ class OrderConfirmationActivity : AppCompatActivity() {
             .setTitle(R.string.profile_incomplete_title)
             .setMessage(R.string.profile_incomplete)
             .setPositiveButton(R.string.update_profile) { _, _ ->
-                startActivity(Intent(this, com.foodordering.krishnafoods.user.activity.ProfileSetupActivity::class.java).apply {
+                startActivity(Intent(this, ProfileSetupActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                 })
                 finish()

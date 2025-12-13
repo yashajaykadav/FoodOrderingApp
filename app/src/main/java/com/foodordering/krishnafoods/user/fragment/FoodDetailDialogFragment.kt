@@ -1,18 +1,20 @@
+// Author: Yash Kadav
+// Email: yashkadav52@gmail.com
 package com.foodordering.krishnafoods.user.fragment
 
 import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.*
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.bumptech.glide.Glide
 import com.foodordering.krishnafoods.R
+import com.foodordering.krishnafoods.databinding.FragmentFoodDetailDialogBinding
 import com.foodordering.krishnafoods.user.manager.CartManager
 import com.foodordering.krishnafoods.user.viewmodel.FoodItem
-import com.google.android.material.button.MaterialButton
 
 class FoodDetailDialogFragment(
     private val foodItem: FoodItem,
@@ -25,107 +27,83 @@ class FoodDetailDialogFragment(
         private const val DEBOUNCE_DELAY_MS = 300L
     }
 
+    // View Binding property
+    private var _binding: FragmentFoodDetailDialogBinding? = null
+    private val binding get() = _binding!!
+
     private var quantity = 1
     private var lastClickTime = 0L
-
-    private lateinit var quantityText: TextView
-    private lateinit var addToCartBtn: MaterialButton
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         quantity = savedInstanceState?.getInt(KEY_QUANTITY, 1) ?: 1
 
-        val view = LayoutInflater.from(context).inflate(R.layout.fragment_food_detail_dialog, null)
-
-        // Views
-        val imageView = view.findViewById<ImageView>(R.id.foodImage)
-        val nameView = view.findViewById<TextView>(R.id.foodName)
-        val categoryView = view.findViewById<TextView>(R.id.foodCategory)
-        val weightView = view.findViewById<TextView>(R.id.foodWeight)
-        val descView = view.findViewById<TextView>(R.id.foodDescription)
-        val originalPriceView = view.findViewById<TextView>(R.id.foodOriginalPrice)
-        val offerPriceView = view.findViewById<TextView>(R.id.foodOfferPrice)
-        quantityText = view.findViewById(R.id.quantityText)
-        val plusBtn = view.findViewById<ImageButton>(R.id.plusButton)
-        val minusBtn = view.findViewById<ImageButton>(R.id.minusButton)
-        addToCartBtn = view.findViewById(R.id.addToCartButton)
+        _binding = FragmentFoodDetailDialogBinding.inflate(LayoutInflater.from(context))
 
         // Initialize UI
-        updateUI(
-            nameView,
-            categoryView,
-            weightView,
-            descView,
-            originalPriceView,
-            offerPriceView,
-            imageView
-        )
+        updateUI()
         updateQuantityUI()
 
         // Click listeners
-        plusBtn.setOnClickListener { handleClick { handlePlusClick() } }
-        minusBtn.setOnClickListener { handleClick { handleMinusClick() } }
-        addToCartBtn.setOnClickListener { handleClick { handleAddToCart() } }
+        binding.plusButton.setOnClickListener { handleClick { handlePlusClick() } }
+        binding.minusButton.setOnClickListener { handleClick { handleMinusClick() } }
+        binding.addToCartButton.setOnClickListener { handleClick { handleAddToCart() } }
 
         return AlertDialog.Builder(requireContext())
-            .setView(view)
+            .setView(binding.root)
             .setCancelable(true)
             .create()
     }
 
-    private fun updateUI(
-        nameView: TextView?,
-        categoryView: TextView?,
-        weightView: TextView?,
-        descView: TextView?,
-        originalPriceView: TextView?,
-        offerPriceView: TextView?,
-        imageView: ImageView?
-    ) {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun updateUI() {
+        val context = binding.root.context
+
         // Basic info
-        nameView?.text = foodItem.name.takeIf { it.isNotEmpty() } ?: "Unknown"
-        categoryView?.text = foodItem.category.takeIf { it.isNotEmpty() } ?: "N/A"
-        weightView?.text = foodItem.weight.takeIf { it.isNotEmpty() } ?: "N/A"
-        descView?.text = foodItem.description.takeIf { it.isNotEmpty() } ?: "No description"
+        binding.foodName.text = foodItem.name.takeIf { it.isNotEmpty() } ?: "Unknown"
+        binding.foodCategory.text = foodItem.category.takeIf { it.isNotEmpty() } ?: "N/A"
+        binding.foodWeight.text = foodItem.weight.takeIf { it.isNotEmpty() } ?: "N/A"
+        binding.foodDescription.text = foodItem.description.takeIf { it.isNotEmpty() } ?: "No description"
 
         // Price logic
         if (foodItem.offerPrice < foodItem.originalPrice) {
-            originalPriceView?.apply {
-                text = "₹${foodItem.originalPrice}"
+            binding.foodOriginalPrice.apply {
+                text = context.getString(R.string.currency_format, foodItem.originalPrice)
                 paintFlags = paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
                 visibility = View.VISIBLE
-                setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
             }
-            offerPriceView?.apply {
-                text = "₹${foodItem.offerPrice}"
+            binding.foodOfferPrice.apply {
+                text = context.getString(R.string.currency_format, foodItem.offerPrice)
                 visibility = View.VISIBLE
-                setTextColor(ContextCompat.getColor(requireContext(), R.color.colorAccent))
+                setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
             }
         } else {
-            originalPriceView?.visibility = View.GONE
-            offerPriceView?.apply {
-                text = "₹${foodItem.originalPrice}"
+            binding.foodOriginalPrice.visibility = View.GONE
+            binding.foodOfferPrice.apply {
+                text = context.getString(R.string.currency_format, foodItem.originalPrice)
                 visibility = View.VISIBLE
-                setTextColor(ContextCompat.getColor(requireContext(), R.color.colorAccent))
+                setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
             }
         }
 
         // Load image
-        imageView?.let {
-            context?.let { ctx ->
-                Glide.with(ctx)
-                    .load(foodItem.imageUrl)
-                    .placeholder(R.drawable.default_img)
-                    .error(R.drawable.ic_placeholder_image)
-                    .into(it)
-            }
-        }
+        Glide.with(context)
+            .load(foodItem.imageUrl)
+            .placeholder(R.drawable.default_img)
+            .error(R.drawable.ic_placeholder_image)
+            .into(binding.foodImage)
     }
 
     private fun updateQuantityUI() {
-        quantityText.text = quantity.toString()
-        addToCartBtn.text = getString(R.string.add_to_cart)
+        if (_binding == null) return
+        binding.quantityText.text = quantity.toString()
+        // Ensure button text is refreshed (optional, if text changes dynamically)
+        binding.addToCartButton.text = getString(R.string.add_to_cart)
     }
-
 
     private fun handlePlusClick() {
         if (quantity < MAX_QUANTITY) {
@@ -149,15 +127,11 @@ class FoodDetailDialogFragment(
             return
         }
 
-        val currentPrice = foodItem.offerPrice
-        val itemToAdd = foodItem.copy(
-            originalPrice = currentPrice,
-            quantity = quantity
-        )
+        val itemToAdd = foodItem.copy(quantity = quantity)
 
         try {
-            CartManager.addToCart(requireContext(),itemToAdd)
-            CartManager.saveCart(requireContext())
+            // Updated: Removed manual saveCart call as addToCart handles it
+            CartManager.addToCart(requireContext(), itemToAdd)
             onCartUpdated()
             showToast(getString(R.string.item_added_to_cart, foodItem.name, quantity))
             dismiss()
@@ -165,7 +139,6 @@ class FoodDetailDialogFragment(
             showToast(getString(R.string.failed_to_add_to_cart))
         }
     }
-
 
     private fun handleClick(action: () -> Unit) {
         val currentTime = System.currentTimeMillis()

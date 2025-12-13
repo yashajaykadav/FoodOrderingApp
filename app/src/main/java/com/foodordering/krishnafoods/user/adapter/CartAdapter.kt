@@ -10,11 +10,12 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.foodordering.krishnafoods.R
+import com.foodordering.krishnafoods.databinding.UserItemCartBinding
 import com.foodordering.krishnafoods.user.manager.CartManager
 import com.foodordering.krishnafoods.user.util.CartDiffCallback
 import com.foodordering.krishnafoods.user.viewmodel.FoodItem
@@ -25,51 +26,44 @@ class CartAdapter(
     private val onQuantityChanged: () -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
-    inner class CartViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val foodImage: ImageView = view.findViewById(R.id.foodImage)
-        val foodName: TextView = view.findViewById(R.id.foodName)
-        val foodOriginalPrice: TextView = view.findViewById(R.id.foodOriginalPrice)
-        val foodOfferPrice: TextView = view.findViewById(R.id.foodOfferPrice)
-        val foodWeight: TextView = view.findViewById(R.id.foodWeight)
-        val foodCategory: TextView = view.findViewById(R.id.foodCategory)
-        val quantityText: EditText = view.findViewById(R.id.quantityText)
-        val btnIncrease: ImageButton = view.findViewById(R.id.btnIncrease)
-        val btnDecrease: ImageButton = view.findViewById(R.id.btnDecrease)
-        val btnRemove: ImageButton = view.findViewById(R.id.btnRemove)
+    // ViewHolder now takes the generated Binding class
+    inner class CartViewHolder(val binding: UserItemCartBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun clearListeners() {
-            (quantityText.tag as? TextWatcher)?.let {
-                quantityText.removeTextChangedListener(it)
+            (binding.quantityText.tag as? TextWatcher)?.let {
+                binding.quantityText.removeTextChangedListener(it)
             }
-            quantityText.onFocusChangeListener = null
+            binding.quantityText.onFocusChangeListener = null
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.user_item_cart, parent, false)
-        return CartViewHolder(view)
+        val binding = UserItemCartBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return CartViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val foodItem = cartItems[position]
+        val binding = holder.binding
+        val context = binding.root.context
 
         holder.clearListeners()
 
-        holder.foodName.text = foodItem.name
-        holder.foodWeight.text = holder.itemView.context.getString(R.string.label_weight, foodItem.weight)
-        holder.foodCategory.text = holder.itemView.context.getString(R.string.label_category, foodItem.category)
+        // Bind data using binding object
+        binding.foodName.text = foodItem.name
+        binding.foodWeight.text = context.getString(R.string.label_weight, foodItem.weight)
+        binding.foodCategory.text = context.getString(R.string.label_category, foodItem.category)
 
-        Glide.with(holder.itemView.context)
+        Glide.with(context)
             .load(foodItem.imageUrl)
             .placeholder(R.drawable.default_img)
-            .into(holder.foodImage)
+            .into(binding.foodImage)
 
-        updatePriceViews(holder, foodItem)
+        updatePriceViews(binding, foodItem)
 
-        holder.quantityText.setText(foodItem.quantity.toString())
-        holder.quantityText.inputType = android.text.InputType.TYPE_CLASS_NUMBER
-        holder.quantityText.filters = arrayOf(InputFilter.LengthFilter(2))
+        binding.quantityText.setText(foodItem.quantity.toString())
+        binding.quantityText.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        binding.quantityText.filters = arrayOf(InputFilter.LengthFilter(2))
 
         val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -82,8 +76,9 @@ class CartAdapter(
                 val input = s?.toString() ?: "1"
                 var quantityChanged = false
 
+                // Prevent recursive updates or empty states
                 if (input.isEmpty()) {
-                    holder.quantityText.setText("1")
+                    // Optional: handle empty state or wait for focus loss
                     return
                 }
 
@@ -96,19 +91,19 @@ class CartAdapter(
 
                 when {
                     newQuantity < 1 -> {
-                        holder.quantityText.setText("1")
+                        binding.quantityText.setText("1")
                         if (item.quantity != 1) {
                             item.quantity = 1
                             quantityChanged = true
                         }
                     }
                     newQuantity > 99 -> {
-                        holder.quantityText.setText("99")
+                        binding.quantityText.setText("99")
                         if (item.quantity != 99) {
                             item.quantity = 99
                             quantityChanged = true
                         }
-                        Toast.makeText(holder.itemView.context, R.string.msg_max_quantity, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.msg_max_quantity, Toast.LENGTH_SHORT).show()
                     }
                     else -> {
                         if (newQuantity != item.quantity) {
@@ -119,70 +114,70 @@ class CartAdapter(
                 }
 
                 if (quantityChanged) {
-                    CartManager.updateItemQuantity(holder.itemView.context, item.id, item.quantity)
-                    updatePriceViews(holder, item)
+                    CartManager.updateItemQuantity(context, item.id, item.quantity)
+                    updatePriceViews(binding, item)
                     onQuantityChanged()
                 }
             }
         }
 
-        holder.quantityText.addTextChangedListener(textWatcher)
-        holder.quantityText.tag = textWatcher
+        binding.quantityText.addTextChangedListener(textWatcher)
+        binding.quantityText.tag = textWatcher
 
-        holder.quantityText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus && holder.quantityText.text.toString().isEmpty()) {
+        binding.quantityText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus && binding.quantityText.text.toString().isEmpty()) {
                 val adapterPosition = holder.adapterPosition
                 if (adapterPosition != RecyclerView.NO_POSITION) {
                     val item = cartItems[adapterPosition]
                     if (item.quantity != 1) {
                         item.quantity = 1
-                        holder.quantityText.setText("1")
-                        CartManager.updateItemQuantity(holder.itemView.context, item.id, item.quantity)
-                        updatePriceViews(holder, item)
+                        binding.quantityText.setText("1")
+                        CartManager.updateItemQuantity(context, item.id, item.quantity)
+                        updatePriceViews(binding, item)
                         onQuantityChanged()
                     }
                 }
             }
         }
 
-        holder.btnIncrease.setOnClickListener {
+        binding.btnIncrease.setOnClickListener {
             val adapterPosition = holder.adapterPosition
             if (adapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
             val item = cartItems[adapterPosition]
 
             if (item.quantity < 99) {
                 item.quantity++
-                holder.quantityText.setText(item.quantity.toString())
-                CartManager.updateItemQuantity(holder.itemView.context, item.id, item.quantity)
-                updatePriceViews(holder, item)
+                binding.quantityText.setText(item.quantity.toString())
+                CartManager.updateItemQuantity(context, item.id, item.quantity)
+                updatePriceViews(binding, item)
                 onQuantityChanged()
-                animateQuantityChange(holder.quantityText)
+                animateQuantityChange(binding.quantityText)
             } else {
-                Toast.makeText(holder.itemView.context, R.string.msg_max_quantity_reached, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.msg_max_quantity_reached, Toast.LENGTH_SHORT).show()
             }
         }
 
-        holder.btnDecrease.setOnClickListener {
+        binding.btnDecrease.setOnClickListener {
             val adapterPosition = holder.adapterPosition
             if (adapterPosition == RecyclerView.NO_POSITION) return@setOnClickListener
             val item = cartItems[adapterPosition]
 
             if (item.quantity > 1) {
                 item.quantity--
-                holder.quantityText.setText(item.quantity.toString())
-                CartManager.updateItemQuantity(holder.itemView.context, item.id, item.quantity)
-                updatePriceViews(holder, item)
+                binding.quantityText.setText(item.quantity.toString())
+                CartManager.updateItemQuantity(context, item.id, item.quantity)
+                updatePriceViews(binding, item)
                 onQuantityChanged()
-                animateQuantityChange(holder.quantityText)
+                animateQuantityChange(binding.quantityText)
             } else {
-                removeItem(holder.itemView.context, adapterPosition)
+                removeItem(context, adapterPosition)
             }
         }
 
-        holder.btnRemove.setOnClickListener {
+        binding.btnRemove.setOnClickListener {
             val adapterPosition = holder.adapterPosition
             if (adapterPosition != RecyclerView.NO_POSITION) {
-                removeItem(holder.itemView.context, adapterPosition)
+                removeItem(context, adapterPosition)
             }
         }
     }
@@ -207,7 +202,6 @@ class CartAdapter(
         }
     }
 
-    // ✅ Restored original function
     fun getTotalAmount(): Int = cartItems.sumOf {
         (if (it.offerPrice < it.originalPrice) it.offerPrice else it.originalPrice) * it.quantity
     }
@@ -227,20 +221,20 @@ class CartAdapter(
             .start()
     }
 
-    // ✅ Restored original function
-    private fun updatePriceViews(holder: CartViewHolder, item: FoodItem) {
-        val context = holder.itemView.context
+    // Pass Binding instead of ViewHolder to helper methods
+    private fun updatePriceViews(binding: UserItemCartBinding, item: FoodItem) {
+        val context = binding.root.context
         if (item.offerPrice < item.originalPrice) {
-            holder.foodOriginalPrice.visibility = View.VISIBLE
-            holder.foodOriginalPrice.text = context.getString(R.string.currency_format, item.originalPrice * item.quantity)
-            holder.foodOriginalPrice.paintFlags = holder.foodOriginalPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            binding.foodOriginalPrice.visibility = View.VISIBLE
+            binding.foodOriginalPrice.text = context.getString(R.string.currency_format, item.originalPrice * item.quantity)
+            binding.foodOriginalPrice.paintFlags = binding.foodOriginalPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 
-            holder.foodOfferPrice.text = context.getString(R.string.currency_format, item.offerPrice * item.quantity)
-            holder.foodOfferPrice.setTextColor(context.getColor(R.color.colorPrimary))
+            binding.foodOfferPrice.text = context.getString(R.string.currency_format, item.offerPrice * item.quantity)
+            binding.foodOfferPrice.setTextColor(context.getColor(R.color.colorPrimary))
         } else {
-            holder.foodOriginalPrice.visibility = View.GONE
-            holder.foodOfferPrice.text = context.getString(R.string.currency_format, item.originalPrice * item.quantity)
-            holder.foodOfferPrice.setTextColor(context.getColor(R.color.gray))
+            binding.foodOriginalPrice.visibility = View.GONE
+            binding.foodOfferPrice.text = context.getString(R.string.currency_format, item.originalPrice * item.quantity)
+            binding.foodOfferPrice.setTextColor(context.getColor(R.color.gray))
         }
     }
 }
