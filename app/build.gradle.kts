@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.services)
+    id ("kotlin-parcelize")
 }
 
 android {
@@ -19,8 +20,8 @@ android {
         applicationId = "com.foodordering.krishnafoods"
         minSdk = 24
         targetSdk = 36
-        versionCode = 17
-        versionName = "1.1.4"
+        versionCode = 18
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -88,6 +89,7 @@ dependencies {
     implementation(libs.firebase.messaging)
 
     implementation(libs.cloudinary.android)
+    implementation("com.google.android.material:material:1.11.0")
 
     implementation(libs.google.auth.library.oauth2.http)
 

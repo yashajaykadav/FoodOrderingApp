@@ -1,80 +1,92 @@
+// Author: Yash Kadav
+// Email: yashkadav52@gmail.com
 package com.foodordering.krishnafoods.admin.activity
 
+import android.os.Build
 import android.os.Bundle
-import android.widget.Button
+import android.view.View
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.foodordering.krishnafoods.admin.adapter.OrderItem
-import com.foodordering.krishnafoods.admin.adapter.OrderItemAdapter
 import com.foodordering.krishnafoods.R
-import com.google.firebase.firestore.FirebaseFirestore
+import com.foodordering.krishnafoods.admin.adapter.OrderItemAdapter
+import com.foodordering.krishnafoods.admin.model.Order
+import com.foodordering.krishnafoods.admin.util.formatToReadableDate
+import com.foodordering.krishnafoods.admin.util.setOrderStatusColor
+import com.foodordering.krishnafoods.admin.viewmodel.OrderDetailsViewModel
+import com.foodordering.krishnafoods.core.util.applyEdgeToEdge
+import com.foodordering.krishnafoods.databinding.AdminActivityOrderDetailsBinding
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class OrderDetailsActivity : AppCompatActivity() {
 
-    private lateinit var tvShopName: TextView
-    private lateinit var tvAddress: TextView
-    private lateinit var tvContact: TextView
-    private lateinit var tvTotalAmount: TextView
-    private lateinit var tvStatus: TextView
-    private lateinit var recyclerViewItems: RecyclerView
-    private lateinit var btnUpdateStatus: Button
-
-    private val db = FirebaseFirestore.getInstance()
-    private lateinit var orderId: String
+    private lateinit var binding: AdminActivityOrderDetailsBinding
+    private val viewModel: OrderDetailsViewModel by viewModels()
+    private var currentOrder: Order? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        supportActionBar?.hide()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.admin_activity_order_details)
+        binding = AdminActivityOrderDetailsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Initialize views
-        tvShopName = findViewById(R.id.tvShopName)
-        tvAddress = findViewById(R.id.tvAddress)
-        tvContact = findViewById(R.id.tvContact)
-        tvTotalAmount = findViewById(R.id.tvTotalAmount)
-        tvStatus = findViewById(R.id.tvStatus)
-        recyclerViewItems = findViewById(R.id.recyclerViewItems)
-        btnUpdateStatus = findViewById(R.id.btnUpdateStatus)
+        // Receive Order Object Safely
+        currentOrder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra("order_data", Order::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra("order_data")
+        }
 
-        recyclerViewItems.layoutManager = LinearLayoutManager(this)
+        if (currentOrder == null) {
+            Toast.makeText(this, "Error loading order details", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
-        orderId = intent.getStringExtra("orderId") ?: ""
-
-        fetchOrderDetails()
-
-        btnUpdateStatus.setOnClickListener { showStatusUpdateDialog() }
+        setupUI()
+        populateData(currentOrder!!)
+        observeViewModel()
     }
 
-    private fun fetchOrderDetails() {
-        db.collection("orders").document(orderId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    tvShopName.text = "Shop Name: ${document.getString("shopName")}"
-                    tvAddress.text = "Address: ${document.getString("address")}"
-                    tvContact.text = "Contact: ${document.getString("contact")}"
-                    tvTotalAmount.text = "Total: ₹${document.getDouble("totalAmount") ?: 0.0}"
-                    tvStatus.text = "Status: ${document.getString("status") ?: "Pending"}"
+    private fun setupUI() {
+        applyEdgeToEdge(binding.root, binding.toolbar)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.colorAccent)
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
 
-                    val itemsList = mutableListOf<OrderItem>()
-                    val itemsArray = document.get("items") as? List<Map<String, Any>> ?: emptyList()
-                    for (item in itemsArray) {
-                        val name = item["name"] as? String ?: ""
-                        val quantity = (item["quantity"] as? Long)?.toInt() ?: 0
-                        val price = item["offerPrice"] as? Int ?: 0
-                        itemsList.add(OrderItem(name, quantity, price))
-                    }
+        binding.toolbar.setNavigationOnClickListener { finish() }
 
-                    recyclerViewItems.adapter = OrderItemAdapter(itemsList)
-                }
+        binding.btnUpdateStatus.setOnClickListener { showStatusUpdateDialog() }
+    }
+
+    private fun populateData(order: Order) {
+        binding.apply {
+            tvShopName.text = order.shopName
+            tvAddress.text = order.address
+            tvContact.text = order.contact
+            tvTotalAmount.text = order.formattedTotal
+            tvStatus.text = order.status
+            tvDate.text = order.orderDate.formatToReadableDate()
+
+            // Reuse the extension for status colors
+            statusCard.setOrderStatusColor(order.status, tvStatus)
+
+            // Setup Items Recycler
+            recyclerViewItems.layoutManager = LinearLayoutManager(this@OrderDetailsActivity)
+            // Reuse standard models -> No need for custom parsing here
+            recyclerViewItems.adapter = OrderItemAdapter(order.items)
+
+            // Hide update button if already Delivered/Rejected
+            if (order.isDelivered() || order.isRejected()) {
+                btnUpdateStatus.visibility = View.GONE
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        }
     }
 
     private fun showStatusUpdateDialog() {
@@ -85,36 +97,43 @@ class OrderDetailsActivity : AppCompatActivity() {
             .setTitle("Update Order Status")
             .setView(dialogView)
             .setPositiveButton("Accept") { _, _ ->
-                updateOrderStatus("Accepted", etReason.text.toString())
+                currentOrder?.let { viewModel.updateOrderStatus(it.orderId, "Accepted", null) }
             }
             .setNegativeButton("Reject") { _, _ ->
                 val reason = etReason.text.toString()
-                if (reason.isEmpty()) {
-                    Toast.makeText(this, "Please provide a reason for rejection", Toast.LENGTH_SHORT).show()
+                if (reason.isBlank()) {
+                    Toast.makeText(this, "Rejection reason required", Toast.LENGTH_SHORT).show()
                 } else {
-                    updateOrderStatus("Rejected", reason)
+                    currentOrder?.let { viewModel.updateOrderStatus(it.orderId, "Rejected", reason) }
                 }
             }
             .setNeutralButton("Cancel", null)
             .show()
     }
 
-    private fun updateOrderStatus(status: String, reason: String = "") {
-        val updates = mutableMapOf<String, Any>(
-            "status" to status
-        )
-        if (reason.isNotEmpty()) {
-            updates["statusReason"] = reason
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.statusUpdateResult.collectLatest { result ->
+                result?.onSuccess { status ->
+                    Toast.makeText(this@OrderDetailsActivity, "Status updated to $status", Toast.LENGTH_SHORT).show()
+                    binding.tvStatus.text = status
+
+                    // Update visual color immediately
+                    binding.statusCard.setOrderStatusColor(status, binding.tvStatus)
+
+                    if (status == "Rejected" || status == "Delivered") {
+                        binding.btnUpdateStatus.visibility = View.GONE
+                    }
+                }?.onFailure {
+                    Toast.makeText(this@OrderDetailsActivity, "Update Failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
-        db.collection("orders").document(orderId)
-            .update(updates)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Order $status${if (reason.isNotEmpty()) " - $reason" else ""}", Toast.LENGTH_SHORT).show()
-                fetchOrderDetails()
+        lifecycleScope.launch {
+            viewModel.isLoading.collectLatest { isLoading ->
+                binding.btnUpdateStatus.isEnabled = !isLoading
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        }
     }
 }

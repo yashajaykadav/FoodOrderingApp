@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.VibrationEffect
@@ -126,13 +127,29 @@ fun Context.vibrateDevice(durationMs: Long = 200) {
     }
 }
 
-fun Context.playSound(@RawRes soundResId: Int){
-    try{
-
-        val mediaPlayer = MediaPlayer.create(this,soundResId)
-        mediaPlayer.setOnCompletionListener { it.release() }
-        mediaPlayer.start()
-    }catch(e : Exception){
+fun Context.playSound(@RawRes soundResId: Int) {
+    try {
+        MediaPlayer().apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .build()
+            )
+            setDataSource(
+                resources.openRawResourceFd(soundResId)
+                    .also { fd ->
+                        setDataSource(fd.fileDescriptor, fd.startOffset, fd.length)
+                        fd.close()
+                    }
+            )
+            prepare()
+            setOnCompletionListener {
+                it.release()
+            }
+            start()
+        }
+    } catch (e: Exception) {
         e.printStackTrace()
     }
 }

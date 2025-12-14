@@ -1,76 +1,51 @@
+// Author: Yash Kadav
+// Email: yashkadav52@gmail.com
 package com.foodordering.krishnafoods.admin.message
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Intent
-import android.media.RingtoneManager
-import android.os.Build
-import androidx.core.app.NotificationCompat
-import com.foodordering.krishnafoods.R
-import com.foodordering.krishnafoods.user.activity.MainActivity
+
+import com.foodordering.krishnafoods.admin.util.NotificationHelper
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-
+        // 1. Check for standard Notification Payload
         remoteMessage.notification?.let {
-            val title = it.title ?: "Order Update"
-            val message = it.body ?: "You have a new notification."
-
-            showNotification(title, message)
+            NotificationHelper.showNotification(
+                applicationContext,
+                it.title ?: "New Update",
+                it.body ?: "Check dashboard",
+                remoteMessage.data["orderId"] // Extract Order ID if available
+            )
         }
 
-        // Optional: handle custom data payload
-        remoteMessage.data.let {
-            // Example: val status = it["status"]
+        // 2. Fallback: Check Data Payload if Notification Payload is empty
+        if (remoteMessage.notification == null && remoteMessage.data.isNotEmpty()) {
+            val title = remoteMessage.data["title"] ?: "Order Update"
+            val body = remoteMessage.data["body"] ?: "Status changed"
+            val orderId = remoteMessage.data["orderId"]
+
+            NotificationHelper.showNotification(applicationContext, title, body, orderId)
         }
     }
 
     override fun onNewToken(token: String) {
-        // You can update this token to Firestore if needed
-        // Example:
-        // FirebaseFirestore.getInstance().collection("users").document(userId).update("fcmToken", token)
+        super.onNewToken(token)
+        updateTokenOnServer(token)
     }
 
-    private fun showNotification(title: String, message: String) {
-        val channelId = "order_channel"
-        val notificationId = System.currentTimeMillis().toInt()
-
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+    private fun updateTokenOnServer(token: String) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.uid)
+                .update("fcmToken", token)
+                .addOnFailureListener {
+                    // Log error or retry logic here
+                }
         }
-
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_notification) // make sure this icon exists
-            .setContentTitle(title)
-            .setContentText(message)
-            .setAutoCancel(true)
-            .setSound(defaultSoundUri)
-            .setContentIntent(pendingIntent)
-
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-        // 🔔 Android 8+ requires Notification Channel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Order Notifications",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Notifications for order status updates"
-            }
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        notificationManager.notify(notificationId, notificationBuilder.build())
     }
 }

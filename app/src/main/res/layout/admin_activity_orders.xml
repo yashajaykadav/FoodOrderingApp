@@ -3,108 +3,116 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".admin.activity.OrdersActivity"
-    android:background="@color/gray">
+    android:background="@color/colorBackground"
+    tools:context=".admin.activity.OrdersActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarOrders"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
-        app:title="@string/order_management"
-        app:titleTextColor="@android:color/white"
+        android:background="@drawable/toolbar_gradient"
+        android:minHeight="?attr/actionBarSize"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:title="Order Management"
+        app:titleCentered="true"
+        app:titleTextColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:elevation="4dp" />
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/searchViewOrders"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/searchContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:queryHint="Search by name or order ID"
-        android:background="@drawable/spinner_background"
-        android:iconifiedByDefault="false"
-        app:layout_constraintTop_toBottomOf="@id/toolbarOrders"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupFilter"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginTop="12dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        app:singleSelection="true"
-        app:selectionRequired="true"
-        app:chipSpacingHorizontal="8dp"
-        app:chipSpacingVertical="8dp"
-        app:layout_constraintTop_toBottomOf="@id/searchViewOrders"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/toolbarOrders"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipAll"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchViewOrders"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/all_orders"
-            app:chipBackgroundColor="@color/chip_selector"
-            app:chipStrokeColor="@color/chip_stroke_selector"
-            app:chipStrokeWidth="1dp"
-            android:textColor="@color/black"
-            app:checkedIconEnabled="false"/>
+            app:iconifiedByDefault="false"
+            app:queryBackground="@android:color/transparent"
+            app:queryHint="Search Name or Order ID"
+            android:focusable="false"
+            app:searchIcon="@drawable/search" />
+    </androidx.cardview.widget.CardView>
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipPending"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pending"
-            app:chipBackgroundColor="@color/chip_selector"
-            app:chipStrokeColor="@color/chip_stroke_selector"
-            app:chipStrokeWidth="1dp"
-            android:textColor="@color/black"
-            app:checkedIconEnabled="false"/>
+    <HorizontalScrollView
+        android:id="@+id/scrollChips"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:scrollbars="none"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintTop_toBottomOf="@id/searchContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipAccepted"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupFilter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/accepted"
-            app:chipBackgroundColor="@color/chip_selector"
-            app:chipStrokeColor="@color/chip_stroke_selector"
-            app:chipStrokeWidth="1dp"
-            android:textColor="@color/black"
-            app:checkedIconEnabled="false"/>
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:chipSpacingHorizontal="8dp">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipRejected"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/rejected"
-            app:chipBackgroundColor="@color/chip_selector"
-            app:chipStrokeColor="@color/chip_stroke_selector"
-            app:chipStrokeWidth="1dp"
-            android:textColor="@color/black"
-            app:checkedIconEnabled="false"/>
-    </com.google.android.material.chip.ChipGroup>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAll"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/all_orders"
+                android:textColor="@color/black"
+                app:chipBackgroundColor="@color/chip_selector" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPending"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pending"
+                android:textColor="@color/black"
+                app:chipBackgroundColor="@color/chip_selector" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAccepted"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/accepted"
+                android:textColor="@color/black"
+                app:chipBackgroundColor="@color/chip_selector" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipRejected"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reject"
+                android:textColor="@color/black"
+                app:chipBackgroundColor="@color/chip_selector" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
 
     <LinearLayout
         android:id="@+id/emptyStateView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="32dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/chipGroupFilter"
+        tools:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/scrollChips"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -113,18 +121,17 @@
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:src="@drawable/ic_empty_orders"
-            android:layout_marginBottom="24dp"
-            android:contentDescription="@string/empty_orders_icon"
-            app:tint="@color/empty_state_icon"/>
+            android:contentDescription="@string/no_orders_found"
+            app:tint="@color/gray" />
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/no_orders_found"
-            android:textSize="20sp"
-            android:textColor="@color/text_secondary"
-            android:gravity="center"
-            android:fontFamily="sans-serif-medium"/>
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/gray" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -133,11 +140,12 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:overScrollMode="never"
-        app:layout_constraintTop_toBottomOf="@id/chipGroupFilter"
+        android:paddingBottom="80dp"
+        android:scrollbars="vertical"
+        app:layout_constraintTop_toBottomOf="@id/scrollChips"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/admin_item_order" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

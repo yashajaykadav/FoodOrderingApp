@@ -1,143 +1,101 @@
+// Author: Yash Kadav
+// Email: yashkadav52@gmail.com
 package com.foodordering.krishnafoods.admin.activity
 
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
-import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.lottie.LottieAnimationView
 import com.foodordering.krishnafoods.R
 import com.foodordering.krishnafoods.admin.adapter.OrderAdapter
-import com.foodordering.krishnafoods.admin.model.FoodItem
-import com.foodordering.krishnafoods.admin.model.Order
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
+import com.foodordering.krishnafoods.admin.viewmodel.DeliveredOrdersViewModel
+import com.foodordering.krishnafoods.core.util.EndlessScrollListener
+import com.foodordering.krishnafoods.core.util.applyEdgeToEdge
+import com.foodordering.krishnafoods.databinding.AdminActivityDeliveredOrdersBinding
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class DeliveredOrdersActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var binding: AdminActivityDeliveredOrdersBinding
+    private val viewModel: DeliveredOrdersViewModel by viewModels()
     private lateinit var adapter: OrderAdapter
-    private lateinit var lottieLoading: LottieAnimationView
-    private lateinit var tvEmpty: TextView
-
-    private val db = FirebaseFirestore.getInstance()
-    private var ordersList = mutableListOf<Order>()
-    private val pagesize = 10
-    private var lastVisibleOrder: DocumentSnapshot? = null
-    private var isLoading = false
+    private lateinit var scrollListener: EndlessScrollListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.hide()
-        setContentView(R.layout.admin_activity_delivered_orders)
+        binding = AdminActivityDeliveredOrdersBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        window.statusBarColor = ContextCompat.getColor(this, R.color.colorAccent)
-
-        val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbarDeliveredOrders)
-        toolbar.setNavigationOnClickListener { finish() }
-
-        recyclerView = findViewById(R.id.recyclerViewDeliveredOrders)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        lottieLoading = findViewById(R.id.lottieLoading)
-        tvEmpty = findViewById(R.id.tvEmpty)
-
-        adapter = OrderAdapter(ordersList, this, ::fetchDeliveredOrders)
-        recyclerView.adapter = adapter
-
-        // Lazy loading when scrolling
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                val layoutManager = rv.layoutManager as LinearLayoutManager
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-
-                if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount && firstVisibleItemPosition >= 0) {
-                    fetchDeliveredOrders(loadMore = true)
-                }
-            }
-        })
-
-        // Initial fetch
-        fetchDeliveredOrders()
+        setupUI()
+        setupRecyclerView()
+        observeViewModel()
     }
 
-    private fun fetchDeliveredOrders(loadMore: Boolean = false) {
-        if (isLoading) return
-        isLoading = true
+    private fun setupUI() {
+        // Apply Edge-to-Edge extension
+        applyEdgeToEdge(binding.root, binding.toolbarDeliveredOrders)
 
-        if (!loadMore) {
-            lottieLoading.visibility = View.VISIBLE
-            tvEmpty.visibility = View.GONE
-            ordersList.clear()
-            lastVisibleOrder = null
+        // Status Bar
+        window.statusBarColor = ContextCompat.getColor(this, R.color.colorAccent)
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
+
+        binding.toolbarDeliveredOrders.setNavigationOnClickListener { finish() }
+    }
+
+    private fun setupRecyclerView() {
+        val layoutManager = LinearLayoutManager(this)
+
+        // FIX: Removed the invalid "as (Order, ...)" cast.
+        // We define the lambda arguments explicitly { order, action, reason -> ... }
+        adapter = OrderAdapter(mutableListOf(), this) { order, action, reason ->
+            // Delivered orders typically don't require Accept/Reject actions.
+            // Leave empty or add logic like "Print Receipt" if needed later.
         }
 
-        var query = db.collection("orders")
-            .whereEqualTo("status", "Delivered")
-            .limit(pagesize.toLong())
+        // Reuse the EndlessScrollListener module
+        scrollListener = EndlessScrollListener(layoutManager) {
+            viewModel.fetchOrders(isLoadMore = true)
+        }
 
-        lastVisibleOrder?.let { query = query.startAfter(it) }
-
-        query.get()
-            .addOnSuccessListener { documents ->
-                lottieLoading.visibility = View.GONE
-                isLoading = false
-
-                if (documents.isEmpty) {
-                    if (!loadMore && ordersList.isEmpty()) tvEmpty.visibility = View.VISIBLE
-                    return@addOnSuccessListener
-                }
-
-                lastVisibleOrder = documents.documents.last()
-
-                for (doc in documents) {
-                    val order = Order(
-                        orderId = doc.id,
-                        shopName = doc.getString("shopName") ?: "Unknown",
-                        totalAmount = (doc.get("totalAmount") as? Number)?.toInt() ?: 0,
-                        status = doc.getString("status") ?: "Delivered",
-                        userId = doc.getString("userId") ?: "N/A",
-                        address = doc.getString("address") ?: "No Address",
-                        contact = doc.getString("contact") ?: "No Contact",
-                        orderDate = doc.getString("orderDate") ?: "No Date",
-                        items = parseItems(doc.get("items"))
-                    )
-                    ordersList.add(order)
-                }
-
-                adapter.notifyDataSetChanged()
-            }
-            .addOnFailureListener { e ->
-                lottieLoading.visibility = View.GONE
-                isLoading = false
-                Toast.makeText(this, "Failed to fetch orders!", Toast.LENGTH_SHORT).show()
-            }
+        binding.recyclerViewDeliveredOrders.apply {
+            this.layoutManager = layoutManager
+            this.adapter = this@DeliveredOrdersActivity.adapter
+            addOnScrollListener(scrollListener)
+        }
     }
 
-    private fun parseItems(itemsObj: Any?): List<FoodItem> {
-        return try {
-            val itemsList = mutableListOf<FoodItem>()
-            val itemsArray = itemsObj as? List<Map<String, Any>> ?: emptyList()
-            for (item in itemsArray) {
-                itemsList.add(
-                    FoodItem(
-                        id = item["id"] as? String ?: "",
-                        name = item["name"] as? String ?: "Unknown",
-                        originalPrice = (item["originalPrice"] as? Number)?.toInt() ?: 0,
-                        offerPrice = (item["offerPrice"] as? Number)?.toInt(),
-                        quantity = (item["quantity"] as? Number)?.toInt() ?: 0,
-                        weight = item["weight"] as? String ?: "",
-                        category = item["category"] as? String ?: ""
-                    )
-                )
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.orders.collectLatest { orders ->
+                // Ensure your Adapter has this method defined
+                adapter.updateList(orders)
+
+                if (orders.isNotEmpty()) {
+                    binding.tvEmpty.isVisible = false
+                    binding.recyclerViewDeliveredOrders.isVisible = true
+                } else if (!viewModel.isLoading.value) {
+                    binding.tvEmpty.isVisible = true
+                    binding.recyclerViewDeliveredOrders.isVisible = false
+                }
             }
-            itemsList
-        } catch (_: Exception) {
-            emptyList()
+        }
+
+        lifecycleScope.launch {
+            viewModel.isLoading.collectLatest { isLoading ->
+                scrollListener.setLoading(isLoading)
+                // Only show main loader on initial load (adapter empty), not during pagination
+                if (isLoading && adapter.itemCount == 0) {
+                    binding.lottieLoading.visibility = View.VISIBLE
+                } else {
+                    binding.lottieLoading.visibility = View.GONE
+                }
+            }
         }
     }
 }

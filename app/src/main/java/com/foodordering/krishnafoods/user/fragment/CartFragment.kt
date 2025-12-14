@@ -9,9 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
+import com.foodordering.krishnafoods.core.util.applyEdgeToEdge
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +18,7 @@ import com.foodordering.krishnafoods.databinding.UserFragmentCartBinding
 import com.foodordering.krishnafoods.user.activity.OrderConfirmationActivity
 import com.foodordering.krishnafoods.user.adapter.CartAdapter
 import com.foodordering.krishnafoods.user.manager.CartManager
+import com.foodordering.krishnafoods.user.util.vibrateDevice
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -27,7 +26,7 @@ class CartFragment : Fragment() {
 
     private companion object {
         private const val LOADING_DELAY_MS = 300L
-        private const val MENU_TAB_INDEX = 1
+        private const val MENU_TAB_INDEX = 0
     }
 
     private var _binding: UserFragmentCartBinding? = null
@@ -49,7 +48,7 @@ class CartFragment : Fragment() {
         setupRecyclerView()
         setupClickListeners()
         updateCart()
-        setupEdgeToEdgeHandling()
+        requireActivity().applyEdgeToEdge(binding.root)
     }
 
     override fun onResume() {
@@ -61,20 +60,6 @@ class CartFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun setupEdgeToEdgeHandling() {
-        val checkoutCard = binding.checkoutCard
-        val initialMarginBottom = (checkoutCard.layoutParams as? ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0
-
-        ViewCompat.setOnApplyWindowInsetsListener(checkoutCard) { view, insets ->
-            val navBarInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = initialMarginBottom + navBarInsets.bottom
-            }
-            insets
-        }
-        ViewCompat.requestApplyInsets(checkoutCard)
     }
 
     private fun setupRecyclerView() {
@@ -106,6 +91,7 @@ class CartFragment : Fragment() {
         }
 
         binding.btnStartShopping.setOnClickListener {
+            requireContext().vibrateDevice(50)
             activity?.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPager)?.apply {
                 setCurrentItem(MENU_TAB_INDEX, true)
             }

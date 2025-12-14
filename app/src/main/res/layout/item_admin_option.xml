@@ -5,30 +5,38 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:gravity="center">
 
         <ImageView
             android:id="@+id/ivOptionIcon"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:contentDescription="@string/admin_option_icon" />
+            android:src="@drawable/ic_food"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/option_icon" />
 
         <TextView
             android:id="@+id/tvOptionTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/manage_items"
             android:textSize="14sp"
-            android:textColor="@color/text_primary"
-            android:layout_marginTop="8dp"
-            android:textAlignment="center" />
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end" />
 
     </LinearLayout>
 

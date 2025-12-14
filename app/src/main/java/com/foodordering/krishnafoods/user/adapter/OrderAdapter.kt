@@ -1,15 +1,16 @@
+// Author: Yash Kadav
+// Email: yashkadav52@gmail.com
 package com.foodordering.krishnafoods.user.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.foodordering.krishnafoods.R
+import com.foodordering.krishnafoods.databinding.ItemFoodRowBinding
+import com.foodordering.krishnafoods.databinding.UserItemOrderBinding
 import com.foodordering.krishnafoods.user.viewmodel.OrderItem
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -20,15 +21,11 @@ class OrderAdapter(
     private val onCancelClick: (OrderItem) -> Unit,
 ) : RecyclerView.Adapter<OrderAdapter.OrderViewHolder>() {
 
-    inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val orderDate: TextView = itemView.findViewById(R.id.orderDate)
-        private val totalAmount: TextView = itemView.findViewById(R.id.totalAmount)
-        private val orderStatus: TextView = itemView.findViewById(R.id.orderStatus)
-        private val orderItemsContainer: LinearLayout = itemView.findViewById(R.id.orderItemsContainer)
-        private val rejectionReason: TextView = itemView.findViewById(R.id.rejectionReason)
-        private val btnCancelOrder: Button = itemView.findViewById(R.id.btnCancelOrder)
+    inner class OrderViewHolder(private val binding: UserItemOrderBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(order: OrderItem) {
+            val context = binding.root.context
+
             // Format date
             val formattedDate = try {
                 val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -39,80 +36,73 @@ class OrderAdapter(
                 order.orderDate
             }
 
-            orderDate.text = "Order Date: $formattedDate"
-            totalAmount.text = "Total: ${formatCurrency(order.totalAmount)}"
+            binding.orderDate.text = "Order Date: $formattedDate"
+            binding.totalAmount.text = "Total: ${formatCurrency(order.totalAmount)}"
+            binding.orderStatus.text = order.status
 
-            // Set status with appropriate color
-            orderStatus.text = order.status
+            // Set status styling
             when (order.status.lowercase(Locale.ROOT)) {
                 "pending" -> {
-                    orderStatus.setBackgroundResource(R.drawable.bg_status_pending)
-                    orderStatus.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+                    binding.orderStatus.setBackgroundResource(R.drawable.bg_status_pending)
+                    binding.orderStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
                 }
                 "completed" -> {
-                    orderStatus.setBackgroundResource(R.drawable.bg_status_accepted)
-                    orderStatus.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+                    binding.orderStatus.setBackgroundResource(R.drawable.bg_status_accepted)
+                    binding.orderStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
                 }
-                "cancelled" -> {
-                    orderStatus.setBackgroundResource(R.drawable.bg_status_rejected)
-                    orderStatus.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
-                }
-                "rejected" -> {
-                    orderStatus.setBackgroundResource(R.drawable.bg_status_rejected)
-                    orderStatus.setTextColor(ContextCompat.getColor(itemView.context, R.color.white))
+                "cancelled", "rejected" -> {
+                    binding.orderStatus.setBackgroundResource(R.drawable.bg_status_rejected)
+                    binding.orderStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
                 }
                 else -> {
-                    orderStatus.setBackgroundResource(R.drawable.bg_status_pending)
-                    orderStatus.setTextColor(ContextCompat.getColor(itemView.context, R.color.black))
+                    binding.orderStatus.setBackgroundResource(R.drawable.bg_status_pending)
+                    binding.orderStatus.setTextColor(ContextCompat.getColor(context, R.color.black))
                 }
             }
 
-            // Clear previous items (keep header)
-            orderItemsContainer.apply {
-                if (childCount > 1) {
-                    removeViews(1, childCount - 1)
-                }
+            // Clear previous items (keep the header, assuming header is child index 0)
+            if (binding.orderItemsContainer.childCount > 1) {
+                binding.orderItemsContainer.removeViews(1, binding.orderItemsContainer.childCount - 1)
             }
 
-            // Add order items
+            // Add order items dynamically
             order.items.forEach { item ->
-                val itemView = LayoutInflater.from(itemView.context)
-                    .inflate(R.layout.item_food_row, orderItemsContainer, false)
+                // Inflate the row using View Binding
+                val rowBinding = ItemFoodRowBinding.inflate(LayoutInflater.from(context), binding.orderItemsContainer, false)
 
                 val name = item["name"]?.toString() ?: "Unknown"
                 val quantity = item["quantity"]?.toString() ?: "1"
                 val weight = item["weight"]?.toString() ?: "N/A"
-                val price = item["offerPrice"]?.toString() ?: "0"  // Use price instead of totalAmount
+                val price = item["offerPrice"]?.toString() ?: "0"
 
-                itemView.findViewById<TextView>(R.id.itemName).text = name
-                itemView.findViewById<TextView>(R.id.itemQuantity).text = quantity
-                itemView.findViewById<TextView>(R.id.itemWeight).text = weight
-                itemView.findViewById<TextView>(R.id.itemPrice).text = "₹$price"  // Show individual item price
+                rowBinding.itemName.text = name
+                rowBinding.itemQuantity.text = quantity
+                rowBinding.itemWeight.text = weight
+                rowBinding.itemPrice.text = "₹$price"
 
-                orderItemsContainer.addView(itemView)
+                // Add the bound view to the container
+                binding.orderItemsContainer.addView(rowBinding.root)
             }
 
             // Handle rejection reason
             if (order.status.equals("Rejected", true)) {
-                rejectionReason.text = "Reason: ${order.rejectionReason ?: "No reason provided"}"
-                rejectionReason.visibility = View.VISIBLE
+                binding.rejectionReason.text = "Reason: ${order.rejectionReason ?: "No reason provided"}"
+                binding.rejectionReason.visibility = View.VISIBLE
             } else {
-                rejectionReason.visibility = View.GONE
+                binding.rejectionReason.visibility = View.GONE
             }
 
             // Cancel button visibility
-            btnCancelOrder.visibility =
+            binding.btnCancelOrder.visibility =
                 if (order.status.equals("Pending", true)) View.VISIBLE else View.GONE
 
-            // Set click listeners
-            btnCancelOrder.setOnClickListener { onCancelClick(order) }
+            binding.btnCancelOrder.setOnClickListener { onCancelClick(order) }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.user_item_order, parent, false)
-        return OrderViewHolder(view)
+        val binding = UserItemOrderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return OrderViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
@@ -139,11 +129,10 @@ class OrderAdapter(
 
     private fun formatCurrency(amount: Int): String {
         return try {
-            val format = NumberFormat.getCurrencyInstance()
-            format.currency = Currency.getInstance("INR")
-            format.format(amount.toDouble())
+            val format = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+            format.format(amount)
         } catch (_: Exception) {
-            "₹$amount" // Fallback if currency formatting fails
+            "₹$amount"
         }
     }
 }

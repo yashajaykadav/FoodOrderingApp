@@ -1,36 +1,45 @@
+// Author: Yash Kadav
+// Email: yashkadav52@gmail.com
 package com.foodordering.krishnafoods.admin.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.foodordering.krishnafoods.R
+import com.foodordering.krishnafoods.admin.model.FoodItem
+import com.foodordering.krishnafoods.databinding.ItemOrderItemBinding
 
-data class OrderItem(val name: String, val quantity: Int, val price: Int)
-
-class OrderItemAdapter(private val items: List<OrderItem>) :
+// Optimization: Use the shared 'FoodItem' model instead of creating a new 'OrderItem' class
+class OrderItemAdapter(private val items: List<FoodItem>) :
     RecyclerView.Adapter<OrderItemAdapter.ViewHolder>() {
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvItemName: TextView = view.findViewById(R.id.tvItemName)
-        val tvQuantity: TextView = view.findViewById(R.id.tvQuantity)
-        val tvPrice: TextView = view.findViewById(R.id.tvPrice)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_order_item, parent, false)
-        return ViewHolder(view)
+        val binding = ItemOrderItemBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = items[position]
-
-        holder.tvItemName.text = item.name
-        holder.tvQuantity.text = "Qty: ${item.quantity}"
-        holder.tvPrice.text = "₹%.2f".format(item.price)
+        holder.bind(items[position])
     }
 
     override fun getItemCount(): Int = items.size
+
+    inner class ViewHolder(private val binding: ItemOrderItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: FoodItem) {
+            binding.apply {
+                tvItemName.text = item.name
+                tvQuantity.text = root.context.getString(R.string.quantity_format, item.quantity)
+
+                // Logic: Handle Nullable Offer Price & Calculate Row Total
+                val unitPrice = item.offerPrice ?: item.originalPrice
+                val rowTotal = unitPrice * item.quantity
+
+                tvPrice.text = root.context.getString(R.string.price_format, rowTotal)
+            }
+        }
+    }
 }

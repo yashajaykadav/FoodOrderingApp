@@ -110,8 +110,8 @@
             android:text="@string/food_weight"
             android:textSize="12sp"
             android:textColor="@color/text_primary"
-            android:drawableStart="@drawable/ic_weight"
             android:drawablePadding="4dp"
+            app:drawableStartCompat="@drawable/ic_weight"
             app:drawableTint="@color/text_secondary"
             app:layout_constraintTop_toBottomOf="@id/priceContainer"
             app:layout_constraintStart_toEndOf="@id/tvFoodCategory" />

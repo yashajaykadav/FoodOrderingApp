@@ -32,14 +32,23 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/searchView"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:iconifiedByDefault="false"
-            android:queryHint="Search food..."
-            android:contentDescription="@string/search"
-            android:layout_margin="8dp"/>
+            android:layout_margin="12dp"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="0dp">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:iconifiedByDefault="false"
+                android:queryHint="Search food..."
+                android:background="@null"
+                android:contentDescription="@string/search"/>
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/SwipeRefresh"
@@ -50,12 +59,13 @@
                 android:id="@+id/recyclerViewFoodItems"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="88dp"
                 android:clipToPadding="false"
-                android:contentDescription="list of food"/>
+                android:scrollbars="vertical"
+                android:contentDescription="@string/food_section"/>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     </LinearLayout>
 
@@ -64,7 +74,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
         android:text="@string/add_item"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/colorAccent"
         android:contentDescription="@string/add_item_description"
-        app:icon="@drawable/add"/>
+        app:icon="@drawable/add"
+        app:iconTint="@color/white"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -16,6 +16,7 @@ import com.foodordering.krishnafoods.core.viewmodel.EnquiryCoreViewModel
 import com.foodordering.krishnafoods.databinding.ActivityUserEnquiryBinding
 import com.foodordering.krishnafoods.user.adapter.EnquiryAdapter
 import com.foodordering.krishnafoods.user.util.gone
+import com.foodordering.krishnafoods.user.util.playSound
 import com.foodordering.krishnafoods.user.util.showToast
 import com.foodordering.krishnafoods.user.util.visible
 import com.google.firebase.auth.FirebaseAuth
@@ -64,6 +65,7 @@ class UserEnquiryActivity : AppCompatActivity() {
             if (msg.isNotEmpty()) {
                 // 3. Use Core function 'sendEnquiry'
                 viewModel.sendEnquiry(userId, msg)
+                applicationContext.playSound(R.raw.message)
                 binding.etUserMessage.text?.clear()
             }
         }

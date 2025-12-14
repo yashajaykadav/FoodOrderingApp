@@ -12,6 +12,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import com.foodordering.krishnafoods.R
 import com.google.android.material.button.MaterialButton
+import androidx.core.graphics.drawable.toDrawable
 
 object NetworkUtil {
 
@@ -49,7 +50,7 @@ object NetworkUtil {
         }
 
         dialog.window?.apply {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT)) // rounded bg
+            setBackgroundDrawable(Color.TRANSPARENT.toDrawable()) // rounded bg
             setLayout(
                 (context.resources.displayMetrics.widthPixels * 0.9).toInt(),
                 WindowManager.LayoutParams.WRAP_CONTENT

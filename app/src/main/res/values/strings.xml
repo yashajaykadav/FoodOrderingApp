@@ -41,7 +41,7 @@
     <string name="item_image">item_image</string>
     <string name="status_processing">Status: Processing</string>
     <string name="items_shev_farsana">Items: shev, farsana</string>
-    <string name="qty_1">Qty: 1</string>
+    <string name="qty_1">1</string>
     <string name="open_drawer">Open Navigation Drawer</string>
     <string name="close_drawer">Close Navigation Drawer</string>
     <string name="order_placed">🎉 Order Placed Successfully!</string>

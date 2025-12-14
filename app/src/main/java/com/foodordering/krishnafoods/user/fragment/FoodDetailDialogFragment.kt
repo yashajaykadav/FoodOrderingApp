@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.foodordering.krishnafoods.R
 import com.foodordering.krishnafoods.databinding.FragmentFoodDetailDialogBinding
 import com.foodordering.krishnafoods.user.manager.CartManager
+import com.foodordering.krishnafoods.user.util.vibrateDevice
 import com.foodordering.krishnafoods.user.viewmodel.FoodItem
 
 class FoodDetailDialogFragment(
@@ -144,6 +145,7 @@ class FoodDetailDialogFragment(
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastClickTime > DEBOUNCE_DELAY_MS) {
             lastClickTime = currentTime
+            requireContext().vibrateDevice(50)
             action()
         }
     }

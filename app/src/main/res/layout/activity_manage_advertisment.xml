@@ -2,100 +2,130 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context=".admin.activity.ManageAdvertisementActivity">
 
-    <!-- Fixed App Bar with Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorAccent"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
         app:elevation="4dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:layout_scrollFlags="enterAlways"
-            app:title="@string/advertisement"
+            app:title="Manage Ads"
             app:titleCentered="true"
-            app:titleTextColor="@android:color/white"
+            app:titleTextColor="@color/white"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@android:color/white" />
+            app:navigationIconTint="@color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:clipToPadding="false">
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <!-- Image Preview -->
-            <ImageView
-                android:id="@+id/ivAdImage"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp"
-                android:scaleType="centerCrop"
-                android:contentDescription="@string/food_image_description"
-                android:background="@drawable/circle_background"
-                android:src="@drawable/default_img" />
+                android:layout_height="250dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/gray">
 
-            <!-- Select Image Button -->
+                <ImageView
+                    android:id="@+id/ivAdImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/default_img"
+                    android:contentDescription="@string/advertisement_image" />
+            </com.google.android.material.card.MaterialCardView>
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSelectImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="8dp"
-                android:text="@string/please_select_image"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/please_select_image"
                 app:icon="@drawable/add"
-                app:iconTint="@color/colorAccent"
+                app:iconGravity="textStart"
                 app:strokeColor="@color/colorAccent"
                 android:textColor="@color/colorAccent" />
 
-            <!-- Upload Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddAd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/upload_advertisement"
-                style="@style/Widget.MaterialComponents.Button"
-                android:backgroundTint="@color/colorAccepted" />
+                android:textColor="@color/white"
+                app:backgroundTint="@color/colorAccent"
+                app:cornerRadius="8dp" />
 
-            <!-- RecyclerView -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="16dp"
+                android:background="@color/gray" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/advertisement"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginBottom="8dp"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvAdvertisements"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:clipToPadding="false"
                 android:nestedScrollingEnabled="false"
-                android:paddingBottom="16dp" />
+                tools:listitem="@layout/item_advertisement"
+                tools:itemCount="3"/>
 
-            <!-- Empty State -->
-            <TextView
+            <LinearLayout
                 android:id="@+id/tvEmptyState"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/no_advertisements"
+                android:orientation="vertical"
                 android:gravity="center"
-                android:padding="16dp"
                 android:visibility="gone"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="16sp"
-                android:layout_marginTop="8dp" />
+                android:padding="24dp">
+
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:contentDescription="@string/empty_state"
+                    android:src="@drawable/ic_empty_orders"
+                    app:tint="@color/gray" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/no_advertisements"
+                    android:textColor="@color/gray"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

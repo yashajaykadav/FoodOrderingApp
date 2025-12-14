@@ -1,62 +1,72 @@
+// Author: Yash Kadav
+// Email: yashkadav52@gmail.com
 package com.foodordering.krishnafoods.user.adapter
 
+import android.graphics.Paint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.foodordering.krishnafoods.R
+import com.foodordering.krishnafoods.databinding.UserItemOrderSummaryBinding
 import com.foodordering.krishnafoods.user.viewmodel.FoodItem
 
 class OrderSummaryAdapter(private val cartItems: List<FoodItem>) :
     RecyclerView.Adapter<OrderSummaryAdapter.OrderSummaryViewHolder>() {
 
-    inner class OrderSummaryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val foodImage: ImageView = view.findViewById(R.id.foodImage)
-        val foodName: TextView = view.findViewById(R.id.foodName)
-        val originalPrice: TextView = view.findViewById(R.id.foodOriginalPrice)
-        val offerPrice: TextView = view.findViewById(R.id.foodOfferPrice)
-        val quantityText: TextView = view.findViewById(R.id.quantityText)
-        val weightText: TextView = view.findViewById(R.id.weightText)
-    }
+    inner class OrderSummaryViewHolder(val binding: UserItemOrderSummaryBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderSummaryViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.user_item_order_summary, parent, false)
-        return OrderSummaryViewHolder(view)
+        val binding = UserItemOrderSummaryBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return OrderSummaryViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: OrderSummaryViewHolder, position: Int) {
         val context = holder.itemView.context
         val item = cartItems[position]
-        val quantity = item.quantity
+        val binding = holder.binding
 
-        // Set basic item info
-        holder.foodName.text = item.name
-        holder.quantityText.text = context.getString(R.string.quantity_format, quantity)
-        holder.weightText.text = context.getString(R.string.weight_format, item.weight)
+        // Bind basic info
+        binding.foodName.text = item.name
+        binding.quantityText.text = context.getString(R.string.quantity_format, item.quantity)
+        binding.weightText.text = context.getString(R.string.weight_format, item.weight)
 
-        // Calculate total prices
-        val totalOriginal = item.originalPrice * quantity
-        val totalOffer = item.offerPrice?.let { it * quantity }
+        // Calculate Totals
+        val totalOriginal = item.originalPrice * item.quantity
+        val totalOffer = item.offerPrice * item.quantity
 
-        // Apply consistent pricing display logic
-        PriceFormatter.formatPrices(
-            originalPrice = totalOriginal,
-            offerPrice = totalOffer,
-            originalPriceView = holder.originalPrice,
-            offerPriceView = holder.offerPrice,
-            context = context
-        )
+        // Price Display Logic
+        if (item.offerPrice < item.originalPrice) {
+            // Offer exists: Show original (struck) and offer (highlighted)
+            binding.foodOriginalPrice.apply {
+                visibility = View.VISIBLE
+                text = context.getString(R.string.currency_format, totalOriginal)
+                paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            }
+            binding.foodOfferPrice.apply {
+                text = context.getString(R.string.currency_format, totalOffer)
+                setTextColor(ContextCompat.getColor(context, R.color.colorPrimary))
+            }
+        } else {
+            // No offer: Hide original view, show standard price in offer view
+            binding.foodOriginalPrice.visibility = View.GONE
+            binding.foodOfferPrice.apply {
+                text = context.getString(R.string.currency_format, totalOriginal)
+                setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+            }
+        }
 
         // Load image
         Glide.with(context)
             .load(item.imageUrl)
             .placeholder(R.drawable.default_img)
             .error(R.drawable.default_img)
-            .into(holder.foodImage)
+            .into(binding.foodImage)
     }
 
     override fun getItemCount(): Int = cartItems.size

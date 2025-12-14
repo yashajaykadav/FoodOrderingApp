@@ -1,169 +1,113 @@
-/*
- * Author: Yash Kadav
- * Email: yashkadav52@gmail.com
- */
+// Author: Yash Kadav
+// Email: yashkadav52@gmail.com
 package com.foodordering.krishnafoods.admin.activity
 
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.foodordering.krishnafoods.R
 import com.foodordering.krishnafoods.admin.adapter.OrderAdapter
-import com.foodordering.krishnafoods.admin.model.Order
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.chip.ChipGroup
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
+import com.foodordering.krishnafoods.admin.viewmodel.AllOrdersViewModel
+import com.foodordering.krishnafoods.core.util.applyEdgeToEdge
+import com.foodordering.krishnafoods.databinding.AdminActivityOrdersBinding
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class OrdersActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
+    // ViewBinding
+    private lateinit var binding: AdminActivityOrdersBinding
+    private val viewModel: AllOrdersViewModel by viewModels()
     private lateinit var adapter: OrderAdapter
-    private lateinit var chipGroupFilter: ChipGroup
-    private lateinit var searchView: SearchView
-    private lateinit var emptyStateView: View
-    private val db = FirebaseFirestore.getInstance()
-
-    private var ordersListener: ListenerRegistration? = null
-
-    private val statusFilteredOrders = mutableListOf<Order>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.admin_activity_orders)
-        supportActionBar?.hide()
-        window.statusBarColor = ContextCompat.getColor(this, R.color.colorAccent)
+        binding = AdminActivityOrdersBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val toolbar = findViewById<MaterialToolbar>(R.id.toolbarOrders)
-        toolbar.setNavigationOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
-
-        initViews()
+        setupUI()
         setupRecyclerView()
         setupSearchAndFilter()
-        // Set the "All" chip as checked initially and load orders
-        chipGroupFilter.check(R.id.chipAll)
-        startOrdersListener()
+
+        // Initial Load (Select 'All' by default)
+        binding.chipGroupFilter.check(R.id.chipAll)
+        viewModel.setStatusFilter(null)
+
+        observeViewModel()
     }
 
-    private fun initViews() {
-        recyclerView = findViewById(R.id.recyclerViewOrders)
-        emptyStateView = findViewById(R.id.emptyStateView)
-        chipGroupFilter = findViewById(R.id.chipGroupFilter)
-        searchView = findViewById(R.id.searchViewOrders)
+    private fun setupUI() {
+        applyEdgeToEdge(binding.root, binding.toolbarOrders)
+
+        window.statusBarColor = ContextCompat.getColor(this, R.color.colorAccent)
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
+
+        binding.toolbarOrders.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
     }
 
     private fun setupRecyclerView() {
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        // FIX 1: Pass mutableListOf() instead of undefined 'orderList'
+        adapter = OrderAdapter(mutableListOf(), this) { order, action, reason ->
+            // Move logic to ViewModel
+            viewModel.updateOrderStatus(order, action, reason) { success ->
+                if (success) {
+                    Toast.makeText(this, "Order Updated", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Update Failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
-
-        adapter = OrderAdapter(mutableListOf(), this) { }
-
-        recyclerView.adapter = adapter
-
-
-        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onChanged() = checkEmptyState()
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = checkEmptyState()
-            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = checkEmptyState()
-        })
+        binding.recyclerViewOrders.layoutManager = LinearLayoutManager(this)
+        binding.recyclerViewOrders.adapter = adapter
     }
 
     private fun setupSearchAndFilter() {
-        // When a chip is clicked, re-run the Firestore query
-        chipGroupFilter.setOnCheckedChangeListener { _, _ ->
-            startOrdersListener()
+        // 1. Chip Filtering
+        binding.chipGroupFilter.setOnCheckedChangeListener { _, checkedId ->
+            val status = when (checkedId) {
+                R.id.chipPending -> "Pending"
+                R.id.chipAccepted -> "Accepted"
+                R.id.chipRejected -> "Rejected"
+                else -> null // All
+            }
+            viewModel.setStatusFilter(status)
         }
 
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        // 2. Search Filtering
+        binding.searchViewOrders.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
-                applySearchFilter(newText.orEmpty())
+                viewModel.setSearchQuery(newText.orEmpty())
                 return true
             }
         })
     }
 
-    private fun startOrdersListener() {
-        // Remove any previous listener to avoid multiple streams
-        ordersListener?.remove()
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.uiOrders.collectLatest { orders ->
+                // FIX 2: Use correct method name 'updateList'
+                adapter.updateList(orders)
 
-        val selectedStatus = when (chipGroupFilter.checkedChipId) {
-            R.id.chipPending -> "Pending"
-            R.id.chipAccepted -> "Accepted"
-            R.id.chipRejected -> "Rejected"
-            else -> null // For R.id.chipAll
-        }
-
-        // Start with the base query
-        var query: Query = db.collection("orders")
-            .orderBy("orderDate", Query.Direction.DESCENDING)
-
-        // Add a status filter IF one is selected
-        if (selectedStatus != null) {
-            query = query.whereEqualTo("status", selectedStatus)
-        }
-
-        // Attach the new listener
-        ordersListener = query.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                showError("Error loading orders: ${error.message}")
-                return@addSnapshotListener
-            }
-
-            val fetched = snapshot?.documents?.mapNotNull {
-                try {
-                    Order.fromDocument(it)
-                } catch (_: Exception) {
-                    null // Ignore malformed data
+                // Toggle Empty State
+                if (orders.isEmpty()) {
+                    binding.emptyStateView.visibility = View.VISIBLE
+                    binding.recyclerViewOrders.visibility = View.GONE
+                } else {
+                    binding.emptyStateView.visibility = View.GONE
+                    binding.recyclerViewOrders.visibility = View.VISIBLE
                 }
-            } ?: emptyList()
-
-            // Update our base list
-            statusFilteredOrders.clear()
-            statusFilteredOrders.addAll(fetched)
-
-            // Now, apply any active search query to this new list
-            applySearchFilter(searchView.query.toString())
+            }
         }
-    }
-
-    private fun applySearchFilter(query: String) {
-        val lowerQuery = query.lowercase()
-
-        val searchResult = if (lowerQuery.isEmpty()) {
-            // No search query, show all items from the status filter
-            statusFilteredOrders
-        } else {
-            // Filter by name or ID
-            statusFilteredOrders.filter { order ->
-                order.shopName.lowercase().contains(lowerQuery) ||
-                        order.orderId.lowercase().contains(lowerQuery)
-            }.toMutableList()
-        }
-
-        adapter.updateOrders(searchResult)
-    }
-
-    private fun checkEmptyState() {
-        val isEmpty = adapter.itemCount == 0
-        emptyStateView.visibility = if (isEmpty) View.VISIBLE else View.GONE
-        recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
-    }
-
-    private fun showError(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        ordersListener?.remove()
     }
 }
