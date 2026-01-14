@@ -1,81 +1,85 @@
-# FoodOrderingApp
+```markdown
+# Krishna Foods - Namkeen Ordering App
 
-FoodOrderingApp is a sample food ordering application that demonstrates core ordering flows: browsing restaurants/menu, adding items to a cart, and placing orders. This README provides an overview, setup instructions, and pointers for contributors.
+**Krishna Foods** is a native Android application designed for a **Namkeen Manufacturing Company based in Vita**. This B2B (Business-to-Business) platform enables retailers and shop owners to place bulk orders directly with the manufacturer, streamlining the supply chain.
 
-## Features
+The project contains two distinct modules within a single app:
+1.  **Retailer App:** For shop owners to browse the catalog and place bulk orders.
+2.  **Admin Dashboard:** For the manufacturer to manage stock, orders, and advertisements.
 
-- Browse restaurants and view menus
-- Add/remove items to/from the cart
-- Place and track orders
-- Search and filter menu items
-- User authentication (optional)
+## 📱 Features
 
-## Quickstart
+### For Retailers (User Side)
+* **Bulk Ordering:** Browse a categorized catalog of Namkeen products tailored for wholesale.
+* **Cash/Pay on Delivery:** Simplified payment flow focused on cash or payment upon delivery (No complex payment gateway integration).
+* **Order Tracking:** Real-time status updates (Pending, Accepted, Delivered, Rejected).
+* **Profile Management:** Retailers can manage their shop details and contact info.
+* **Enquiries & Feedback:** Direct communication channel with the manufacturer.
 
-1. Clone the repository
+### For Manufacturer (Admin Side)
+* **Order Management:** View, Accept, Reject, and mark orders as Delivered.
+* **Inventory Management:** Add, update, or remove Namkeen items and adjust prices.
+* **Advertisement Banner:** Update the promotional banner on the user's home screen.
+* **User Management:** View retailer details and handle enquiries.
+* **Push Notifications:** Send updates to retailers using Firebase Cloud Messaging.
 
-   git clone https://github.com/yashajaykadav/FoodOrderingApp.git
-   cd FoodOrderingApp
+## 🛠 Tech Stack
 
-2. Install dependencies
+* **Language:** Kotlin
+* **UI:** XML (Layouts & Styles)
+* **Backend:** Firebase (Firestore, Authentication, Storage)
+* **Notifications:** Firebase Cloud Messaging (FCM)
+* **Architecture:** MVVM (Model-View-ViewModel)
 
-   The exact commands depend on the project's technology stack. Examples:
+## 📂 Project Structure
 
-   - JavaScript/Node/React:
-     - Install: `npm install` or `yarn install`
-     - Run: `npm start` or `yarn start`
+The code is organized into specific packages for the User and Admin flows:
 
-   - Flutter:
-     - Get packages: `flutter pub get`
-     - Run: `flutter run`
+```text
+com.foodordering.krishnafoods
+├── admin             # Manufacturer/Admin specific code
+│   ├── activity      # ManageItems, OrdersActivity, etc.
+│   ├── adapter       # Admin-specific list adapters
+│   └── message       # Firebase Messaging Service
+├── user              # Retailer specific code
+│   ├── activity      # MainActivity, Cart, OrderConfirmation
+│   ├── fragment      # Menu, Cart, Orders fragments
+│   └── adapter       # User-specific list adapters
+└── core              # Shared utilities and repositories
 
-   - Android (native):
-     - Open the project in Android Studio and build/run from there.
+```
 
-   If you're not sure which commands to use, inspect the project files (package.json, pubspec.yaml, build.gradle, etc.) and follow the relevant toolchain.
+## 🚀 Setup & Installation
 
-3. Environment & configuration
+1. **Clone the repository**
+```bash
+git clone [https://github.com/yashajaykadav/FoodOrderingApp.git](https://github.com/yashajaykadav/FoodOrderingApp.git)
 
-   - Add any required API keys or environment variables. Create a `.env` file if needed and add it to `.gitignore`.
-   - Example:
-     - `.env`:
-       - REACT_APP_API_URL=https://api.example.com
-       - API_KEY=your_api_key_here
+```
 
-4. Running tests
+2. **Firebase Setup (Critical)**
+* This app relies on Firebase. You must provide your own `google-services.json`.
+* Create a project in the [Firebase Console](https://console.firebase.google.com/).
+* Enable **Authentication** (Email/Password), **Firestore Database**, and **Storage**.
+* Download `google-services.json` and place it in the `app/` folder.
 
-   - If the project includes tests, run the test command for the stack (e.g., `npm test`, `flutter test`).
 
-## Project structure (example)
+3. **Build and Run**
+* Open the project in **Android Studio**.
+* Sync Gradle files.
+* Run on an Emulator or Physical Device.
+* *Note:* The `LoginActivity` is the entry point. You may need to manually set a flag in the database or code to designate an "Admin" user if you haven't built a separate Admin Login screen.
 
-- /src or /lib — application source code
-- /assets — images, fonts, static files
-- /android, /ios — native platform code (for mobile projects)
-- package.json / pubspec.yaml — dependency manifest
 
-Adjust this section to reflect the repository's actual layout.
 
-## Contributing
+## 📸 Usage
 
-Contributions are welcome! Steps:
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feat/your-feature`
-3. Commit your changes and push: `git push origin feat/your-feature`
-4. Open a pull request describing your changes
-
-Please include tests for new features and follow the existing code style.
-
-## License
-
-Specify the project license here (e.g., MIT). If you don't have a license, consider adding one.
+* **Retailers** simply sign up/login, add items to their cart, and checkout. The payment method is strictly "Pay on Delivery".
+* **Admins** use the dedicated Admin Activities to manage the incoming flow of orders.
 
 ## Contact
 
-If you have questions, open an issue or contact the maintainers.
+Developed for **Namkeen Manufacturer, Vita**.
+For technical support or contributions, please open an issue.
 
----
-
-Notes for maintainers:
-- Update the Quickstart commands and Project structure to match the repository's stack.
-- Add any badges, screenshots, or demo links as needed.
+```
